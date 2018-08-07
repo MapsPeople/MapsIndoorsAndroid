@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/direction_full_menu_item_main_layout"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@android:color/transparent"
+	android:focusable="false"
+	android:gravity="center_vertical"
+	android:orientation="vertical"
+	android:paddingRight="10dp">
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="@dimen/directions_vertical_item_header_row_height"
+		android:orientation="horizontal"
+		tools:background="#7fff00ff">
+
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="15dp">
+
+			<!-- Dashed line as a bg view to fill the gap when a travel action view is shown (alone) -->
+			<ImageView
+				android:id="@+id/travelActionImageView"
+				android:layout_width="10dp"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="5dp"
+
+				android:scaleType="fitEnd"
+				android:src="@drawable/ic_bus_up"
+				android:tint="@color/colorPrimary"
+				android:visibility="gone"
+
+				tools:visibility="visible" />
+
+			<ImageView
+				android:id="@+id/travelAction1ImageView"
+				android:layout_width="10dp"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="5dp"
+
+				android:scaleType="fitEnd"
+				android:src="@drawable/ic_bus_up"
+				android:tint="@color/colorPrimary"
+
+				android:visibility="gone"
+
+				tools:visibility="gone" />
+
+			<!--android:background="@drawable/ic_bus_white_circle"-->
+			<ImageView
+				android:id="@+id/travelCircleImageView"
+				android:layout_width="10dp"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="5dp"
+				android:scaleType="fitEnd"
+				android:visibility="gone"
+				app:srcCompat="@drawable/ic_bus_white_circle"
+				tools:visibility="visible" />
+
+			<ImageView
+				android:id="@+id/circleImageView"
+				android:layout_width="20dp"
+				android:layout_height="20dp"
+				android:layout_gravity="center"
+				android:background="@drawable/dir_circle_base"
+				android:padding="5dp"
+				android:scaleType="fitCenter"
+				android:visibility="visible"
+				tools:visibility="visible" />
+		</RelativeLayout>
+
+		<!-- HEIGHT 18dp -->
+		<TextView
+			android:id="@+id/prefixTextView"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="15dp"
+			android:gravity="center_vertical"
+			android:textColor="@color/grey"
+			android:textSize="12sp"
+			tools:text="Start:" />
+
+		<TextView
+			android:id="@+id/titleTextView"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="5dp"
+			android:ellipsize="end"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:textColor="@color/grey1"
+			android:textSize="14sp"
+			tools:text="A103 (Meeting Room)" />
+	</LinearLayout>
+
+	<RelativeLayout
+		android:id="@+id/dir_vert_itemRelativeLayout"
+		android:background="?attr/selectableItemBackgroundBorderless"
+
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		tools:background="#7f00ff00"
+		android:clickable="true"
+		android:focusable="true">
+
+		<RelativeLayout
+			android:duplicateParentState="true"
+			android:id="@+id/lineRelativeLayout"
+			android:layout_width="20dp"
+			android:layout_height="match_parent"
+			android:layout_alignBottom="@+id/contentLinearLayout"
+			android:layout_alignTop="@+id/contentLinearLayout"
+			android:layout_marginLeft="15dp">
+
+			<ImageView
+				android:duplicateParentState="true"
+
+				android:id="@+id/walk_outside_line"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_centerHorizontal="true"
+				android:background="@drawable/vertical_dashed_line"
+				android:layerType="software"
+				android:tileMode="repeat"
+				android:visibility="gone"
+				tools:visibility="visible" />
+
+			<View
+				android:duplicateParentState="true"
+
+				android:id="@+id/drive_bike_outside_line"
+				android:layout_width="@dimen/directions_horiz_connection_drive_bike_line_thickness"
+				android:layout_height="match_parent"
+				android:layout_centerHorizontal="true"
+				android:background="@color/colorPrimary"
+				android:visibility="gone"
+				tools:visibility="gone" />
+
+			<View
+				android:duplicateParentState="true"
+
+				android:id="@+id/walk_inside_line"
+				android:layout_width="@dimen/directions_horiz_connection_walk_inside_line_thickness"
+				android:layout_height="match_parent"
+				android:layout_centerHorizontal="true"
+				android:background="@color/colorPrimary"
+				android:visibility="gone"
+				tools:visibility="gone" />
+
+			<View
+				android:duplicateParentState="true"
+
+				android:id="@+id/bus_line"
+				android:layout_width="@dimen/directions_horiz_connection_busline_thickness"
+				android:layout_height="match_parent"
+				android:layout_centerHorizontal="true"
+				android:background="@color/colorPrimary"
+				android:visibility="gone"
+				tools:visibility="gone" />
+		</RelativeLayout>
+
+		<LinearLayout
+			android:duplicateParentState="true"
+
+			android:id="@+id/contentLinearLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="54dp"
+			android:orientation="vertical"
+			android:paddingBottom="15dp"
+			android:paddingTop="15dp">
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+				<ImageView
+					android:id="@+id/travelModeImageView"
+					android:layout_width="20dp"
+					android:layout_height="20dp"
+					tools:src="@drawable/ic_directions_walk" />
+
+				<RelativeLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="10dp">
+
+					<TextView
+						android:id="@+id/travelModeTextView"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:maxLines="1"
+						android:maxWidth="110dp"
+						android:paddingLeft="3dp"
+						android:paddingRight="3dp"
+						android:textColor="@color/grey1"
+						android:textSize="14sp"
+
+						tools:text="Walk" />
+
+					<TextView
+						android:id="@+id/distanceTextView"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_centerVertical="true"
+						android:layout_marginLeft="10dp"
+						android:layout_toRightOf="@+id/travelModeTextView"
+						android:textColor="@color/grey"
+						android:textSize="14sp"
+						tools:text="London Liverpool\nStreet" />
+				</RelativeLayout>
+			</LinearLayout>
+
+			<TextView
+				android:id="@+id/stopsTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="30dp"
+				android:layout_marginTop="5dp"
+				android:textColor="@color/grey"
+				android:visibility="gone" />
+
+			<LinearLayout
+				android:id="@+id/directionTitleLinearLayout"
+				android:layout_width="wrap_content"
+				android:layout_height="30dp"
+				android:layout_marginLeft="30dp"
+				android:layout_marginTop="5dp"
+				android:orientation="horizontal"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<ImageView
+					android:id="@+id/directionArrowImageView"
+					android:layout_width="24dp"
+					android:layout_height="24dp"
+					android:layout_gravity="center_vertical"
+					app:srcCompat="@drawable/ic_expand_more" />
+
+				<TextView
+					android:id="@+id/directionsTextView"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_marginLeft="5dp"
+					android:background="@android:color/transparent"
+					android:gravity="center_vertical"
+					android:paddingBottom="5dp"
+					android:paddingTop="5dp"
+					android:text="@string/toolbar_label_directions"
+					android:textAllCaps="false"
+					android:textColor="@color/colorPrimary"
+					tools:visibility="visible" />
+			</LinearLayout>
+
+
+			<LinearLayout
+				android:focusable="false"
+				android:clickable="false"
+				android:id="@+id/directionsLinearLayout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:visibility="gone" />
+		</LinearLayout>
+	</RelativeLayout>
+</LinearLayout>

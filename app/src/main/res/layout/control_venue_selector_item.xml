@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginTop="4dp"
+	android:layout_marginBottom="4dp"
+	android:layout_marginStart="8dp"
+	android:layout_marginEnd="8dp"
+	>
+
+	<ImageView
+		android:id="@+id/venue_selector_item_img"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:adjustViewBounds="true"
+		tools:background="#F0F"
+		/>
+
+	<TextView
+		android:id="@+id/venue_selector_item_text"
+		style="@style/text_roboto_bold_25sp_spacing2_white"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:background="@drawable/bg_darkener"
+		android:maxLines="1"
+		android:paddingBottom="8dp"
+		android:paddingEnd="16dp"
+		android:paddingStart="16dp"
+		android:paddingTop="8dp"
+		tools:text="[ Venue name ]"
+		/>
+</FrameLayout>

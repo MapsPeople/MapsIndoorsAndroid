@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="search_places">Søg…</string>
+	<string name="search_param">Søg efter %1$s</string>
+	<string name="desc">dest</string>
+	<string name="cancel">Annuller</string>
+	<string name="yes">Ja</string>
+	<string name="ab_find_nearest">FIND NÆRMESTE</string>
+
+	<string name="directions_routeto">Rute til: %1$s</string>
+	<string name="action_settings">Indstillinger</string>
+
+	<string name="show_on_map">Vis på kort</string>
+	<string name="route">RUTE</string>
+	<string name="previous">TIDLIGERE</string>
+	<string name="next">NÆSTE</string>
+	<string name="you_are_here">DU ER HER</string>
+	<string name="estimated_position_near">Estimeret: %1$s</string>
+	<string name="destination">DESTINATION</string>
+	<string name="stairs_level">TRAPPE ETAGE </string>
+	<string name="elevator_level">ELEVATOR ETAGE </string>
+	<string name="location_title">STED</string>
+	<string name="search_for">Søg efter</string>
+	<string name="avoid_stairs">Undgå trapper</string>
+	<string name="my_position">Min position</string>
+	<string name="toolbar_label_directions">Find vej</string>
+
+	<string name="walk_outside">Gå udenfor</string>
+	<string name="walk_inside">Gå indenfor</string>
+	<string name="by_walk">til fods</string>
+	<string name="by_drive">i bil</string>
+
+	<string name="finding_route">Finder rute…</string>
+	<string name="level">Etage</string>
+	<string name="building">Bygning</string>
+	<string name="no_pois_found">Ingen resultater for: %1$s</string>
+	<string name="no_matching_results">Ingen steder fundet</string>
+	<string name="select_venue">Vælg sted</string>
+	<string name="sources">Kilder</string>
+	<string name="website">Hjemmeside</string>
+
+	<string name="choose_starting_point">Vælg udgangspunkt</string>
+	<string name="choose_destination">Vælg destination</string>
+
+	<string name="prefix_start">Start:</string>
+	<string name="prefix_end">Destination:</string>
+	<string name="prefix_stairs">Trappe:</string>
+	<string name="prefix_lift">Elevator:</string>
+	<string name="prefix_escalator">Rulletrappe:</string>
+	<string name="prefix_enter">Gå ind:</string>
+	<string name="prefix_exit">Gå ud:</string>
+	<string name="action_name_elevator">elevator</string>
+	<string name="action_name_escalator">rulletrappe</string>
+	<string name="action_name_steps">trin</string>
+	<string name="action_name_travelator">rullefortov</string>
+
+	<string name="direction_right"><![CDATA[Drej til <b>højre</b> og fortsæt]]></string>
+	<string name="direction_left"><![CDATA[Drej til <b>venstre</b> og fortsæt]]></string>
+	<string name="direction_straight"><![CDATA[Gå lige ud]]></string>
+	<string name="direction_straight_via_stairs"><![CDATA[Tag trappen]]></string>
+	<string name="direction_slightly_right"><![CDATA[Drej lidt til <b>højre</b> og fortsæt]]></string>
+	<string name="direction_slightly_left"><![CDATA[Drej lidt til <b>venstre</b> og fortsæt]]></string>
+	<string name="direction_sharp_right"><![CDATA[Drej skarpt til <b>højre</b> og fortsæt]]></string>
+	<string name="direction_sharp_left"><![CDATA[Drej skarpt til <b>venstre</b> og fortsæt]]></string>
+	<string name="direction_keep_right"><![CDATA[Hold til <b>højre</b>]]></string>
+	<string name="direction_keep_left"><![CDATA[Hold til <b>venstre</b>]]></string>
+	<string name="direction_roundabout_left"><![CDATA[Tag til <b>venstre</b> i rundkørslen]]></string>
+	<string name="direction_roundabout_right"><![CDATA[Tag til <b>højre</b> i rundkørslen]]></string>
+	<string name="direction_ramp_left"><![CDATA[Tag rampen til <b>venstre</b>]]></string>
+	<string name="direction_ramp_right"><![CDATA[Tag rampen til <b>højre</b>]]></string>
+	<string name="direction_make_uturn"><![CDATA[Lav en u-vending og fortsæt]]></string>
+	<string name="direction_make_uturn_left"><![CDATA[Lav en u-vending mod <b>venstre</b> og fortsæt]]></string>
+	<string name="direction_make_uturn_right"><![CDATA[Lav en u-vending mod <b>højre</b> og fortsæt]]></string>
+
+	<string name="stop">Stop</string>
+	<string name="stops">Stoppesteder</string>
+	<string name="continue_">Fortsæt</string>
+
+	<string name="travel_mode_walking">Gang</string>
+	<string name="travel_mode_by_walk">gang</string>
+	<string name="travel_mode_bicycling">Cykel</string>
+	<string name="travel_mode_by_bike">på cykel</string>
+	<string name="travel_mode_transit">Bus</string>
+	<string name="travel_mode_by_transit">med off. transport</string>
+	<string name="travel_mode_driving">Køre</string>
+	<string name="travel_mode_by_car">i bil</string>
+
+	<string name="direction_time_to_destination">%1$s %2$s (%3$s)</string><!-- %1$s to destination (%2$s) -->
+
+	<string name="search_no_results_found_generic">Ingen resultater fundet</string>
+	<string name="search_no_locations_to_show">Ingen steder fundet</string>
+	<string name="search_no_matches_for">Ingen resultater for "%1$s"</string>
+	<string name="no_network_available_popup_title">Din enhed ser ud til at være offline</string>
+	<string name="no_network_available_popup_text">Slå flytilstand fra eller aktivér mobil data eller wifi.\ \Du kan i nogle tilfælde opnå bedre netværksforbindelse ved at bevæge dig.</string>
+
+	<string name="feedback_label_text">Har du feedback?</string>
+
+	<string name="no_gps_dialogue_title">Placering er slået fra</string>
+	<string name="no_gps_dialogue_text">Aktivér placering så din position kan anvendes.</string>
+
+	<string name="no_gps_permission_dialogue_title">Tillad at app’en kan tilgå din enheds position.</string>
+	<string name="no_gps_permission_dialogue_text">Positionen anvendes til at vise din placering på kortet og til ruteberegning.</string>
+
+	<string name="leaving_app_dialogue_title">Luk</string>
+	<string name="leaving_app_dialogue_text">Er du sikker på, du vil forlade app’en?</string>
+
+	<string name="directions_no_gps_message">Slå placering til for at få din estimerede position</string>
+
+	<string name="main_menu_categories_headline">Kategorier</string>
+
+	<string name="transport_agencies_sources"><![CDATA[BILLETTER OG INFORMATION <font color="grey">(%1$d)</font>]]></string>
+
+	<string name="no_route_found">Fandt ingen rute</string>
+	<string name="from_param">Fra %1$s</string>
+
+	<string name="__minutes__">min</string>
+	<string name="__hour__">t</string>
+
+	<string name="elapsed_time_format_min">%1$d min</string>
+	<string name="elapsed_time_format_hour">%1$d t</string>
+	<string name="elapsed_time_format_hour_min">%1$d t %2$d min</string>
+	<string name="elapsed_time_format_day">%1$d d</string>
+	<string name="elapsed_time_format_day_hour">%1$d d %2$d t</string>
+	<string name="elapsed_time_format_day_hour_min">%1$d d %2$d t %3$d min</string>
+
+	<string name="distance_format_meters">%1$dm</string>
+	<string name="distance_format_kilometers">%1$dkm</string>
+
+	<string name="location_menu_info_all">%1$s, Etage %2$s, %3$s</string>
+	<string name="location_menu_info_floor_venue">Etage %1$s, %2$s</string>
+	<string name="location_menu_info_building_venue">%1$s, %2$s</string>
+	<string name="location_menu_info_building_floor">Etage %1$s,\n%2$s,\n%3$s.</string>
+	<string name="location_menu_info_building_floor_name">%1$s,\n%2$s,\n%3$s.</string>
+
+	<string name="location_address_street_name_number">%1$s %2$s</string>
+	<string name="location_address_street_name">%1$s</string>
+
+	<string name="estimated_route_duration_by_means_walk">%1$s gang</string>
+	<string name="estimated_route_duration_by_means_by_car">%1$s i bil</string>
+	<string name="estimated_route_duration_by_means_transit">%1$s med off. transport</string>
+	<string name="estimated_route_duration_by_means_by_bike">%1$s på cykel</string>
+
+	<string name="search_explaining_text">Brug søgefeltet til at søge på\n%1$s</string>
+
+	<string name="routing_endpoint_level_format_start">Etage %1$s</string>
+	<string name="routing_endpoint_level_format_middle">%1$s, Etage %2$s</string>
+	<string name="routing_endpoint_field_format_middle">%1$s, %2$s</string>
+
+	<string name="clear_map_button_text">Ryd kort</string>
+	<string name="poi_search_text">Søg efter indendørs og udendørs lokationer</string>
+
+	<string name="return_to_venue_text">Vend tilbage til %1$s</string>
+
+	<string name="app_info">App information</string>
+	<string name="app_version_title">App version</string>
+	<string name="app_version_app_title">App</string>
+	<string name="app_version_sdk_title">SDK</string>
+	<string name="app_info_supplier_title">Leverandør</string>
+	<string name="app_info_credits_title">Anerkendelser</string>
+
+	<string name="poi_info_window_title_text_format">%1$s - %2$s</string>
+
+	<string name="unable_load_map_snackbar_message">Intet internet- kan ikke hente kortdata</string>
+	<string name="no_internet_snackbar_message">Intet internet - tidligere hentet data er tilgængeligt</string>
+	<string name="no_internet_trying_message">Forsøger at forbinde</string>
+	<string name="no_internet_reconnect_message">Intet internet - FORSØG AT FORBINDE</string>
+	<string name="no_internet">Intet internet</string>
+	<string name="no_internet_frag_text_1st">Din enhed ser ud til at være offline.\\nSlå fly-tilstand fra eller WiFi til.</string>
+	<string name="no_internet_frag_text_2nd">Flyt evt til en anden placering for at få bedre internet-forbindelse.</string>
+	<string name="search_frag_no_con_title">Intet internet - viser ikke Google resultater</string>
+	<string name="search_frag_no_con_details">Søgning efter indendørs/udendørst lokationer stadig tilgængelig</string>
+	<string name="invalid_api_key_dialogue_title">API Key ugyldig</string>
+	<string name="invalid_api_key_dialogue_text">API Key ugyldig. Kontakt app udbyder for mere information</string>
+
+
+</resources>

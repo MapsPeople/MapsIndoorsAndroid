@@ -1,0 +1,28 @@
+<resources>
+	<string name="mapsindoors_api_key" translatable="false">57e4e4992e74800ef8b69718</string>
+
+	<!--
+					Offline data switches
+	-->
+
+	<!-- Main offline data switch -->
+	<bool name="mapsindoors_offlinemode_enabled">false</bool>
+
+	<!--
+		Set to false to only embed data in the solution's default language
+		Set to true to pull data in all the solution's available languages
+	-->
+	<bool name="mapsindoors_offlinemode_defaultlanguage_data_only">false</bool>
+
+	<!-- If true, graph data will be pulled from the backend server -->
+	<bool name="mapsindoors_offlinemode_routing_enabled">false</bool>
+
+	<!-- If true, ALL the solution tiles will be included -->
+	<bool name="mapsindoors_offlinemode_tiles_enabled">false</bool>
+
+	<!--
+		If true, location data will be pulled from the backend server.
+		Set to false if you have a custom locations provider
+	-->
+	<bool name="mapsindoors_offlinemode_locations_enabled">true</bool>
+</resources>

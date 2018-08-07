@@ -1,0 +1,58 @@
+<resources>
+
+	<color name="black">@android:color/black</color>
+	<color name="white">@android:color/white</color>
+
+	<!-- Material design dark, primary text -->
+	<color name="grey1">#DE000000</color>
+	<!-- Material design dark, secondary text -->
+	<color name="grey">#89000000</color>
+
+	<color name="grey_light">#FF7F7F7F</color>
+
+	<color name="grey_lighter">#FFCACACA</color>
+
+	<!-- Selected direction panel item (background) -->
+	<color name="dir_panel_selected_step">#1F789D4A</color>
+	<color name="dir_panel_btn_disabled">#BDBDBD</color>
+	<color name="dir_panel_btn_enabled">#CfCfCf</color>
+
+	<!-- Direction panels -->
+	<color name="transitdetails_line_text_color_default">@color/white</color>
+	<color name="transitdetails_line_color_default">@color/colorPrimary</color>
+
+	<color name="dir_panel_icon_greyish_tint">#FFA8A8A8</color>
+	<color name="dir_panel_travelmode_icon_tint">#FF676868</color>
+
+	<!-- Direction panels, maneuver icons -->
+	<color name="google_maneuver_icon_grey_dark_primary">#FF333333</color>
+	<color name="google_maneuver_icon_grey_dark_secondary">#FF999999</color>
+	<color name="google_maneuver_icon_grey_light_primary">#FF999999</color>
+	<color name="google_maneuver_icon_grey_light_secondary">#FFCCCCCC</color>
+
+	<color name="google_maneuver_icon_primary">@color/google_maneuver_icon_grey_dark_primary</color>
+	<color name="google_maneuver_icon_secondary">@color/google_maneuver_icon_grey_dark_secondary</color>
+
+
+	<!-- Main menu -->
+	<color name="main_menu_top_image_tint_darkener">@color/grey</color>
+
+	<!-- Map: custom compass -->
+	<color name="compass_bg_base">#AAFFFFFF</color>
+	<color name="compass_bg_base_border">#AA7F7F7F</color>
+
+	<!-- Searches -->
+	<color name="search_edittext_hint">#BDBDBD</color>
+	<color name="search_edittext_cursor">#BDBDBD</color>
+	<color name="search_route_not_found">#FF898989</color>
+
+
+
+	<!--
+	    Material design Dark text alpha values
+	Primary text                            87% -> DE
+	Secondary text                          54% -> 89
+	Disabled text, hint text, and icons     38% -> 61
+	Dividers                                12% -> 1F
+	-->
+</resources>

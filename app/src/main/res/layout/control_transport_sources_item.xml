@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	>
+
+	<TextView
+		android:id="@+id/transp_src_agency_info_name"
+		android:layout_width="match_parent"
+		android:layout_height="29dp"
+		android:layout_marginTop="0dp"
+		android:background="@color/grey_lighter"
+		android:paddingBottom="4dp"
+		android:paddingEnd="8dp"
+		android:paddingStart="8dp"
+		android:paddingTop="4dp"
+		android:singleLine="true"
+		android:ellipsize="end"
+
+		android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+		android:textColor="@color/black"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="RENFE OPERADORA"
+		/>
+
+	<android.support.constraint.Guideline
+		android:id="@+id/transp_src_guideline"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		app:layout_constraintGuide_percent=".5"
+		/>
+
+	<TextView
+		android:id="@+id/transp_src_lbl"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:background="@color/white"
+		android:paddingBottom="6dp"
+		android:paddingEnd="8dp"
+		android:paddingStart="8dp"
+		android:paddingTop="6dp"
+		android:text="@string/website"
+		android:textAppearance="@style/TextAppearance.AppCompat.Small"
+		android:textColor="@color/black"
+		app:layout_constraintEnd_toStartOf="@+id/transp_src_guideline"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/transp_src_agency_info_name"
+
+		/>
+
+	<TextView
+		android:id="@+id/transp_src_agency_info_url"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:background="@color/white"
+		android:paddingBottom="6dp"
+		android:paddingEnd="8dp"
+		android:paddingStart="8dp"
+		android:paddingTop="6dp"
+		android:textAlignment="textEnd"
+		android:singleLine="true"
+		android:ellipsize="end"
+		android:textAppearance="@style/TextAppearance.AppCompat.Small"
+		android:textColor="@color/colorPrimary"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/transp_src_lbl"
+		app:layout_constraintTop_toBottomOf="@+id/transp_src_agency_info_name"
+		tools:text="tfl.gov.uk/modes/tube/bla/bla/esoYLoOtro"
+		/>
+
+</android.support.constraint.ConstraintLayout>

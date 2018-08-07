@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="credits">
+        <item>gson</item>
+        <item>AltBeacon</item>
+        <item>Picasso</item>
+        <item>Calligraphy</item>
+        <item>Dexter</item>
+        <item>Leak Canary</item>
+    </array>
+
+    <array name="licence">
+        <item>http://www.apache.org/licenses/LICENSE-2.0.txt</item>
+        <item>http://www.apache.org/licenses/LICENSE-2.0.txt</item>
+        <item>http://www.apache.org/licenses/LICENSE-2.0.txt</item>
+        <item>http://www.apache.org/licenses/LICENSE-2.0.txt</item>
+        <item>http://www.apache.org/licenses/LICENSE-2.0.txt</item>
+        <item>http://www.apache.org/licenses/LICENSE-2.0.txt</item>
+    </array>
+</resources>

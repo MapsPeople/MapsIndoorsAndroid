@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="-2000dp"
+        android:right="-2000dp"
+        >
+        <rotate
+            android:drawable="@drawable/horizontal_dashed_line"
+            android:fromDegrees="90"
+            android:toDegrees="90"
+            android:visible="true"/>
+    </item>
+</layer-list>

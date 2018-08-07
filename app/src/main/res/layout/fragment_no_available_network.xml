@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/white"
+	>
+
+
+
+
+			<RelativeLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="20dp"
+				android:layout_marginStart="20dp"
+				android:layout_centerInParent="true"
+				>
+
+				<LinearLayout
+					android:id="@+id/no_network_title_layout"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:layout_centerHorizontal="true"
+					>
+					<ImageView
+						android:id="@+id/no_network_icon"
+						android:layout_width="60dp"
+						android:layout_height="60dp"
+						android:layout_marginLeft="10dp"
+						android:layout_marginTop="10dp"
+						app:srcCompat="@drawable/ic_cloud_off_black_24dp"
+						/>
+
+					<TextView
+						android:id="@+id/no_network_popup_title"
+						android:layout_gravity="center"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="10dp"
+						android:layout_marginTop="10dp"
+						android:layout_toRightOf="@+id/no_network_icon"
+						android:text="@string/no_internet"
+						android:textSize="20sp"
+						/>
+
+				</LinearLayout>
+
+
+				<TextView
+					android:id="@+id/no_network_frag_text_1st"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="50dp"
+					android:layout_below="@id/no_network_title_layout"
+					android:text="@string/no_internet_frag_text_1st"
+					android:textSize="17sp"
+					android:gravity="center"
+					/>
+
+				<TextView
+					android:id="@+id/no_network_frag_text_2nd"
+					android:layout_marginTop="20dp"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/no_network_frag_text_1st"
+					android:text="@string/no_internet_frag_text_2nd"
+					android:textSize="17sp"
+					android:gravity="center"
+					/>
+
+				<TextView
+					android:id="@+id/no_network_setting_text"
+					android:layout_marginTop="30dp"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerHorizontal="true"
+					android:layout_below="@id/no_network_frag_text_2nd"
+					android:text="@string/action_settings"
+					android:textSize="20sp"
+					android:gravity="center"
+					android:textColor="@color/blueGray"
+					android:textStyle="bold"
+
+					/>
+			</RelativeLayout>
+
+
+
+
+</RelativeLayout>

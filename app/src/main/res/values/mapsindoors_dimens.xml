@@ -1,0 +1,42 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="divider_size_vert">2dp</dimen>
+    <dimen name="divider_gap_vert">2dp</dimen>
+
+    <!-- Directions, vertical (full) panel -->
+    <dimen name="directions_vertical_item_header_row_height">20dp</dimen>
+
+	<!-- Directions, horizontal panel -->
+	<dimen name="directions_menu_horiz_horizontalScrollView_height">85dp</dimen>
+	<dimen name="directions_fullmenu_horiz_controls_height">40dp</dimen>
+
+    <dimen name="directions_horiz_item_width">120dp</dimen>
+    <dimen name="directions_horiz_item_half_width">60dp</dimen>
+	<dimen name="directions_horiz_item_padding_LR">10dp</dimen>
+
+	<dimen name="directions_horiz_connection_height">20dp</dimen>
+	<dimen name="directions_horiz_connection_walk_inside_line_thickness">3dp</dimen>
+	<dimen name="directions_horiz_connection_drive_bike_line_thickness">5dp</dimen>
+	<dimen name="directions_horiz_connection_busline_thickness">10dp</dimen>
+	<dimen name="directions_horiz_connection_walk_inside_margin_LR">5dp</dimen>
+	<dimen name="directions_horiz_connection_walk_outside_margin_LR">5dp</dimen>
+	<dimen name="directions_horiz_connection_bus_line_margin_LR">5dp</dimen>
+	<dimen name="directions_horiz_connection_drive_bike_margin_LR">5dp</dimen>
+
+	<dimen name="directions_horiz_item_labels_margin_top">5dp</dimen>
+	<dimen name="directions_horiz_item_labels_margin_bottom">55dp</dimen>
+	<dimen name="directions_horiz_item_labels_travelmode_textsize">10sp</dimen>
+	<dimen name="directions_horiz_item_labels_title_textsize">10sp</dimen>
+	<dimen name="directions_horiz_item_label_travelmode_max_width">85dp</dimen>
+	<dimen name="directions_horiz_item_label_title_max_width">100dp</dimen>
+
+	<dimen name="directions_map_viewport_padding">5dp</dimen>
+
+	<dimen name="custom_toolbar_height">48dp</dimen>
+	<dimen name="button_bounds_common_size">48dp</dimen>
+	<dimen name="control_no_results_search_icon_size">96dp</dimen>
+	<dimen name="control_no_route_found_icon_size">40dp</dimen>
+
+</resources>

@@ -1,0 +1,153 @@
+<resources>
+
+    <!-- Base splash screen theme -->
+    <style name="AppTheme.SplashScreen.Base" parent="Theme.AppCompat.NoActionBar">
+        <!--<item name="android:windowBackground">@color/colorPrimary</item>-->
+        <item name="android:windowBackground">@drawable/background_splash_screen</item>
+
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:screenOrientation">portrait</item>
+        <!--<item name="windowActionBar">false</item>-->
+        <!--<item name="windowNoTitle">true</item>-->
+    </style>
+
+    <style name="AppTheme.SplashScreen" parent="AppTheme.SplashScreen.Base">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+
+
+    <style name="licenceActivityTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="alertDialogTheme">@style/AlertDialogCustom</item>
+
+        <!--<item name="android:windowBackground">@color/colorPrimary</item>-->
+        <!--<item name="colorControlNormal">@color/colorControlNormal</item>-->
+        <!--<item name="colorControlActivated">@color/colorControlActivated</item>-->
+        <!--<item name="colorControlHighlight">@color/colorControlHighlight</item>-->
+    </style>
+
+    <!-- Base application theme -->
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="alertDialogTheme">@style/AlertDialogCustom</item>
+
+         <!--<item name="android:windowBackground">@color/colorPrimary</item>-->
+        <!--<item name="colorControlNormal">@color/colorControlNormal</item>-->
+        <!--<item name="colorControlActivated">@color/colorControlActivated</item>-->
+        <!--<item name="colorControlHighlight">@color/colorControlHighlight</item>-->
+    </style>
+
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
+       <item name="android:colorAccent">@color/blueGray</item>
+        <item name="android:windowNoTitle">true</item>
+
+    </style>
+
+
+    <!-- Base application theme for Lollipop and above. -->
+    <style name="AppTheme" parent="AppTheme.Base">
+        <item name="android:alertDialogTheme">@style/AlertDialogCustom</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+
+    <!--<style name="SearchBoxEditTextTheme" parent="TextAppearance.AppCompat">-->
+    <style name="SearchBoxEditTextTheme" parent="AppTheme.Base">
+        <item name="colorAccent">@color/search_edittext_cursor</item>
+    </style>
+
+    <!-- ====================================================== -->
+    <!--                    TEXT                                -->
+    <!-- ====================================================== -->
+    <style name="TextAppearance_Default">
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">normal</item>
+        <item name="fontPath">@string/font_roboto_regular</item>
+        <!--<item name="fontPath">@string/font_roboto_black</item>-->
+        <!--<item name="fontPath">@string/font_roboto_bold</item>-->
+        <!--<item name="fontPath">@string/font_roboto_light</item>-->
+        <!--<item name="fontPath">@string/font_roboto_medium</item>-->
+        <!--<item name="fontPath">@string/font_roboto_thin</item>-->
+    </style>
+
+    <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="fontPath">@string/font_roboto_regular</item>
+    </style>
+
+    <style name="VenueNameMainMenu" parent="ToolbarTitle">
+        <item name="android:shadowColor">@color/black</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
+    <style name="TextAppearance_RouteTitleTextView" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
+
+    <!--
+        ATM, LOOSELY FOLLOW https://material.io/guidelines/style/typography.html#
+    -->
+    <!--<style name="text_[font_name (ie: roboto)]_[weight (ie: italic)]_[size in sp]_[spacing(lineSpacingExtra value)]_[color]">
+    </style>-->
+
+    <style name="text_roboto_regular_14sp_spacing2_white">
+        <item name="fontPath">@string/font_roboto_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="text_roboto_bold_18sp" parent="@style/TextAppearance_Default">
+        <item name="fontPath">@string/font_roboto_bold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="text_roboto_bold_22sp" parent="@style/TextAppearance_Default">
+        <item name="fontPath">@string/font_roboto_bold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="text_roboto_bold_22sp_spacing2_white" parent="@style/TextAppearance_Default">
+        <item name="fontPath">@string/font_roboto_bold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="text_roboto_regular_18sp_white" parent="@style/TextAppearance_Default">
+        <item name="fontPath">@string/font_roboto_regular</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="text_roboto_bold_25sp_spacing2_white" parent="@style/TextAppearance_Default">
+        <item name="fontPath">@string/font_roboto_bold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+</resources>

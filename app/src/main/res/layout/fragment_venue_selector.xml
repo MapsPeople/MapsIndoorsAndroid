@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/colorPrimary"
+	android:clickable="true"
+	android:orientation="vertical"
+	>
+
+	<RelativeLayout
+		android:id="@+id/venue_selector_bar"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/custom_toolbar_height"
+		android:background="@color/colorPrimary"
+		>
+
+		<ImageButton
+			android:id="@+id/venueselector_back_button"
+			android:layout_width="@dimen/button_bounds_common_size"
+			android:layout_height="match_parent"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:tint="@color/white"
+			app:srcCompat="@drawable/ic_arrow_back"
+			/>
+
+		<ImageView
+			android:id="@+id/venueselector_venue_ic"
+			android:layout_width="@dimen/button_bounds_common_size"
+			android:layout_height="?attr/actionBarSize"
+			android:padding="10dp"
+			app:srcCompat="@drawable/ic_location_city_white_24dp"
+			tools:visibility="gone"
+			/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+		    android:textAppearance="@style/ToolbarTitle"
+		    android:text="@string/select_venue"
+		    android:layout_centerHorizontal="true"
+		    android:gravity="center_vertical"
+			/>
+
+	</RelativeLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:background="@color/colorPrimaryDark"
+		/>
+
+	<ViewFlipper
+		android:id="@+id/venue_selector_viewflipper"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		>
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/venue_selector_list"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/colorPrimary"
+		    tools:listitem="@layout/control_venue_selector_item"
+			/>
+
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:indeterminate="false"
+			/>
+	</ViewFlipper>
+</LinearLayout>
+

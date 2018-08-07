@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:visibility="gone"
+	tools:context=".ui.activitymain.MapsIndoorsActivity"
+	tools:visibility="visible"
+	>
+
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/fabSearch"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentEnd="true"
+		android:layout_gravity="bottom|end"
+		android:layout_marginBottom="30dp"
+		android:layout_marginEnd="10dp"
+		android:adjustViewBounds="false"
+
+		app:background="@drawable/misdk_circle_shape"
+		app:backgroundTint="@color/colorAccent"
+		app:elevation="6dp"
+		app:fabSize="normal"
+		app:pressedTranslationZ="12dp"
+		app:srcCompat="@drawable/ic_map_marker_radius"
+		/>
+
+	<TextView
+		android:id="@+id/TextAct1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/fabSearch"
+		android:layout_alignTop="@+id/fabSearch"
+		android:layout_gravity="end|bottom"
+		android:layout_margin="4dp"
+		android:layout_toStartOf="@+id/fabSearch"
+		android:gravity="center_vertical"
+		android:text="@string/ab_find_nearest"
+		android:textColor="@android:color/black"
+		android:textSize="12sp"
+
+		android:visibility="gone"/>
+
+
+	<com.mapsindoors.stdapp.ui.fab.FabButtonWithLabel
+		android:id="@+id/fab_button1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/fabSearch"
+		android:layout_alignParentEnd="true"
+		android:visibility="invisible"
+		tools:visibility="visible"
+		/>
+
+	<com.mapsindoors.stdapp.ui.fab.FabButtonWithLabel
+		android:id="@+id/fab_button2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/fab_button1"
+		android:layout_alignParentEnd="true"
+		android:visibility="invisible"
+		tools:visibility="visible"
+		/>
+
+	<com.mapsindoors.stdapp.ui.fab.FabButtonWithLabel
+		android:id="@+id/fab_button3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/fab_button2"
+		android:layout_alignParentEnd="true"
+		android:visibility="invisible"
+		tools:visibility="visible"
+		/>
+</RelativeLayout>

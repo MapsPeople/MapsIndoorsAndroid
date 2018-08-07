@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- === App's branding colors === -->
+	<!-- Color for the app bar -->
+	<color name="colorPrimary">#B02A1A</color>
+
+	<!-- Darker variant of the above for the status bar and contextual app bars -->
+	<color name="colorPrimaryDark">#7B1D12</color>
+
+	<!-- Theme UI controls like checkboxes and text fields -->
+	<color name="colorAccent">#333333</color>
+
+	<!-- Splash screen background -->
+	<color name="splashScreenBackgroundColor">@color/colorPrimary</color>
+
+	<!-- Splash screen text -->
+	<color name="splashScreenTextColor">@color/white</color>
+
+	<color name="secondaryButtonColor">#d1d1d1</color>
+	<color name="blueGray">#43aaa0</color>
+
+	<color name="light_grey">#ededed</color>
+
+
+
+</resources>

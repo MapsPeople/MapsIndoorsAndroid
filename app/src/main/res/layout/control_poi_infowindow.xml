@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/mapsindoors_marker_infowindow_bg"
+    >
+
+    <TextView
+        android:padding="5dp"
+        android:id="@+id/poi_info_title"
+        android:textColor="@color/blueGray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:layout_centerInParent="true"
+        android:ellipsize="end"
+        tools:text="Office A3117"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="#ffff7f"
+	>
+
+	<TextView
+		android:id="@+id/debug_control_title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="0dp"
+		android:background="@color/light_grey"
+		android:padding="5dp"
+		android:text="[ DEBUG Settings]"
+		android:textColor="@color/black"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.0"
+		tools:ignore="HardcodedText"
+		/>
+
+	<Switch
+		android:id="@+id/debug_control_route_offline_switch"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="5dp"
+		android:checked="false"
+		android:text="Enable Debug UI in app  "
+		android:textColor="@color/colorPrimary"
+		android:textIsSelectable="false"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/debug_control_title"
+		tools:ignore="HardcodedText"/>
+
+</android.support.constraint.ConstraintLayout>

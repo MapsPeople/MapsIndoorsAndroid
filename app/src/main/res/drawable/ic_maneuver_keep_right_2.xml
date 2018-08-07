@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportHeight="19.0"
+        android:viewportWidth="19.0">
+	<path
+		android:fillColor="@color/google_maneuver_icon_primary"
+		android:fillType="nonZero"
+		android:pathData="M11.71,11.023c-0.781,0.866 -0.33,2.364 0.277,1.946l4.678,-3.044c0.23,-0.163 0.23,-0.444 0,-0.606l-4.678,-3.045c-0.607,-0.418 -1.058,1.079 -0.277,1.945z"/>
+	<path
+		android:fillColor="#00000000"
+		android:fillType="evenOdd"
+		android:pathData="M2.17,9.585h10.121"
+		android:strokeColor="@color/google_maneuver_icon_primary"
+		android:strokeWidth="2.8"/>
+</vector>

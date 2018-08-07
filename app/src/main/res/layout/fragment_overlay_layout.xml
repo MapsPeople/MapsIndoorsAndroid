@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:visibility="visible"
+	tools:context=".ui.activitymain.MapsIndoorsActivity"
+	tools:visibility="visible"
+	>
+
+	<com.mapsindoors.stdapp.ui.components.mapcompass.MapCompass
+		android:id="@+id/mp_map_compass"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
+		android:layout_marginEnd="10dp"
+		android:layout_marginTop="10dp"
+		android:visibility="invisible"
+		/>
+
+	<com.mapsindoors.stdapp.ui.components.mapfloorselector.MapFloorSelector
+		android:id="@+id/mp_floor_selector"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/mp_goto_mylocation_button"
+		android:layout_alignParentStart="true"
+		android:layout_marginBottom="10dp"
+		android:layout_marginStart="10dp"
+		android:layout_marginTop="10dp"
+		android:elevation="6dp"
+		android:outlineProvider="bounds"
+
+		tools:visibility="visible"
+		/>
+
+	<ImageButton
+		android:id="@+id/mp_goto_mylocation_button"
+		android:layout_width="40dp"
+		android:layout_height="40dp"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentStart="true"
+		android:layout_marginBottom="35dp"
+		android:layout_marginStart="10dp"
+		android:background="@color/white"
+		android:padding="7dp"
+		android:scaleType="fitXY"
+		app:srcCompat="@drawable/ic_my_location_active"
+
+		android:elevation="6dp"
+		android:outlineProvider="bounds"
+		/>
+
+	<Button
+		android:id="@+id/zoom_for_detail_button"
+		android:layout_width="wrap_content"
+		android:layout_height="42dp"
+		android:layout_centerHorizontal="true"
+		android:layout_marginTop="20dp"
+		android:alpha="0"
+		android:background="@color/white"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="@string/zoom_for_detail_text"
+		android:textColor="@color/colorPrimary"
+		android:visibility="gone"
+		tools:alpha="1"
+		tools:visibility="visible"
+		/>
+
+	<Button
+		android:id="@+id/return_to_venue_button"
+		android:layout_width="150dp"
+		android:layout_height="42dp"
+		android:layout_centerHorizontal="true"
+		android:layout_marginTop="20dp"
+		android:alpha="0"
+		android:background="@color/white"
+		android:ellipsize="end"
+		android:maxLines="2"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:text="@string/return_to_venue_text"
+		android:textColor="@color/colorPrimary"
+		android:visibility="gone"
+		tools:alpha="1"
+		tools:visibility="visible"
+		/>
+
+</RelativeLayout>

@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportHeight="19.0"
+        android:viewportWidth="19.0">
+	<path
+		android:fillColor="@color/google_maneuver_icon_primary"
+		android:fillType="nonZero"
+		android:pathData="m10.935,6.95c0.867,0.781 2.364,0.329 1.945,-0.278l-3.044,-4.678c-0.162,-0.23 -0.443,-0.231 -0.606,0l-3.044,4.678c-0.419,0.607 1.079,1.059 1.946,0.278z"/>
+	<path
+		android:fillColor="#00000000"
+		android:fillType="evenOdd"
+		android:pathData="m6.522,17.28v-2.451c0,-2.362 2.974,-3.733 2.974,-5.891v-2.567"
+		android:strokeColor="@color/google_maneuver_icon_primary"
+		android:strokeWidth="2.8"/>
+	<path
+		android:fillType="evenOdd"
+		android:pathData="m12.472,17.28v-2.451c0,-2.362 -2.976,-3.733 -2.976,-5.891v-2.567"
+		android:strokeColor="@color/google_maneuver_icon_primary"
+		android:strokeWidth="2.8"/>
+</vector>

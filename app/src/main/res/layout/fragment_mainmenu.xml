@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/mainmenu"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/colorPrimary"
+	android:clickable="true"
+	>
+
+	<FrameLayout
+		android:id="@+id/main_menu_topPanel_container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		>
+
+		<RelativeLayout
+			android:id="@+id/main_menu_topPanel"
+			android:layout_width="match_parent"
+			android:layout_height="120dp"
+			android:animateLayoutChanges="true">
+
+			<ImageView
+				android:id="@+id/mainmmenu_topimage"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentTop="true"
+				android:background="@android:color/darker_gray"
+				android:focusable="false"
+				android:scaleType="centerCrop"
+				/>
+
+			<ImageView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_alignParentStart="true"
+				android:src="@drawable/bg_darkener_grad_bt"
+				/>
+
+			<ImageButton
+				android:id="@+id/mainmenu_back_ic"
+				android:layout_width="@dimen/button_bounds_common_size"
+				android:layout_height="48dp"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:visibility="gone"
+				app:srcCompat="@drawable/ic_arrow_back"
+				tools:visibility="visible"
+				/>
+
+			<ImageButton
+				android:id="@+id/mainmenu_info_ic"
+				android:layout_width="@dimen/button_bounds_common_size"
+				android:layout_height="48dp"
+				android:layout_alignParentEnd="true"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				app:srcCompat="@drawable/ic_info_outline_24dp"
+				/>
+
+			<ImageView
+				android:id="@+id/mainmenu_venue_ic"
+				android:layout_width="@dimen/button_bounds_common_size"
+				android:layout_height="?attr/actionBarSize"
+				android:padding="10dp"
+				app:srcCompat="@drawable/ic_location_city_white_24dp"
+
+				tools:visibility="gone"
+				/>
+
+			<TextView
+				android:id="@+id/mainmenu_venue_text"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:layout_centerHorizontal="true"
+				android:layout_marginBottom="16dp"
+				android:textAppearance="@style/VenueNameMainMenu"
+				tools:text="[ Current venue name ]"/>
+		</RelativeLayout>
+	</FrameLayout>
+
+	<RelativeLayout
+		android:id="@+id/mainmenu_search_stringlayout"
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:layout_below="@+id/main_menu_topPanel_container">
+
+		<ImageView
+			android:id="@+id/mainmenu_searchicon"
+			android:layout_width="40dp"
+			android:layout_height="match_parent"
+			android:layout_marginStart="16dp"
+			android:adjustViewBounds="false"
+			android:clickable="true"
+			android:padding="4dp"
+			android:scaleType="centerCrop"
+			app:srcCompat="@drawable/ic_search"
+			/>
+
+		<EditText
+			android:id="@+id/mainmenu_edittext_search"
+			android:layout_width="match_parent"
+			android:layout_height="24dp"
+			android:layout_centerInParent="true"
+			android:layout_marginEnd="16dp"
+			android:layout_marginStart="16dp"
+			android:layout_toEndOf="@+id/mainmenu_searchicon"
+			android:background="@color/colorPrimaryDark"
+			android:gravity="center_vertical"
+			android:hint="@string/search_places"
+			android:imeOptions="actionSearch"
+			android:maxLines="1"
+			android:paddingEnd="8dp"
+			android:paddingStart="8dp"
+			android:textColor="@color/white"
+			android:textColorHint="@color/search_edittext_hint"
+			android:theme="@style/SearchBoxEditTextTheme"/>
+
+		<TextView
+			android:id="@+id/mainmenu_text_categ_search"
+			android:layout_centerInParent="true"
+			android:layout_toEndOf="@+id/mainmenu_searchicon"
+			android:layout_width="match_parent"
+			android:layout_height="24dp"
+			android:layout_marginTop="5dp"
+			android:background="@color/colorPrimaryDark"
+			android:gravity="center_vertical"
+			android:hint="@string/search_places"
+			android:maxLines="1"
+			android:paddingEnd="8dp"
+			android:paddingStart="8dp"
+			android:textAppearance="@style/Base.TextAppearance.AppCompat.Menu"
+			android:textColor="@color/white"
+			android:textColorHint="@color/search_edittext_hint"
+			android:textIsSelectable="false"
+
+			android:layout_marginEnd="16dp"
+			android:layout_marginStart="16dp"/>
+
+		<ImageButton
+			android:id="@+id/mainmenu_search_clear_btn"
+			android:layout_width="24dp"
+			android:layout_height="24dp"
+			android:layout_alignParentEnd="true"
+			android:layout_centerInParent="true"
+			android:layout_marginEnd="16dp"
+			android:background="@android:color/transparent"
+			android:clickable="true"
+			android:focusable="true"
+			android:focusableInTouchMode="true"
+			android:visibility="invisible"
+			app:srcCompat="@drawable/ic_clear_white_24dp"
+			tools:visibility="visible">
+			<requestFocus />
+		</ImageButton>
+
+	</RelativeLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_alignBottom="@+id/mainmenu_search_stringlayout"
+		android:background="@color/colorPrimaryDark"/>
+
+	<TextView
+		android:visibility="gone"
+		android:id="@+id/main_menu_headline_textview"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/mainmenu_search_stringlayout"
+		android:background="@color/white"
+		android:paddingBottom="10dp"
+		android:paddingLeft="20dp"
+		android:paddingTop="10dp"
+
+		android:text="@string/main_menu_categories_headline"
+		android:textColor="@color/colorPrimary"
+		android:textSize="18sp"/>
+
+	<ViewFlipper
+		android:id="@+id/mainmenu_itemlist_viewflipper"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@+id/main_menu_headline_textview"
+		android:background="@color/white">
+
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/mainmenu_itemlist"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@android:color/transparent"
+			android:scrollingCache="false"
+			android:smoothScrollbar="false"
+
+			tools:listitem="@layout/control_mainmenu_item"/>
+
+
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:indeterminate="false"/>
+
+		<include layout="@layout/control_no_results"/>
+
+	</ViewFlipper>
+
+
+</RelativeLayout>

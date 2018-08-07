@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="font_roboto_default" translatable="false">@string/font_roboto_regular</string>
+
+	<string name="font_roboto_black" translatable="false">fonts/roboto_black.ttf</string>
+	<string name="font_roboto_bold" translatable="false">fonts/roboto_bold.ttf</string>
+	<string name="font_roboto_light" translatable="false">fonts/roboto_light.ttf</string>
+	<string name="font_roboto_medium" translatable="false">fonts/roboto_medium.ttf</string>
+	<string name="font_roboto_regular" translatable="false">fonts/roboto_regular.ttf</string>
+	<string name="font_roboto_thin" translatable="false">fonts/roboto_thin.ttf</string>
+</resources>

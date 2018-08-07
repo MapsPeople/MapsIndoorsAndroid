@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="polestar_api_key" translatable="false">emulator</string>
+
+</resources>

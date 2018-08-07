@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.mapsindoors.stdapp">
+
+	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+
+	<uses-permission android:name="android.permission.ACCESS_COARSE_UPDATE"/>
+	<uses-permission android:name="android.permission.VIBRATE"/>
+	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+	<!--
+		The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+		Google Maps Android API v2, but are recommended.
+	-->
+	<uses-permission android:name="android.permission.ACCESS_GPS"/>
+	<uses-permission android:name="android.permission.ACCESS_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+	<!-- In order to use beacons for position, we must set these permissions -->
+	<uses-permission android:name="android.permission.BLUETOOTH"/>
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+
+
+	<uses-feature
+		android:name="android.hardware.sensor.accelerometer"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.sensor.compass"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.sensor.gyroscope"
+		android:required="false"/>
+	<uses-feature
+		android:name="android.hardware.wifi"
+		android:required="true"/>
+	<uses-feature
+		android:name="android.hardware.bluetooth_le"
+		android:required="false"/>
+
+
+	<application
+		android:name=".Application"
+		android:allowBackup="false"
+		android:icon="@mipmap/ic_launcher"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme"
+		android:supportsRtl="true"
+		android:screenOrientation="portrait"
+		>
+
+		<meta-data
+			android:name="android.max_aspect"
+			android:value="2.1"/>
+		<meta-data
+			android:name="com.google.android.gms.version"
+			android:value="@integer/google_play_services_version"/>
+		<meta-data
+			android:name="com.google.android.maps.v2.API_KEY"
+			android:value="@string/google_maps_key"/>
+		<meta-data
+			android:name="io.fabric.ApiKey"
+			android:value="28197d4dcc7d1f3764c2fbac3b65ed7a21c73a48"
+			/>
+
+		<activity
+			android:name=".ui.splashscreen.SplashScreenActivity"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:launchMode="singleTop"
+			android:noHistory="true"
+			android:resizeableActivity="true"
+			android:screenOrientation="portrait"
+			android:theme="@style/AppTheme.SplashScreen"
+			>
+
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+
+		<activity
+			android:name=".ui.activitymain.MapsIndoorsActivity"
+			android:label="@string/title_activity_mapsindoors"
+			android:resizeableActivity="true"
+			android:screenOrientation="portrait"
+			>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.BROWSABLE"/>
+
+				<data android:scheme="mapsindoors.app"/>
+			</intent-filter>
+		</activity>
+	</application>
+</manifest>

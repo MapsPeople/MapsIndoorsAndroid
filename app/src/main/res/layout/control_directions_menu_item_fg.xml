@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/directions_horiz_item_width"
+    android:layout_height="@dimen/directions_menu_horiz_horizontalScrollView_height"
+    android:focusable="false"
+    android:minHeight="@dimen/directions_menu_horiz_horizontalScrollView_height"
+    android:minWidth="@dimen/directions_horiz_item_width"
+    tools:background="#3f0000ff">
+
+    <RelativeLayout
+        android:id="@+id/dir_menu_item_node_icon"
+        android:layout_width="@dimen/directions_vertical_item_header_row_height"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/dir_horiz_travelActionImageView"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:scaleType="fitStart"
+            android:src="@drawable/ic_bus_up_90"
+            android:tint="@color/grey"
+
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/dir_horiz_travelAction1ImageView"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+
+            android:scaleType="fitEnd"
+            android:src="@drawable/ic_bus_down_90"
+            android:tint="@color/colorPrimary"
+
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+
+            android:id="@+id/dir_horiz_travelCircleImageView"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+
+            android:scaleType="fitStart"
+            android:src="@drawable/ic_bus_white_circle_90"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/dir_horiz_circleImageView"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+
+            android:background="@drawable/dir_circle_base"
+            android:padding="5dp"
+            android:scaleType="fitCenter"
+            android:visibility="visible"
+            tools:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/dir_horiz_titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/directions_horiz_item_labels_margin_bottom"
+        android:background="@android:color/transparent"
+        android:ellipsize="end"
+
+        android:gravity="center"
+        android:maxLines="2"
+        android:maxWidth="@dimen/directions_horiz_item_label_title_max_width"
+        android:textColor="@color/grey1"
+        android:textSize="@dimen/directions_horiz_item_labels_title_textsize"
+
+        tools:background="@android:color/holo_blue_dark"
+        tools:text="Estimated position" />
+
+</RelativeLayout>

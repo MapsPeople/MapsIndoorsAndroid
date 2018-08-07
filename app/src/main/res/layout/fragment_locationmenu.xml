@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/white"
+	android:clickable="true"
+    android:animateLayoutChanges="true"
+	>
+
+	<FrameLayout
+		android:id="@+id/locationmenu_searchbar"
+		android:layout_width="match_parent"
+		android:layout_height="120dp"
+		android:nestedScrollingEnabled="false"
+		>
+
+		<ImageView
+			android:id="@+id/locationmenu_topimage"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:animateLayoutChanges="true"
+			android:background="@color/colorPrimary"
+			android:scaleType="centerCrop"
+			android:visibility="visible"
+			/>
+
+		<ImageView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:src="@drawable/bg_darkener_grad_bt"
+			/>
+
+		<ImageButton
+			android:id="@+id/locations_back_button"
+			android:layout_width="@dimen/button_bounds_common_size"
+			android:layout_height="@dimen/button_bounds_common_size"
+			android:layout_gravity="start|top"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:clickable="true"
+			android:tint="@color/white"
+			android:visibility="visible"
+			app:srcCompat="@drawable/ic_arrow_back"
+			/>
+
+		<ImageButton
+			android:id="@+id/locations_share_button"
+			android:layout_width="@dimen/button_bounds_common_size"
+			android:layout_height="@dimen/button_bounds_common_size"
+			android:layout_gravity="end|top"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:clickable="true"
+			android:tint="@color/white"
+			android:visibility="gone"
+			app:srcCompat="@drawable/ic_share_white_24dp"
+			/>
+
+		<LinearLayout
+			android:layout_marginLeft="16dp"
+
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:layout_gravity="bottom"
+			android:layout_marginBottom="10dp"
+			android:orientation="horizontal">
+
+
+			<TextView
+				android:id="@+id/locationTitleId"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+                android:layout_marginEnd="16dp"
+				android:text="@string/location_title"
+				android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+				android:textColor="@android:color/white"
+				android:textSize="20sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="POI name, max two lines, capped with ellipsis"
+				/>
+
+		</LinearLayout>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_gravity="bottom"
+			android:background="@color/colorPrimaryDark"
+			/>
+	</FrameLayout>
+
+
+
+		<ViewFlipper
+			android:id="@+id/route_estimation_flipper"
+
+			tools:background="#f0f"
+			android:layout_below="@id/locationmenu_searchbar"
+			android:layout_height="50dp"
+			android:layout_width="match_parent"
+			>
+
+			<com.mapsindoors.stdapp.ui.components.noInternetBar.NoInternetBar
+				android:id="@+id/location_frag_no_internet_bar"
+				android:layout_width="match_parent"
+				android:layout_height="45dp"
+
+				app:elevation="1dp"
+				android:outlineProvider="bounds"
+				/>
+
+
+
+			<include layout="@layout/control_mainmenu_twolineitem" />
+
+		</ViewFlipper>
+
+	<ListView
+		android:id="@+id/locationmenu_itemlist"
+		android:layout_marginTop="15dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/directions_locationmenu_horiz_controls"
+		android:layout_below="@+id/route_estimation_flipper"
+		android:background="@android:color/transparent"
+		android:divider="@android:color/transparent"
+		android:dividerHeight="15dp"
+		android:orientation="vertical"
+		tools:listitem="@layout/control_mainmenu_item"
+		/>
+
+	<FrameLayout
+		android:id="@+id/directions_locationmenu_horiz_controls"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_marginBottom="15dp"
+		android:background="@color/white"
+		>
+		<android.support.v7.widget.AppCompatButton
+			android:id="@+id/locations_gotobutton"
+			android:layout_width="wrap_content"
+			android:layout_height="50dp"
+			android:layout_gravity="center_vertical|start"
+			android:layout_marginStart="16dp"
+			android:clickable="true"
+			android:focusable="false"
+			android:foreground="?android:attr/selectableItemBackground"
+			android:maxLines="1"
+			android:maxWidth="180dp"
+			android:minWidth="128dp"
+			android:text="@string/show_on_map"
+			android:textAllCaps="true"
+			android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+			android:textColor="@android:color/black"
+			app:backgroundTint="@color/secondaryButtonColor"
+			tools:text="Show on Map bla bla and bla"/>
+
+		<android.support.v7.widget.AppCompatButton
+			android:id="@+id/locations_routebutton"
+			android:drawableStart="@drawable/ic_directions_white_24px"
+			android:layout_width="wrap_content"
+			android:layout_height="50dp"
+			android:layout_gravity="center_vertical|end"
+			android:layout_marginEnd="16dp"
+			android:clickable="true"
+			android:focusable="false"
+			android:foreground="?android:attr/selectableItemBackground"
+			android:maxLines="1"
+			android:maxWidth="180dp"
+			android:minWidth="128dp"
+			android:text="@string/route"
+			android:textAllCaps="true"
+			android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+			android:textColor="@android:color/white"
+			app:backgroundTint="@color/colorAccent"
+			tools:text="Directions bla bla and bla"
+			/>
+	</FrameLayout>
+</RelativeLayout>

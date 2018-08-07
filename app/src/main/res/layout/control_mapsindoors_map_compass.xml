@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="match_parent"
+	android:padding="0dp"
+	tools:context=".ui.components.mapcompass.MapCompass"
+	>
+
+	<ImageButton
+		android:id="@+id/mapsindoors_map_compass"
+		android:layout_width="37dp"
+		android:layout_height="37dp"
+		android:background="@android:color/transparent"
+		android:clickable="true"
+		android:elevation="1dp"
+		android:gravity="center"
+		android:scaleType="fitCenter"
+		app:srcCompat="@drawable/bg_compass"
+		/>
+
+	<ImageView
+		android:id="@+id/mapsindoors_map_compass_needle"
+		android:layout_width="37dp"
+		android:layout_height="37dp"
+		android:background="@android:color/transparent"
+		android:elevation="1dp"
+		android:gravity="center"
+		android:padding="4dp"
+		android:scaleType="fitCenter"
+		app:srcCompat="@drawable/ic_map_compass_needle"
+		tools:rotation="45"
+		/>
+
+
+
+</FrameLayout>

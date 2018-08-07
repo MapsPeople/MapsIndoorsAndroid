@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginTop="16dp"
+	>
+
+	<ImageView
+		android:id="@+id/imageView"
+		android:layout_width="@dimen/control_no_route_found_icon_size"
+		android:layout_height="@dimen/control_no_route_found_icon_size"
+		android:layout_marginBottom="0dp"
+		android:layout_marginEnd="4dp"
+		android:layout_marginStart="0dp"
+		android:layout_marginTop="0dp"
+		android:scaleType="centerCrop"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/textView"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/ic_warning_black_24dp"/>
+
+	<TextView
+		android:id="@+id/textView"
+		style="@style/text_roboto_bold_18sp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="0dp"
+		android:layout_marginEnd="0dp"
+		android:layout_marginStart="4dp"
+		android:layout_marginTop="0dp"
+		android:text="@string/no_route_found"
+		android:textColor="@color/search_route_not_found"
+		app:layout_constraintBottom_toBottomOf="parent"
+
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintStart_toEndOf="@+id/imageView"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

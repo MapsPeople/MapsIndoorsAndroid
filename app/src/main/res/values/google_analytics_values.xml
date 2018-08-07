@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- SCREENS (GOOGLE ANALYTICS / FIREBASE) -->
+	<string name="ga_screen_map"                    translatable="false">Map</string>
+	<string name="ga_screen_main_menu"              translatable="false">Main menu</string>
+	<string name="ga_screen_venues"                 translatable="false">Venues</string>
+	<string name="ga_screen_details"                translatable="false">Details</string>
+	<string name="ga_screen_directions"             translatable="false">Directions</string>
+	<string name="ga_screen_transit_sources"        translatable="false">TransitSources</string>
+	<string name="ga_screen_select_place"           translatable="false">Select_Place</string>
+
+	<string name="ga_screen_search"                 translatable="false">Search</string>
+	<string name="ga_screen_select_origin"          translatable="false">Select_Origin</string>
+	<string name="ga_screen_select_destination"     translatable="false">Select_Destination</string>
+	<string name="ga_screen_show_route_on_map"      translatable="false">Show_Route_on_Map</string>
+	<string name="ga_screen_show_search_on_map"     translatable="false">Show_Search_on_Map</string>
+	<string name="fir_screen_Show_Location_On_Map"     translatable="false">Show_Location_On_Map</string>
+
+
+	<!-- EVENTS (GOOGLE ANALYTICS) -->
+	<string name="ga_event_category_search"         translatable="false">Search</string>
+	<string name="ga_event_action_search_global"    translatable="false">search_global</string>
+	<string name="ga_event_action_search_cats"      translatable="false">search_</string>
+	<string name="ga_event_action_search_dismissed" translatable="false">search_dismissed</string>
+
+	<string name="ga_event_category_directions"     translatable="false">Directions</string>
+	<string name="ga_event_action_route_calc"       translatable="false">route_calculated</string>
+	<string name="ga_event_action_route_not_found"  translatable="false">route_not_found</string>
+	<string name="ga_event_action_dirs_expand"      translatable="false">directions_expand</string>
+	<string name="ga_event_label_origin_to_dest"    translatable="false">%1$s -> %2$s</string>
+
+	<string name="ga_event_category_map"            translatable="false">Map</string>
+	<string name="ga_event_action_tap_map_loc"      translatable="false">tapped_location_on_map</string>
+
+	<string name="ga_event_category_places_api"     translatable="false">PlacesAPI</string>
+	<string name="ga_event_action_over_qry_limit"   translatable="false">OVER_QUERY_LIMIT</string>
+	<string name="ga_event_action_request_denied"   translatable="false">REQUEST_DENIED</string>
+
+	<string name="ga_event_category_transit_src"    translatable="false">TransitSources</string>
+	<string name="ga_event_action_open_web_site"    translatable="false">open_web_site</string>
+
+
+	<!-- EVENTS (FIREBASE) -->
+	<string name="fir_event_search"                 translatable="false">Search</string>
+	<string name="fir_event_directions_expanded"    translatable="false">Directions_Expanded</string>
+	<string name="fir_event_route_calculated"       translatable="false">Route_Calculated</string>
+	<string name="fir_event_tapped_location_on_map" translatable="false">Tapped_Location_On_Map</string>
+	<string name="fir_event_places_api"             translatable="false">Places_API</string>
+	<string name="fir_event_search_dismissed"       translatable="false">Search_Dismissed</string>
+
+	<string name="fir_event_val_over_qry_limit"     translatable="false">OVER_QUERY_LIMIT</string>
+	<string name="fir_event_val_request_denied"     translatable="false">REQUEST_DENIED</string>
+	<string name="fir_event_Directions_Origin_Search"     translatable="false">Directions_Origin_Search</string>
+	<string name="fir_event_Directions_Destination_Search"     translatable="false">Directions_Destination_Search</string>
+
+	<string name="fir_event_Travel_Mode_Selected"     translatable="false">Directions_Travel_Mode_Selected</string>
+	<string name="fir_event_Avoid_Stairs_Clicked"     translatable="false">Directions_Avoid_Stairs_Clicked</string>
+	<string name="fir_event_Directions_Route_Segment_Selected"     translatable="false">Directions_Route_Segment_Selected</string>
+
+	<string name="fir_event_Map_Compass_Clicked"     translatable="false">Map_Compass_Clicked</string>
+	<string name="fir_event_Map_Fab_Opened"     translatable="false">Map_Fab_Opened</string>
+	<string name="fir_event_Map_Blue_Dot_clicked"     translatable="false">Map_Blue_Dot</string>
+	<string name="fir_event_Location_Share"     translatable="false">Location_Share</string>
+	<string name="fir_event_Map_Floor_Selector_Clicked"     translatable="false">Map_Floor_Selector_Clicked</string>
+
+	<string name="fir_event_No_Location_Service"     translatable="false">No_Location_Service</string>
+	<string name="fir_event_Venue_Selected"     translatable="false">Venue_Selected</string>
+
+
+
+
+	<string name="fir_event_Map_Tap_Drawer_Close"     translatable="false">Map_Tap_Drawer_Close</string>
+
+
+	<!-- PARAMS (FIREBASE) -->
+	<string name="fir_param_Travel_Mode"     translatable="false">Travel_Mode</string>
+	<string name="fir_param_Avoid_stairs"    translatable="false">Avoid_Stairs</string>
+	<string name="fir_param_Segment_Position_Factor"    translatable="false">Segment_Position_Factor</string>
+	<string name="fir_param_Directions_Layout"    translatable="false">Directions_Layout</string>
+	<string name="fir_param_floor_Index"    translatable="false">floorIndex</string>
+
+	<string name="fir_param_Venue"    translatable="false">Venue</string>
+
+	<string name="fir_param_Query"    translatable="false">Query</string>
+
+
+
+
+
+</resources>

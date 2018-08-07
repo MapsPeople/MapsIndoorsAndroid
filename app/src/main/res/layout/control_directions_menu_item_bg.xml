@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dir_horiz_itemRelativeLayout"
+    android:layout_width="@dimen/directions_horiz_item_width"
+    android:layout_height="@dimen/directions_menu_horiz_horizontalScrollView_height"
+    android:background="@android:color/transparent"
+    android:focusable="false"
+    android:minHeight="@dimen/directions_menu_horiz_horizontalScrollView_height"
+    android:minWidth="@dimen/directions_horiz_item_width"
+    tools:background="@color/dir_panel_selected_step">
+
+    <RelativeLayout
+        android:id="@+id/lineRelativeLayout"
+        android:layout_width="@dimen/directions_horiz_item_width"
+        android:layout_height="@dimen/directions_horiz_connection_height"
+
+   android:layout_centerInParent="true"
+
+        tools:background="#7f7f0000">
+
+        <View
+            android:layout_centerInParent="true"
+            android:id="@+id/dir_horiz_walk_outside_line"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/directions_horiz_connection_walk_outside_margin_LR"
+            android:layout_marginRight="@dimen/directions_horiz_connection_walk_outside_margin_LR"
+            android:background="@drawable/horizontal_dashed_line"
+            android:layerType="software"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <View
+            android:id="@+id/dir_horiz_drive_bike_outside_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/directions_horiz_connection_drive_bike_line_thickness"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/directions_horiz_connection_drive_bike_margin_LR"
+            android:layout_marginRight="@dimen/directions_horiz_connection_drive_bike_margin_LR"
+            android:background="@color/colorPrimary"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <View
+            android:id="@+id/dir_horiz_walk_inside_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/directions_horiz_connection_walk_inside_line_thickness"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/directions_horiz_connection_walk_inside_margin_LR"
+            android:layout_marginRight="@dimen/directions_horiz_connection_walk_inside_margin_LR"
+            android:background="@color/colorPrimary"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+
+
+        <ImageView
+            android:id="@+id/dir_horiz_bus_line"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/directions_horiz_connection_bus_line_margin_LR"
+            android:layout_marginRight="@dimen/directions_horiz_connection_bus_line_margin_LR"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_bus_line_h"
+            android:visibility="gone"
+            tools:visibility="visible"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/contentLinearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+
+        android:layout_marginTop="@dimen/directions_horiz_item_labels_margin_top"
+
+        android:background="@android:color/transparent"
+        tools:background="#ff8f8f8f">
+
+        <ImageView
+            android:id="@+id/dir_horiz_travelModeImageView"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:visibility="visible"
+            tools:src="@drawable/ic_directions_bus"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/dir_horiz_travelModeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@+id/dir_horiz_travelModeImageView"
+            android:ellipsize="end"
+            android:maxLines="1"
+
+            android:maxWidth="@dimen/directions_horiz_item_label_travelmode_max_width"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:textColor="@color/grey1"
+            android:textSize="@dimen/directions_horiz_item_labels_travelmode_textsize"
+
+            android:visibility="gone"
+
+            tools:background="@color/colorAccent"
+            tools:text="Walking"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
+</RelativeLayout>

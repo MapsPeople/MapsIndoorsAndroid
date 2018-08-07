@@ -1,0 +1,4 @@
+<resources>
+	<integer name="menu_flipper_fade_in_duration">@android:integer/config_shortAnimTime</integer>
+	<integer name="menu_flipper_fade_out_duration">@android:integer/config_shortAnimTime</integer>
+</resources>
