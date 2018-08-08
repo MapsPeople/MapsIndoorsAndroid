@@ -1,0 +1,795 @@
+import groovy.json.JsonSlurper
+
+import java.nio.file.Path
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+/**
+ * MIOfflineDataSync
+ *
+ * Created by Mohammed Amine on 7/6/2017.
+ * Modified by Jose J Varó on 14/6/2018.
+ * Copyright © 2017 MapsPeople A/S. All rights reserved.
+ */
+
+def mi_APIKey = ''
+
+// Offline (embedded) data constants
+ext {
+
+    SHOW_DEBUG_INFO = false
+
+    // ------------------------------------------------------------
+    // These reflect the settings in mapsindoors_api.xml
+    //
+    // True by default
+    enableOfflineMode = true
+    embedDefaultLanguageDataOnly = false
+    enableOfflineRouting = false
+    enableOfflineTiles = false
+    enableOfflineLocations = true
+
+    //
+    requiredLanguageAgnosticEndPoints = ["solutions"]
+    requiredLanguageDependentEndPoints = ["venues", "buildings", "appconfig", "categories"]
+
+
+    ASSETS_PATH = "src/main/assets"
+    MPOFFLINEDATA_PATH = ASSETS_PATH + "/mpofflinedata"
+    MI_API_FILE_FLAVORED_PATH = "src/%s/res/values/mapsindoors_api.xml"
+    MI_API_FILE_DEFAULT_PATH = "src/main/res/values/mapsindoors_api.xml"
+
+    // Former solutionId
+    MI_API_STRING_MI_API_KEY = "mapsindoors_api_key"
+
+    MI_API_STRING_OFFLINE_MODE_ENABLED = "mapsindoors_offlinemode_enabled"
+    MI_API_STRING_OFFLINE_DEFAULT_LANGUAGE_ONLY = "mapsindoors_offlinemode_defaultlanguage_data_only"
+    MI_API_STRING_OFFLINE_MODE_ROUTING_ENABLED = "mapsindoors_offlinemode_routing_enabled"
+    MI_API_STRING_OFFLINE_MODE_TILES_ENABLED = "mapsindoors_offlinemode_tiles_enabled"
+    MI_API_STRING_OFFLINE_MODE_LOCATIONS_ENABLED = "mapsindoors_offlinemode_locations_enabled"
+
+    DBG_TAG = "#MapsIndoorsSDK#"
+
+    MIAPIXMLNode = null
+    MIDefaultAPIFileXMLNode = null
+    MIFlavorAPIFileXMLNode = null
+
+    MIAppFlavor = ""
+}
+
+task cleanAssets {
+
+    group = 'MapsIndoorsSDK'
+
+    doLast {
+        dbgLogInfo('Start cleaning assets mi files')
+
+        cleanUp()
+
+        dbgLogInfo('Finished cleaning')
+    }
+}
+
+task unzipTiles {
+
+    group = 'MapsIndoorsSDK'
+
+    doLast {
+
+        if( enableOfflineTiles )
+        {
+            if ((new File( project.name + '/' + ASSETS_PATH )).exists())
+            {
+                def tree = fileTree(dir: MPOFFLINEDATA_PATH, include: ['*.zip'])
+                def treeContents = tree.collect { relativePath(it) }
+
+                if (treeContents.size() > 0)
+                {
+                    dbgLogInfo(': UnzipTiles -> Starting unzipping the tiles ...')
+
+                    treeContents.each { artifact ->
+
+                        copy {
+                            from zipTree(artifact)
+                            into MPOFFLINEDATA_PATH
+                        }
+                        delete {
+                            delete artifact
+                        }
+                    }
+
+                    dbgLogInfo(': UnzipTiles -> done')
+                }
+            }
+        }
+    }
+}
+
+task fetchData {
+
+    group = 'MapsIndoorsSDK'
+
+    dependsOn cleanAssets
+    finalizedBy unzipTiles
+
+    doLast {
+
+        // Check first if offline data has been enabled from the MapsIndoors API xml. Defaults to disabled
+        enableOfflineMode = isOfflineModeEnabled( enableOfflineMode )
+        if (!enableOfflineMode)
+        {
+            dbgLogInfo(': FetchData -> Offline mode is DISABLED')
+            return
+        }
+
+        //
+        embedDefaultLanguageDataOnly = isDefaultLanguageOnlySet( embedDefaultLanguageDataOnly )
+
+        // Check if offline routing has been enabled. This will pull the graphs. Defaults to disabled
+        enableOfflineRouting = isRoutingEnabled( enableOfflineRouting )
+
+        // Check if offline tiles have been enabled. This will download the solution's tiles. Disabled by default
+        enableOfflineTiles = areOfflineTilesEnabled( enableOfflineTiles )
+
+        // Check if offline locations have been enabled. By default, true if offline mode has been enabled
+        enableOfflineLocations = areOfflineLocationsDataEnabled( enableOfflineLocations )
+
+        mi_APIKey = getAPIKey()
+
+        if (mi_APIKey.isEmpty())
+        {
+            dbgLogInfo('Cannot find the API Key!!!')
+            return
+        }
+
+        // Print out some info
+        dbgLogInfo('API Key set to ' + mi_APIKey.toString())
+        dbgLogInfo('Offline data settings: ')
+        dbgLogInfo('    - Enabled: ' + enableOfflineMode)
+        dbgLogInfo('    - Routing: ' + enableOfflineRouting)
+        dbgLogInfo('    - Indoor tiles: ' + enableOfflineTiles)
+        dbgLogInfo('    - POI data (locations): ' + enableOfflineLocations)
+        dbgLogInfo('    - Default language only: ' + embedDefaultLanguageDataOnly)
+
+        dbgLogInfo('Fetching data ...')
+
+
+        final String outputPathPrefix = project.name + '/' + MPOFFLINEDATA_PATH + '/'
+        final String baseUrl = 'https://api.mapsindoors.com'
+
+        // Pull the available languages list from the solution endpoint. This is used to get localized
+        // strings for most of the relevant data
+        final String[] solutionAvailableLanguages
+
+        if (!embedDefaultLanguageDataOnly)
+        {
+            solutionAvailableLanguages = getSolutionAvailableLanguages(baseUrl, mi_APIKey)
+        }
+        else
+        {
+            final String solutionDefaultLanguage = getSolutionDefaultLanguage(baseUrl, mi_APIKey)
+            solutionAvailableLanguages = [solutionDefaultLanguage]
+        }
+
+        def languageCount = solutionAvailableLanguages.length
+
+        // - No routing support (no graph data)
+        // - No tiles included
+        // - The device's local db partially includes location data provided by MapsPeople thus locations offline data isn't needed.
+        String[] languageAgnosticEndPoints = requiredLanguageAgnosticEndPoints
+        String[] languageDependentEndPoints = requiredLanguageDependentEndPoints
+
+        if (enableOfflineRouting)
+        {
+            languageAgnosticEndPoints += ["graph"]
+        }
+
+        if (enableOfflineTiles)
+        {
+            languageAgnosticEndPoints += ["tiles"]
+        }
+
+        if (enableOfflineLocations)
+        {
+            languageDependentEndPoints += ["locations"]
+        }
+
+        //create the mi directory that contains the maps indoor res
+        def miFile = new File(outputPathPrefix)
+        miFile.mkdirs()
+
+        // Language agnostic end points download
+        final def languageAgnosticEndPointsCount = languageAgnosticEndPoints.length
+        for (int i = 0; i < languageAgnosticEndPointsCount; i++)
+        {
+            def url = baseUrl + '/sync/' + languageAgnosticEndPoints[i] + '?solutionId=' + mi_APIKey
+            def outputPath = outputPathPrefix + mi_APIKey + '_' + languageAgnosticEndPoints[i]
+            def f = new File(outputPath)
+            new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
+        }
+
+        // Language dependent end points download
+        final def languageDependentEndPointsCount = languageDependentEndPoints.length
+        for (int j = 0; j < languageCount; j++)
+        {
+            for (int i = 0; i < languageDependentEndPointsCount; i++)
+            {
+                def url = baseUrl + '/sync/' + languageDependentEndPoints[i] + '?solutionId=' + mi_APIKey + "&lr=" + solutionAvailableLanguages[j]
+                def outputPath = outputPathPrefix + mi_APIKey + '_' + languageDependentEndPoints[i] + '_' + solutionAvailableLanguages[j]
+                def f = new File(outputPath)
+                new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
+            }
+        }
+
+        // Download the content of the URL referenced inside the files second round
+        List<String> filesWContent = new ArrayList<>()
+
+        //
+        String[] filesWContentBaseName = ['_solutions']
+
+        if (enableOfflineTiles)
+        {
+            filesWContentBaseName += ['_tiles']
+        }
+
+        def filesWContentCount = filesWContentBaseName.length
+        for (int i = 0; i < filesWContentCount; i++)
+        {
+            filesWContent.add(mi_APIKey + filesWContentBaseName[i])
+        }
+
+        //
+        String[] filesWLangContentBaseName = ['_appconfig_']
+
+        def filesWLangContentCount = filesWLangContentBaseName.length
+        for (int i = 0; i < filesWLangContentCount; i++)
+        {
+            for (int j = 0; j < languageCount; j++)
+            {
+                filesWContent.add(mi_APIKey + filesWLangContentBaseName[i] + solutionAvailableLanguages[j])
+            }
+        }
+
+        dbgLogInfo('Parsing data files. Looking for stuff to download... Files: ' + filesWContent.toString())
+
+        def filesWContentListCount = filesWContent.size()
+        for (int i = 0; i < filesWContentListCount; i++)
+        {
+
+            String fileContents = new File(outputPathPrefix + filesWContent.get(i)).text
+            def matches = (fileContents =~ /\b(https?):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[-A-Za-z0-9+&@#\/%=~_|]/)
+
+            // iterate over all the URLs FOUND
+            for (int matchesCounter = 0; matchesCounter < matches.count; matchesCounter++)
+            {
+                def url = matches[matchesCounter][0].toString()
+                def values = url.split('/')
+
+                def fileName = mi_APIKey + '_' + values[3]
+
+                for (int j = 4; j < values.size(); j++)
+                {
+                    fileName = fileName + '_' + values[j]
+                }
+
+                def isImage = (fileName =~ /.*.(png|jpg|gif|bmp|svg)/)
+                def isZipFile = (fileName =~ /.*.(zip)/)
+
+                if (!isImage.find() && !isZipFile.find())
+                {
+                    // Skip URLs that have nothing to do with images (?)
+                    // VERY IMPORTANT: CHECK IN THE GRADLE CONSOLE THAT THE SKIPPED URL
+                    // CAN BE SKIPPED (IS NOT SOMETHING THAT IS NEEDED). But if an important file
+                    // is skipped, fix the regex
+                    dbgLogInfo('Parsing data files - skipping URL : ' + url)
+                    continue
+                }
+
+                // Avoid any casing error by setting the whole thing to lower case
+                def fullFilename = outputPathPrefix + fileName
+                def f = new File(fullFilename)
+
+                if (SHOW_DEBUG_INFO)
+                {
+                    print DBG_TAG + ' -- will download: ' + url + ' ... '
+                }
+
+                // TODO: send the last modified date of the files to try to speed up this a bit...
+//                URL daUrl = new URL(url) //.withInputStream { inp -> f.withOutputStream { it << inp } }
+//                URLConnection urlConnection = daUrl.openConnection()
+//                if(f.exists())
+//                {
+//                    urlConnection.setIfModifiedSince( f.lastModified() )
+//                }
+//                urlConnection.connect()
+//                // ????
+
+                new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
+
+                if (SHOW_DEBUG_INFO)
+                {
+                        println 'done'
+                }
+            }
+        }
+
+        // Write the API Key to its own file. This is to be able to check which solution
+        // data is in
+        def solutionFile = new File(outputPathPrefix + "solution")
+        solutionFile.write("" +
+                "{" +
+                "\"api_key\" : $mi_APIKey," +
+                "\"offlineRoutingEnabled\" : $enableOfflineRouting," +
+                "\"offlineTilesEnabled\" : $enableOfflineTiles," +
+                "\"offlineLocationsEnabled\" : $enableOfflineLocations" +
+                "}"
+        )
+
+        // Generate the timestamp file with the time in secs (Epoch format)
+        Date date = new Date()
+        def timeStamp = (long) (date.getTime() / 1000)
+
+        // Sync timestamp file, the last one
+        def timeStampFileName = mi_APIKey + "_sync_timestamp"
+        def timeStampFile = new File(outputPathPrefix + timeStampFileName)
+        timeStampFile.write("{ \"timestamp\" : $timeStamp }")
+
+        dbgLogInfo(': Finished fetching data')
+    }
+}
+
+/**
+ *
+ * @return The current app flavor or an empty string if there are no flavors...
+ */
+def getCurrentFlavor()
+{
+    if (!MIAppFlavor.isEmpty())
+    {
+        return MIAppFlavor
+    }
+
+    Gradle gradle = getGradle()
+    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
+
+    Pattern pattern
+
+    if (tskReqStr.contains(":app:assemble"))
+    {
+        pattern = Pattern.compile(":app:assemble(\\w+)(Release|Debug)")
+    }
+    else
+    {
+        pattern = Pattern.compile(":app:generate(\\w+)(Release|Debug)")
+    }
+
+    Matcher matcher = pattern.matcher(tskReqStr)
+
+    if (matcher.find())
+    {
+        MIAppFlavor = matcher.group(1).toLowerCase(Locale.ROOT)
+
+        return MIAppFlavor
+    }
+
+    // No flavor found
+    return ""
+}
+
+/**
+ * Returns the MapsIndoors API Key for the given flavor
+ *
+ * @return The MapsIndoors API Key
+ */
+def getAPIKey()
+{
+    String apiKey = ""
+
+    def res = parseMIAPIFile()
+
+    if (res != null)
+    {
+        res.string.findAll { i ->
+            final String attrName = i.@'name'
+            if (attrName.equalsIgnoreCase(MI_API_STRING_MI_API_KEY))
+            {
+                apiKey = i.text()
+            }
+        }
+    }
+
+    if (apiKey.isEmpty())
+    {
+        dbgLogInfo("ERROR - Can't find a match for the current flavor being built")
+    }
+
+    return apiKey
+}
+
+boolean isOfflineModeEnabled( defaultValue )
+{
+    boolean isOfflineModeEnabled = defaultValue
+    int locationCount = 2 // flavor folder and root (main)
+
+    while (locationCount > 0)
+    {
+        def res
+        if (locationCount == 2) {
+            res = parseCurrentFlavorMIAPIFile()
+        } else {
+            res = parseDefaultMIAPIFile()
+        }
+
+        if (res != null)
+        {
+            res.bool.findAll { i ->
+
+                final String attrName = i.@'name'
+
+                if (attrName.equalsIgnoreCase(MI_API_STRING_OFFLINE_MODE_ENABLED))
+                {
+                    String boolAsStr = i.text()
+                    if (boolAsStr != null && !boolAsStr.isEmpty())
+                    {
+                        isOfflineModeEnabled = Boolean.parseBoolean(boolAsStr)
+                        locationCount = 0
+                    }
+                }
+            }
+        }
+
+        --locationCount
+    }
+
+    return isOfflineModeEnabled
+}
+
+boolean isDefaultLanguageOnlySet( defaultValue )
+{
+    boolean isDefaultLanguageOnlySet = defaultValue
+    int locationCount = 2 // flavor folder and root (main)
+
+    while (locationCount > 0)
+    {
+        def res
+        if (locationCount == 2) {
+            res = parseCurrentFlavorMIAPIFile()
+        } else {
+            res = parseDefaultMIAPIFile()
+        }
+
+        if (res != null)
+        {
+            res.bool.findAll { i ->
+
+                final String attrName = i.@'name'
+
+                if (attrName.equalsIgnoreCase(MI_API_STRING_OFFLINE_DEFAULT_LANGUAGE_ONLY))
+                {
+                    String boolAsStr = i.text()
+                    if (boolAsStr != null && !boolAsStr.isEmpty())
+                    {
+                        isDefaultLanguageOnlySet = Boolean.parseBoolean(boolAsStr)
+                        locationCount = 0
+                    }
+                }
+            }
+        }
+
+        --locationCount
+    }
+
+    return isDefaultLanguageOnlySet
+}
+
+boolean isRoutingEnabled( defaultValue )
+{
+    boolean isOfflineRoutingEnabled = defaultValue
+    int locationCount = 2 // flavor folder and root (main)
+
+    while (locationCount > 0)
+    {
+        def res
+        if (locationCount == 2) {
+            res = parseCurrentFlavorMIAPIFile()
+        } else {
+            res = parseDefaultMIAPIFile()
+        }
+
+        if (res != null)
+        {
+            res.bool.findAll { i ->
+
+                final String attrName = i.@'name'
+
+                if (attrName.equalsIgnoreCase(MI_API_STRING_OFFLINE_MODE_ROUTING_ENABLED))
+                {
+                    String boolAsStr = i.text()
+                    if (boolAsStr != null && !boolAsStr.isEmpty())
+                    {
+                        isOfflineRoutingEnabled = Boolean.parseBoolean(boolAsStr)
+                        locationCount = 0
+                    }
+                }
+            }
+        }
+
+        --locationCount
+    }
+
+    return isOfflineRoutingEnabled
+}
+
+boolean areOfflineTilesEnabled( defaultValue )
+{
+    boolean areOfflineTilesEnabled = defaultValue
+    int locationCount = 2 // flavor folder and root (main)
+
+    while (locationCount > 0)
+    {
+        def res
+        if (locationCount == 2) {
+            res = parseCurrentFlavorMIAPIFile()
+        } else {
+            res = parseDefaultMIAPIFile()
+        }
+
+        if (res != null)
+        {
+            res.bool.findAll { i ->
+
+                final String attrName = i.@'name'
+
+                if (attrName.equalsIgnoreCase(MI_API_STRING_OFFLINE_MODE_TILES_ENABLED))
+                {
+                    String boolAsStr = i.text()
+                    if (boolAsStr != null && !boolAsStr.isEmpty())
+                    {
+                        areOfflineTilesEnabled = Boolean.parseBoolean(boolAsStr)
+                        locationCount = 0
+                    }
+                }
+            }
+        }
+
+        --locationCount
+    }
+
+    return areOfflineTilesEnabled
+}
+
+boolean areOfflineLocationsDataEnabled( defaultValue )
+{
+    boolean areOfflineLocationsEnabled = defaultValue
+    int locationCount = 2 // flavor folder and root (main)
+
+    while (locationCount > 0)
+    {
+        def res
+        if (locationCount == 2) {
+            res = parseCurrentFlavorMIAPIFile()
+        } else {
+            res = parseDefaultMIAPIFile()
+        }
+
+        if (res != null)
+        {
+            res.bool.findAll { i ->
+
+                final String attrName = i.@'name'
+
+                if (attrName.equalsIgnoreCase(MI_API_STRING_OFFLINE_MODE_LOCATIONS_ENABLED))
+                {
+                    String boolAsStr = i.text()
+                    if (boolAsStr != null && !boolAsStr.isEmpty())
+                    {
+                        areOfflineLocationsEnabled = Boolean.parseBoolean(boolAsStr)
+                        locationCount = 0
+                    }
+                }
+            }
+        }
+
+        --locationCount
+    }
+
+    return areOfflineLocationsEnabled
+}
+
+static String[] getSolutionAvailableLanguages(baseUrl, apiKey)
+{
+    final String url = baseUrl + '/sync/solutions?solutionId=' + apiKey
+
+    try
+    {
+        def resAsText = url.toURL().text
+        if (resAsText != null)
+        {
+            def json = new JsonSlurper().parseText(resAsText)
+
+            final String[] solutionAvailableLanguages = json['availableLanguages']
+            //String defaultLanguage = json['defaultLanguage']
+            return solutionAvailableLanguages
+        }
+    }
+    catch (Exception e)
+    {
+        dbgLogInfo('getSolutionAvailableLanguages() ERROR: ' + e)
+        return new String[0]
+    }
+
+    return new String[0]
+}
+
+static String getSolutionDefaultLanguage(baseUrl, apiKey)
+{
+    final String url = baseUrl + '/sync/solutions?solutionId=' + apiKey
+
+    String solutionDefaultLanguage = "en"
+
+    try
+    {
+        def resAsText = url.toURL().text
+        if (resAsText != null)
+        {
+            def json = new JsonSlurper().parseText(resAsText)
+
+            final String defaultLanguage = json['defaultLanguage']
+            return defaultLanguage
+        }
+    }
+    catch (Exception e)
+    {
+        dbgLogInfo('getSolutionDefaultLanguage() ERROR: ' + e)
+        return solutionDefaultLanguage
+    }
+
+    return solutionDefaultLanguage
+}
+
+/**
+ *
+ * @return
+ */
+def parseMIAPIFile()
+{
+    if (MIAPIXMLNode != null) {
+        return MIAPIXMLNode
+    }
+
+    MIAPIXMLNode = null
+
+    String flavor = getCurrentFlavor()
+
+    // Try getting the file for the given flavor
+    String miAPIFilePath = String.format(project.name + '/' + MI_API_FILE_FLAVORED_PATH, flavor)
+
+    boolean fileFromFlavor = true
+    def miAPIFile = new File(miAPIFilePath)
+    boolean flavorFileExists = miAPIFile.exists()
+
+    if ( !flavorFileExists )
+    {
+        // If it fails to do so (ie: the MIDemo flavor) get the default file
+        miAPIFilePath = project.name + '/' + MI_API_FILE_DEFAULT_PATH
+
+        fileFromFlavor = false
+        miAPIFile = new File(miAPIFilePath)
+
+        // Check if, for some reason, we can't get the file...
+        if (!miAPIFile.exists())
+        {
+            dbgLogInfo("parseMIAPIFile( ${flavor} ) - Can't find the API file in here [${miAPIFilePath}]")
+            return null
+        }
+    }
+
+    try
+    {
+        MIAPIXMLNode = new XmlParser().parse( miAPIFile )
+        return MIAPIXMLNode
+    } catch (FileNotFoundException ex)
+    {
+        if ( fileFromFlavor )
+        {
+            dbgLogInfo("parseMIAPIFile( ${flavor} ) - File not found, returning null... Exception:\n" + ex.toString())
+        }
+        else
+        {
+            dbgLogInfo("parseMIAPIFile() - File not found, returning null... Exception:\n" + ex.toString())
+        }
+
+        return null
+    }
+}
+
+/**
+ *
+ * @return
+ */
+def parseDefaultMIAPIFile()
+{
+    if (MIDefaultAPIFileXMLNode != null) {
+        return MIDefaultAPIFileXMLNode
+    }
+
+    MIDefaultAPIFileXMLNode = null
+
+    // Get the default file
+    String miAPIFilePath = project.name + '/' + MI_API_FILE_DEFAULT_PATH
+
+    def miAPIFile = new File(miAPIFilePath)
+
+    // Check if, for some reason, we can't get the file...
+    if (!miAPIFile.exists())
+    {
+        dbgLogInfo("parseDefaultMIAPIFile() - Can't find the API file in here [${miAPIFilePath}]")
+        return null
+    }
+
+    try {
+        MIDefaultAPIFileXMLNode = new XmlParser().parse(miAPIFile)
+        return MIDefaultAPIFileXMLNode
+    } catch (FileNotFoundException ex) {
+        dbgLogInfo("parseDefaultMIAPIFile() - File not found, returning null... Exception:\n" + ex.toString())
+        return null
+    }
+}
+
+/**
+ *
+ * @return
+ */
+def parseCurrentFlavorMIAPIFile()
+{
+    if (MIFlavorAPIFileXMLNode != null) {
+        return MIFlavorAPIFileXMLNode
+    }
+
+    MIFlavorAPIFileXMLNode = null
+
+    String flavor = getCurrentFlavor()
+
+    // Try getting the file for the given flavor
+    String miAPIFilePath = String.format(project.name + '/' + MI_API_FILE_FLAVORED_PATH, flavor)
+
+    def miAPIFile = new File(miAPIFilePath)
+
+    if (!miAPIFile.exists()) {
+        dbgLogInfo("parseCurrentFlavorMIAPIFile( ${flavor} ) - Can't find the API file in here [${miAPIFilePath}]")
+        return null
+    }
+
+    try
+    {
+        MIFlavorAPIFileXMLNode = new XmlParser().parse( miAPIFile )
+        return MIFlavorAPIFileXMLNode
+    } catch (FileNotFoundException ex)
+    {
+        dbgLogInfo("parseCurrentFlavorMIAPIFile( ${flavor} ) - File not found, returning null... Exception:\n" + ex.toString())
+        return null
+    }
+}
+
+def cleanUp()
+{
+    MIAPIXMLNode = null
+    MIDefaultAPIFileXMLNode = null
+    MIFlavorAPIFileXMLNode = null
+    MIAppFlavor = ""
+
+    delete {
+        delete projectDir.path + '/' + MPOFFLINEDATA_PATH
+    }
+}
+
+def dbgLogInfo(String logStr)
+{
+    if (SHOW_DEBUG_INFO)
+    {
+        if (logStr != null)
+        {
+            println DBG_TAG + "  " + logStr
+        }
+    }
+}
