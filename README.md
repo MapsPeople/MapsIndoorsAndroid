@@ -23,4 +23,4 @@ MapsPeople A/S, Martin Hansen, mh@mapspeople.com, Mohammed Amine Naimi, man@maps
 
 ## License
 
-MapsIndoors SDK is released under a commercial license. The MapsIndoors demonstration app is released under MIT license.
+MapsIndoors SDK is released under a commercial license. The MapsIndoors standard app is released under MIT license.
