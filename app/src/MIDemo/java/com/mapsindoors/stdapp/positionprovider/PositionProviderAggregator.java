@@ -24,22 +24,7 @@ public class PositionProviderAggregator
 		mPositionProviders = new ArrayList<>();
 
 		mPositionProviders.add( new GoogleAPIPositionProvider( context ) );
-	/*	BeaconPositionProvider beaconPosProvider = new BeaconPositionProvider(
-				context,
-				context.getResources().getString( R.string.mapsindoors_api_key ),
-				"",
-				"m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24",
-				false
-		);
-		mPositionProviders.add(beaconPosProvider);*/
 
-
-		//mPositionProviders.add( new MixedPositionProviderV1.InternalPosProvider(
-		//
-		//		new CiscoPositionProvider( context, "DA - URL!!!" ), CiscoPositionProvider.class )
-		//);
-
-		//positionProviders.add( new BeaconPositionProvider( context, null ) );
 	}
 
 	@NonNull

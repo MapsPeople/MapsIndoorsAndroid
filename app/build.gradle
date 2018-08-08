@@ -13,7 +13,7 @@ apply plugin: 'io.fabric'
 
 
 // Add the MapsIndoors plugin to embed the "offline" data
-apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroid/SDK_V2/gradle/MapsIndoorsOfflineDataSync.gradle'
+apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroidV1/SDK_V2/gradle/MapsIndoorsOfflineDataSync.gradle'
 preBuild.dependsOn fetchData
 
 
