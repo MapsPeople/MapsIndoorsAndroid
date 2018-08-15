@@ -19,7 +19,7 @@ Then replace the "YOUR_KEY_HERE" with your key.
 
 ## Author
 
-MapsPeople A/S, Martin Hansen, mh@mapspeople.com, Mohammed Amine Naimi, man@mapspeople.com.
+MapsPeople A/S, Martin Hansen, mh@mapspeople.com, Mohammed Amine Naimi, man@mapspeople.com, Jose J Varó, jj@mapspeople.com
 
 ## License
 
