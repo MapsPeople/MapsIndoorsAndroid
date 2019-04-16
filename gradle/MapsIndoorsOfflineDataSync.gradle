@@ -159,7 +159,7 @@ task fetchData {
 
         // Pull the available languages list from the solution endpoint. This is used to get localized
         // strings for most of the relevant data
-        final String[] solutionAvailableLanguages
+        String[] solutionAvailableLanguages = null
 
         if (!embedDefaultLanguageDataOnly)
         {
