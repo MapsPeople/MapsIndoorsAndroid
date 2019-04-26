@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ViewFlipper;
 
 import com.mapsindoors.mapssdk.MapControl;
-import com.mapsindoors.mapssdk.models.AgencyInfo;
+import com.mapsindoors.mapssdk.AgencyInfo;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 import com.mapsindoors.stdapp.ui.common.fragments.BaseFragment;

@@ -29,8 +29,9 @@
 # ===================== MapsIndoors SDK ======= <START>
 #
 -keep interface com.mapsindoors.mapssdk.** { *; }
+-keepclasseswithmembernames interface com.mapsindoors.mapssdk.** { *; }
 -keep class com.mapsindoors.mapssdk.errors.** { *; }
--keepclassmembers class com.mapsindoors.mapssdk.models.** { <fields>; }
+-keepclassmembers class * implements com.mapsindoors.mapssdk.MIModelBase { <fields>; }
 -keep class com.mapsindoors.mapssdk.dbglog
 # ===================== MapsIndoors SDK ======= <END>
 

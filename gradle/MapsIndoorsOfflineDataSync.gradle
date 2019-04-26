@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  *
  * Created by Mohammed Amine on 7/6/2017.
  * Modified by Jose J Varó on 14/6/2018.
- * Copyright © 2017 MapsPeople A/S. All rights reserved.
+ * Copyright © 2019 MapsPeople A/S. All rights reserved.
  */
 
 def mi_APIKey = ''
@@ -32,7 +32,6 @@ ext {
     //
     requiredLanguageAgnosticEndPoints = ["solutions"]
     requiredLanguageDependentEndPoints = ["venues", "buildings", "appconfig", "categories"]
-
 
     ASSETS_PATH = "src/main/assets"
     MPOFFLINEDATA_PATH = ASSETS_PATH + "/mpofflinedata"

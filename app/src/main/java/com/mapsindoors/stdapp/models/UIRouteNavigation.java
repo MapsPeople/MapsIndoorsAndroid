@@ -3,7 +3,7 @@ package com.mapsindoors.stdapp.models;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.mapsindoors.mapssdk.models.RouteCoordinate;
+import com.mapsindoors.mapssdk.RouteCoordinate;
 
 /**
  * Created by amine on 11/09/2017.

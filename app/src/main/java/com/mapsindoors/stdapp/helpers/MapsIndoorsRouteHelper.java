@@ -10,9 +10,9 @@ import android.support.v4.content.ContextCompat;
 
 import com.mapsindoors.mapssdk.Location;
 import com.mapsindoors.mapssdk.MapsIndoors;
-import com.mapsindoors.mapssdk.models.BuildingCollection;
-import com.mapsindoors.mapssdk.models.TransitDetails;
-import com.mapsindoors.mapssdk.models.VenueCollection;
+import com.mapsindoors.mapssdk.BuildingCollection;
+import com.mapsindoors.mapssdk.TransitDetails;
+import com.mapsindoors.mapssdk.VenueCollection;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.apis.googleplaces.models.AutoCompleteField;
 import com.mapsindoors.stdapp.managers.AppConfigManager;

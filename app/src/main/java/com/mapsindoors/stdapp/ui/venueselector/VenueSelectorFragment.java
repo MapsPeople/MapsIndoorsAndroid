@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ViewFlipper;
 
 import com.mapsindoors.mapssdk.MapControl;
-import com.mapsindoors.mapssdk.models.Venue;
-import com.mapsindoors.mapssdk.models.VenueCollection;
+import com.mapsindoors.mapssdk.Venue;
+import com.mapsindoors.mapssdk.VenueCollection;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.helpers.SharedPrefsHelper;
 import com.mapsindoors.stdapp.managers.AppConfigManager;

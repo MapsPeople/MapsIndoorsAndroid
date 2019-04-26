@@ -58,14 +58,14 @@ import com.mapsindoors.mapssdk.PositionProvider;
 import com.mapsindoors.mapssdk.SolutionInfo;
 import com.mapsindoors.mapssdk.dbglog;
 import com.mapsindoors.mapssdk.errors.MIError;
-import com.mapsindoors.mapssdk.models.AppConfig;
-import com.mapsindoors.mapssdk.models.BuildingCollection;
-import com.mapsindoors.mapssdk.models.MenuInfo;
-import com.mapsindoors.mapssdk.models.Point;
-import com.mapsindoors.mapssdk.models.Route;
-import com.mapsindoors.mapssdk.models.Solution;
-import com.mapsindoors.mapssdk.models.Venue;
-import com.mapsindoors.mapssdk.models.VenueCollection;
+import com.mapsindoors.mapssdk.AppConfig;
+import com.mapsindoors.mapssdk.BuildingCollection;
+import com.mapsindoors.mapssdk.MenuInfo;
+import com.mapsindoors.mapssdk.Point;
+import com.mapsindoors.mapssdk.Route;
+import com.mapsindoors.mapssdk.Solution;
+import com.mapsindoors.mapssdk.Venue;
+import com.mapsindoors.mapssdk.VenueCollection;
 import com.mapsindoors.stdapp.BuildConfig;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.broadcastReceivers.NetworkStateChangeReceiver;
@@ -1358,7 +1358,8 @@ public class MapsIndoorsActivity extends AppCompatActivity
         }
 
         // Creates a new MapControl instance
-        mMapControl = new MapControl( mActivity, mMapFragment, mGoogleMap );
+        mMapControl = new MapControl( mActivity );
+        mMapControl.setGoogleMap( mGoogleMap, mMapFragment.getView() );
 
         // init the selection manager
         mSelectionManager = new SelectionManager(this, mMapControl, mTopSearchField);
@@ -1844,7 +1845,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
         // Build up the query
         iLocsQueryBuilder.
                 setVenue( getCurrentVenueName() ).
-                setFloor( mMapControl.getCurrentFloorIndex() ).
+                setFloorIndex( mMapControl.getCurrentFloorIndex() ).
                 setOrderBy( LocationQuery.RELEVANCE ).
                 setQueryMode( LocationQuery.MODE_PREFER_OFFLINE ).
                 setCategories( Collections.singletonList( selectedCategory ) ).

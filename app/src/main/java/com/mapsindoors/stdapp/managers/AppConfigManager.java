@@ -12,10 +12,10 @@ import com.mapsindoors.mapssdk.MapControl;
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.ReadyListener;
 import com.mapsindoors.mapssdk.dbglog;
-import com.mapsindoors.mapssdk.models.AppConfig;
-import com.mapsindoors.mapssdk.models.MenuInfo;
-import com.mapsindoors.mapssdk.models.POIType;
-import com.mapsindoors.mapssdk.models.Solution;
+import com.mapsindoors.mapssdk.AppConfig;
+import com.mapsindoors.mapssdk.MenuInfo;
+import com.mapsindoors.mapssdk.POIType;
+import com.mapsindoors.mapssdk.Solution;
 import com.mapsindoors.stdapp.BuildConfig;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsUtils;
 

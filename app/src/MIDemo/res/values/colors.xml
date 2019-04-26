@@ -15,6 +15,4 @@
 
 	<!-- Splash screen text -->
 	<color name="splashScreenTextColor">@color/colorPrimary</color>
-
-
 </resources>

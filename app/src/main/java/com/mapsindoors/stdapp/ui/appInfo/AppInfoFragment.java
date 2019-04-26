@@ -97,27 +97,27 @@ public class AppInfoFragment extends BaseFragment
 		mapsPeopleASLayout = view.findViewById(R.id.app_info_maps_people_as_layout);
 		mFeedbackLayout = view.findViewById(R.id.feedback_layout);
 
-		if( BuildConfig.DEBUG_ENABLE_UI_SETTINGS )
-		{
-			View debugSettings = view.findViewById( R.id.debug_settings );
-
-			if( debugSettings != null )
-			{
-				debugSettings.setVisibility( View.VISIBLE );
-
-				{
-					android.widget.Switch switchView = debugSettings.findViewById( R.id.debug_control_route_offline_switch );
-					switchView.setOnCheckedChangeListener( ( compoundButton, enable ) -> {
-
-						DirectionsVerticalFragment dirFragment = mActivity.getVerticalDirectionsFragment();
-						if(dirFragment !=null)
-						{
-							//dirFragment.DBG_EnableDebugUI( enable );
-						}
-					});
-				}
-			}
-		}
+//		if( BuildConfig.DEBUG_ENABLE_UI_SETTINGS )
+//		{
+//			View debugSettings = view.findViewById( R.id.debug_settings );
+//
+//			if( debugSettings != null )
+//			{
+//				debugSettings.setVisibility( View.VISIBLE );
+//
+//				{
+//					android.widget.Switch switchView = debugSettings.findViewById( R.id.debug_control_route_offline_switch );
+//					switchView.setOnCheckedChangeListener( ( compoundButton, enable ) -> {
+//
+//						DirectionsVerticalFragment dirFragment = mActivity.getVerticalDirectionsFragment();
+//						if(dirFragment !=null)
+//						{
+//							//dirFragment.DBG_EnableDebugUI( enable );
+//						}
+//					});
+//				}
+//			}
+//		}
 	}
 	//endregion
 

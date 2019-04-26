@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.mapsindoors.mapssdk.models.FloorBase;
+import com.mapsindoors.mapssdk.FloorBase;
 import com.mapsindoors.stdapp.Application;
 import com.mapsindoors.stdapp.R;
 

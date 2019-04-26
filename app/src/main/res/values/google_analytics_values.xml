@@ -14,7 +14,7 @@
 	<string name="ga_screen_select_destination"     translatable="false">Select_Destination</string>
 	<string name="ga_screen_show_route_on_map"      translatable="false">Show_Route_on_Map</string>
 	<string name="ga_screen_show_search_on_map"     translatable="false">Show_Search_on_Map</string>
-	<string name="fir_screen_Show_Location_On_Map"     translatable="false">Show_Location_On_Map</string>
+	<string name="fir_screen_Show_Location_On_Map"  translatable="false">Show_Location_On_Map</string>
 
 
 	<!-- EVENTS (GOOGLE ANALYTICS) -->
@@ -66,11 +66,7 @@
 	<string name="fir_event_No_Location_Service"     translatable="false">No_Location_Service</string>
 	<string name="fir_event_Venue_Selected"     translatable="false">Venue_Selected</string>
 
-
-
-
 	<string name="fir_event_Map_Tap_Drawer_Close"     translatable="false">Map_Tap_Drawer_Close</string>
-
 
 	<!-- PARAMS (FIREBASE) -->
 	<string name="fir_param_Travel_Mode"     translatable="false">Travel_Mode</string>
@@ -80,11 +76,5 @@
 	<string name="fir_param_floor_Index"    translatable="false">floorIndex</string>
 
 	<string name="fir_param_Venue"    translatable="false">Venue</string>
-
 	<string name="fir_param_Query"    translatable="false">Query</string>
-
-
-
-
-
 </resources>

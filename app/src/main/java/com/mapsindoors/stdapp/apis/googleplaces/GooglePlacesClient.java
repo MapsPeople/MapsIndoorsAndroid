@@ -10,7 +10,7 @@ import com.mapsindoors.mapssdk.JSONUtil;
 import com.mapsindoors.mapssdk.MIConnectivityUtils;
 import com.mapsindoors.mapssdk.URITemplate;
 import com.mapsindoors.mapssdk.UrlLoader;
-import com.mapsindoors.mapssdk.models.Point;
+import com.mapsindoors.mapssdk.Point;
 import com.mapsindoors.stdapp.apis.googleplaces.listeners.AutoCompleteSuggestionListener;
 import com.mapsindoors.stdapp.apis.googleplaces.listeners.GeoCodeResultListener;
 import com.mapsindoors.stdapp.apis.googleplaces.listeners.ReverseGeoCodeResultListener;

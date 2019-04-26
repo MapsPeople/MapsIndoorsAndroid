@@ -11,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapsindoors.mapssdk.Convert;
-import com.mapsindoors.mapssdk.models.MenuInfo;
+import com.mapsindoors.mapssdk.MenuInfo;
 import com.mapsindoors.stdapp.BuildConfig;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsUtils;

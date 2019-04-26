@@ -1,7 +1,7 @@
 package com.mapsindoors.stdapp.models;
 
 import com.mapsindoors.mapssdk.Location;
-import com.mapsindoors.mapssdk.models.Route;
+import com.mapsindoors.mapssdk.Route;
 
 public class LastRouteInfo
 {

@@ -4,30 +4,21 @@ buildscript {
     }
 
     dependencies {
-        classpath "io.fabric.tools:gradle:1.25.4"
+        classpath "io.fabric.tools:gradle:1.28.1"
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-
 // Add the MapsIndoors plugin to embed the "offline" data
-apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroidV1/SDK_V2/gradle/MapsIndoorsOfflineDataSync.gradle'
+apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroid/master/gradle/MapsIndoorsOfflineDataSync.gradle'
 preBuild.dependsOn fetchData
-
-
 
 repositories {
     flatDir { dirs 'libs' }
     mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
-}
-
-static def getDevUserName() {
-    if (System.getenv("USERNAME") != null) return System.getenv("USERNAME")
-    if (System.getenv("LOGNAME") != null) return System.getenv("LOGNAME")
-    return ""
 }
 
 android {
@@ -38,7 +29,6 @@ android {
             storeFile file('put_your_own_store_file')
             storePassword 'put_your_own_store_password'
         }
-
     }
 
     lintOptions {
@@ -53,7 +43,7 @@ android {
     }
 
     compileSdkVersion 27
-    buildToolsVersion '28.0.0-rc2'
+    buildToolsVersion '28.0.3'
 
     //
     defaultConfig {
@@ -62,54 +52,23 @@ android {
         targetSdkVersion 27
 
         vectorDrawables.useSupportLibrary = true
-        // Used to insert per-developer debug code blocks
-        buildConfigField "String", "DEVELOPER_USERNAME", "\"${getDevUserName()}\""
-
-
     }
 
     buildTypes {
         release {
-            // ==========================================================================
-            //
-            // On signing: https://android-developers.googleblog.com/2016/11/understanding-apk-packaging-in-android-studio-2-2.html
-            //
-            // ==========================================================================
-            //
-            minifyEnabled true      // SET TO TRUE TO RUN PROGUARD
-
-            // ====================================================================================
-            //    Caution: You must use zipalign at one of two specific points in the app-building process,
-            //    depending on which app-signing tool you use:
-            //    • If you use apksigner, zipalign must only be performed before the APK file has been
-            //      signed. If you sign your APK using apksigner and make further changes to the APK,
-            //      its signature is invalidated.
-            //    • If you use jarsigner, zipalign must only be performed after the APK file has been
-            //      signed.
-            // ====================================================================================
-            zipAlignEnabled true    // Comment out if Proguard is disabled (minifyEnabled == false)
-            shrinkResources true    // -idem-
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
 
             proguardFile 'proguard-rules.pro'
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
-
-            //
-            buildConfigField "boolean", "DEBUG_ENABLE_UI_SETTINGS", "false"
-
         }
 
         debug {
             debuggable true
-            // Disable crashlytics by default
+
             ext.enableCrashlytics = false
-			// Ref to: https://docs.fabric.io/android/crashlytics/build-tools.html
             ext.alwaysUpdateBuildId = false
-
-            //
-            buildConfigField "boolean", "DEBUG_ENABLE_UI_SETTINGS", "true"
-
-            // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration
-            //matchingFallbacks = ['release']
         }
     }
 
@@ -122,22 +81,17 @@ android {
             dimension "default"
            // signingConfig signingConfigs.miDemo
             applicationId "com.mapsindoors.mapsindoorsdemo"
-            versionCode 20
-            versionName '2.0.0'
+            versionCode 21
+            versionName '2.1.0'
 
             // check: https://developer.android.com/studio/build/shrink-code#unused-alt-resources
             resConfigs "en", "da"
         }
-
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    packagingOptions {
-        //exclude 'LICENSE.txt'
     }
 
     bundle {
@@ -147,37 +101,32 @@ android {
     }
 }
 
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation "com.android.support:appcompat-v7:27.1.1"
     implementation "com.android.support:design:27.1.1"
     implementation "com.android.support:cardview-v7:27.1.1"
-    implementation "com.android.support.constraint:constraint-layout:1.1.0"
+    implementation "com.android.support.constraint:constraint-layout:1.1.3"
 
-    implementation "com.mapspeople.mapsindoors:mapsindoorssdk:2.0.4@aar"
+    implementation "com.mapspeople.mapsindoors:mapsindoorssdk:2.0.11@aar"
     implementation "com.google.code.gson:gson:2.8.5"
 
     implementation "org.altbeacon:android-beacon-library:2.12.4"
 
-    //
-    // IMPORTANT: GPS, new versioning scheme.
-    // See: Announcing new SDK versioning in Google Play services and Firebase (https://android-developers.googleblog.com/2018/05/)
-    //
-    implementation 'com.google.android.gms:play-services-maps:15.0.1'
-    implementation 'com.google.android.gms:play-services-location:15.0.1'
-    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.8'
 
-    implementation("com.crashlytics.sdk.android:crashlytics:2.9.1@aar") {transitive = true;}
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.9@aar') {transitive = true;}
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "uk.co.chrisjenx:calligraphy:2.3.0"
     implementation "com.karumi:dexter:4.2.0"
 
     // DEV ONLY
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:1.5.4"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:1.5.4"
-    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:1.5.4"
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
+    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
 }
 
 gradle.projectsEvaluated {

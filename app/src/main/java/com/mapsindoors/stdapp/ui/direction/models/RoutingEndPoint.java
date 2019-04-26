@@ -4,11 +4,11 @@ import android.content.Context;
 
 import com.mapsindoors.mapssdk.Location;
 import com.mapsindoors.mapssdk.LocationPropertyNames;
-import com.mapsindoors.mapssdk.models.Building;
-import com.mapsindoors.mapssdk.models.BuildingCollection;
-import com.mapsindoors.mapssdk.models.Venue;
-import com.mapsindoors.mapssdk.models.VenueCollection;
-import com.mapsindoors.mapssdk.models.VenueInfo;
+import com.mapsindoors.mapssdk.Building;
+import com.mapsindoors.mapssdk.BuildingCollection;
+import com.mapsindoors.mapssdk.Venue;
+import com.mapsindoors.mapssdk.VenueCollection;
+import com.mapsindoors.mapssdk.VenueInfo;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 
