@@ -532,6 +532,13 @@ public class SearchFragment extends BaseFragment
 
                     //noResultsFoundFeedback( -1 );
                     Venue currentVenue = mActivity.getVenueCollection().getCurrentVenue();
+                    Point VenuePos = (currentVenue != null) ? currentVenue.getPosition() : null;
+                    Point userPos = mMapControl.getCurrentPosition()!= null ?mMapControl.getCurrentPosition().getPoint():null;
+
+                    iLocsQueryBuilder.setMaxResults( MapsIndoorsSettings.INDOOR_LOCATIONS_QUERY_RESULT_MAX_LENGTH ).
+                            setNear( (userPos != null) ? userPos : VenuePos );
+
+
                     switch( mCurrentSearchType )
                     {
                         case POI_MENU_SEARCH_TYPE:
@@ -539,19 +546,16 @@ public class SearchFragment extends BaseFragment
                             iLocsQueryBuilder.setCategories( Collections.singletonList( mCategFilter ) );
                             iLocsQueryBuilder.
                                 setOrderBy( LocationQuery.NO_ORDER ).
-                                setQueryMode( LocationQuery.MODE_PREFER_ONLINE ).
-                                setMaxResults( MapsIndoorsSettings.INDOOR_LOCATIONS_QUERY_RESULT_MAX_LENGTH ).
-                                setNear( (currentVenue != null) ? currentVenue.getPosition() : null );
+                                setQueryMode( LocationQuery.MODE_PREFER_ONLINE );
                             break;
                         }
                         default:
                         {
                             iLocsQueryBuilder.
                                 setCategories( null ).
+                                    setVenue( LocationQuery.VENUE_ALL ).
                                 setOrderBy( LocationQuery.RELEVANCE ).
-                                setQueryMode( LocationQuery.MODE_PREFER_ONLINE ).
-                                setMaxResults( MapsIndoorsSettings.FULL_SEARCH_INDOORS_QUERY_RESULT_MAX_LENGTH ).
-                                setNear( (currentVenue != null) ? currentVenue.getPosition() : null );
+                                setQueryMode( LocationQuery.MODE_PREFER_ONLINE );
                         }
                     }
 
