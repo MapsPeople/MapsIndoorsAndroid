@@ -1,6 +1,5 @@
 import groovy.json.JsonSlurper
 
-import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -8,7 +7,7 @@ import java.util.regex.Pattern
  * MIOfflineDataSync
  *
  * Created by Mohammed Amine on 7/6/2017.
- * Modified by Jose J Varó on 14/6/2018.
+ * Modified by Jose J Varó on 12/6/2019.
  * Copyright © 2019 MapsPeople A/S. All rights reserved.
  */
 
@@ -54,6 +53,10 @@ ext {
     MIFlavorAPIFileXMLNode = null
 
     MIAppFlavor = ""
+
+    // Scale is a floating point value (one could set it to, say, 2.5)
+    MI_ADV_ICONS_MAX_DENSITY = 4
+    MI_ADV_ICONS_BASE_NAME = "advanced-icon_"
 }
 
 task cleanAssets {
@@ -110,7 +113,6 @@ task fetchData {
 
     dependsOn cleanAssets
     finalizedBy unzipTiles
-
     doLast {
 
         // Check first if offline data has been enabled from the MapsIndoors API xml. Defaults to disabled
@@ -158,15 +160,14 @@ task fetchData {
 
         // Pull the available languages list from the solution endpoint. This is used to get localized
         // strings for most of the relevant data
-        String[] solutionAvailableLanguages = null
-
+        final String solutionDefaultLanguage = getSolutionDefaultLanguage(baseUrl, mi_APIKey)
+        String[] solutionAvailableLanguages
         if (!embedDefaultLanguageDataOnly)
         {
             solutionAvailableLanguages = getSolutionAvailableLanguages(baseUrl, mi_APIKey)
         }
         else
         {
-            final String solutionDefaultLanguage = getSolutionDefaultLanguage(baseUrl, mi_APIKey)
             solutionAvailableLanguages = [solutionDefaultLanguage]
         }
 
@@ -221,7 +222,7 @@ task fetchData {
         }
 
         // Download the content of the URL referenced inside the files second round
-        List<String> filesWContent = new ArrayList<>()
+        final List<String> filesWContent = new ArrayList<>()
 
         //
         String[] filesWContentBaseName = ['_solutions']
@@ -237,24 +238,32 @@ task fetchData {
             filesWContent.add(mi_APIKey + filesWContentBaseName[i])
         }
 
-        //
-        String[] filesWLangContentBaseName = ['_appconfig_']
+        // =================================================================
+        // JJV: Skip menu item icons as they are not managed by the SDK.
+        // JJV: It's up to the consumer of the SDK to deal with them...
+        // =================================================================
+//        String[] filesWLangContentBaseName = ['_appconfig_']
+//
+//        def filesWLangContentCount = filesWLangContentBaseName.length
+//        for (int i = 0; i < filesWLangContentCount; i++)
+//        {
+//            for (int j = 0; j < languageCount; j++)
+//            {
+//                filesWContent.add(mi_APIKey + filesWLangContentBaseName[i] + solutionAvailableLanguages[j])
+//            }
+//        }
 
-        def filesWLangContentCount = filesWLangContentBaseName.length
-        for (int i = 0; i < filesWLangContentCount; i++)
-        {
-            for (int j = 0; j < languageCount; j++)
-            {
-                filesWContent.add(mi_APIKey + filesWLangContentBaseName[i] + solutionAvailableLanguages[j])
-            }
-        }
+        //region ALL BUT LOCATION ICONS
+
+        // Note that we are parsing custom & advanced icons here too: a solution's location type can get them too
 
         dbgLogInfo('Parsing data files. Looking for stuff to download... Files: ' + filesWContent.toString())
+
+        HashMap<String, String> downloadableInfoList = new HashMap<>()
 
         def filesWContentListCount = filesWContent.size()
         for (int i = 0; i < filesWContentListCount; i++)
         {
-
             String fileContents = new File(outputPathPrefix + filesWContent.get(i)).text
             def matches = (fileContents =~ /\b(https?):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[-A-Za-z0-9+&@#\/%=~_|]/)
 
@@ -262,19 +271,24 @@ task fetchData {
             for (int matchesCounter = 0; matchesCounter < matches.count; matchesCounter++)
             {
                 def url = matches[matchesCounter][0].toString()
-                def values = url.split('/')
 
+                // Xform the url to a filename
+                final def values = url.split('/')
                 def fileName = mi_APIKey + '_' + values[3]
 
-                for (int j = 4; j < values.size(); j++)
+                final int vCount = values.size()
+                for (int j = 4; j < vCount; j++)
                 {
                     fileName = fileName + '_' + values[j]
                 }
 
-                def isImage = (fileName =~ /.*.(png|jpg|gif|bmp|svg)/)
-                def isZipFile = (fileName =~ /.*.(zip)/)
+                final def isImage = (fileName =~ /.*.(png|jpg|gif|bmp)/) // svg removed. They are requested in
+                final def isZipFile = (fileName =~ /.*.(zip)/)
 
-                if (!isImage.find() && !isZipFile.find())
+                final boolean bIsImage = isImage.find()
+                final boolean bIsZipFile = isZipFile.find()
+
+                if (!bIsImage && !bIsZipFile)
                 {
                     // Skip URLs that have nothing to do with images (?)
                     // VERY IMPORTANT: CHECK IN THE GRADLE CONSOLE THAT THE SKIPPED URL
@@ -284,30 +298,127 @@ task fetchData {
                     continue
                 }
 
+                // If found, strip params from the filename
+                final int parIndx = fileName.indexOf('?')
+                if (parIndx >= 0)
+                {
+                    fileName = fileName.substring(0, parIndx)
+                }
+
+                // Append the highest scale to the advanced icon's url
+                // Note that we are assuming there that the root name is
+                if (fileName.indexOf(MI_ADV_ICONS_BASE_NAME) >= 0)
+                {
+                    url += "&scale=" + MI_ADV_ICONS_MAX_DENSITY
+                }
+
                 // Avoid any casing error by setting the whole thing to lower case
-                def fullFilename = outputPathPrefix + fileName
-                def f = new File(fullFilename)
+                final def fullFilename = outputPathPrefix + fileName
+                //final def f = new File(fullFilename)
 
                 if (SHOW_DEBUG_INFO)
                 {
                     print DBG_TAG + ' -- will download: ' + url + ' ... '
                 }
 
-                // TODO: send the last modified date of the files to try to speed up this a bit...
-//                URL daUrl = new URL(url) //.withInputStream { inp -> f.withOutputStream { it << inp } }
-//                URLConnection urlConnection = daUrl.openConnection()
-//                if(f.exists())
-//                {
-//                    urlConnection.setIfModifiedSince( f.lastModified() )
-//                }
-//                urlConnection.connect()
-//                // ????
+                downloadableInfoList.put(url, fullFilename)
+            }
+        }
+        //endregion
 
-                new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
+
+        //region LOCATION ICONS (CUSTOM + ADVANCED) - We are excluding attached images as they are an app's business...
+
+        if (enableOfflineLocations)
+        {
+            dbgLogInfo('Parsing the location data file. Looking for stuff to download...')
+
+            // TODO: handle a solution without english lang setup
+            //final def gotDefaultLang = solutionAvailableLanguages.any{ it == 'en'}
+            //if( !gotDefaultLang )
+            //{
+            //}
+
+            final String fileContents = new File(outputPathPrefix + mi_APIKey + '_locations_' + solutionDefaultLanguage).text
+            final def matches = (fileContents =~ /(\"icon\"\:[\s]*")(https):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[-A-Za-z0-9+&@#\/%=~_|]/)
+            final int matchesCount = matches.count
+
+            for (int i = 0; i < matchesCount; i++)
+            {
+                def url = matches[i][0].toString()
+                url = url.substring(url.indexOf('https'))
+
+                // Xform the url to a filename
+                def values = url.split('/')
+                def fileName = mi_APIKey + '_' + values[3]
+
+                final int vCount = values.size()
+                for (int j = 4; j < vCount; j++)
+                {
+                    fileName = fileName + '_' + values[j]
+                }
+
+                final def isImage = (fileName =~ /.*.(png|jpg|gif|bmp)/) // svg removed. They are requested in
+
+                final boolean bIsImage = isImage.find()
+
+                if (!bIsImage )
+                {
+                    // Skip URLs that have nothing to do with images (?)
+                    // VERY IMPORTANT: CHECK IN THE GRADLE CONSOLE THAT THE SKIPPED URL
+                    // CAN BE SKIPPED (IS NOT SOMETHING THAT IS NEEDED). But if an important file
+                    // is skipped, fix the regex
+                    dbgLogInfo('Parsing data files - skipping URL : ' + url)
+                    continue
+                }
+
+                // If found, strip params from the filename
+                final int parIndx = fileName.indexOf('?')
+                if (parIndx >= 0)
+                {
+                    fileName = fileName.substring(0, parIndx)
+                }
+
+                // Append the highest scale to the advanced icon's url
+                // Note that we are assuming there that the root name is
+                if (fileName.indexOf(MI_ADV_ICONS_BASE_NAME) >= 0)
+                {
+                    url += "&scale=" + MI_ADV_ICONS_MAX_DENSITY
+                }
+
+                // Avoid any casing error by setting the whole thing to lower case
+                final def fullFilename = outputPathPrefix + fileName
 
                 if (SHOW_DEBUG_INFO)
                 {
-                        println 'done'
+                    print DBG_TAG + ' -- will download: ' + url + ' ... '
+                }
+
+                downloadableInfoList.put(url, fullFilename)
+
+                if (SHOW_DEBUG_INFO) {
+                    println 'done'
+                }
+            }
+        }
+        //endregion
+
+        downloadableInfoList.each { key, val ->
+
+            final String url   = key
+            final String fullFilename = val
+
+            if (SHOW_DEBUG_INFO)
+            {
+                println "$DBG_TAG -- will download: $url -> $fullFilename"
+            }
+
+            try {
+                final def f = new File(fullFilename)
+                new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
+            } catch (Exception e) {
+                if (SHOW_DEBUG_INFO) {
+                    println 'ERROR: ' + e
                 }
             }
         }
@@ -335,6 +446,7 @@ task fetchData {
 
         dbgLogInfo(': Finished fetching data')
     }
+
 }
 
 /**

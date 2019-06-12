@@ -141,10 +141,11 @@ public class MapFloorSelector extends FrameLayout implements IFloorSelector
 		mFloorSelectorListView.setOnItemClickListener( ( parent, view, position, id ) -> {
 
 			final Bundle eventParams = new Bundle();
-			eventParams.putInt(context.getString( R.string.fir_param_floor_Index), position);
+			int newIndex = (int) view.getTag();
+
+			eventParams.putInt(context.getString( R.string.fir_param_floor_Index), newIndex);
 			GoogleAnalyticsManager.reportEvent(context.getString( R.string.fir_event_Map_Floor_Selector_Clicked ), eventParams );
 
-			int newIndex = (int) view.getTag();
 			if( newIndex != mCurrentFloorIndex ) {
 
 				setFloorInternal( newIndex );
