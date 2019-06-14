@@ -4,8 +4,8 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * Offline data script for the MapsIndoors Android SDK v3.x.x
- * 
+ * Offline data script for the MapsIndoors Android SDK v2.x.x
+ *
  * <p>Note that the backend version has nothing to do with the Android SDK version</p>
  *
  * Created by Mohammed Amine on 7/6/2017.
@@ -59,7 +59,7 @@ ext {
     // Scale is a floating point value (one could set it to, say, 2.5)
     MI_ADV_ICONS_MAX_DENSITY = 4
     MI_ADV_ICONS_BASE_NAME = "advanced-icon_"
-    MI_BACKEND_VERSION_AS_STR = "&v=3"
+    MI_BACKEND_VERSION_AS_STR = "&v=2"
 }
 
 task cleanAssets {
