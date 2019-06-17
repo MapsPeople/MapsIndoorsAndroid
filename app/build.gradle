@@ -12,7 +12,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 // Add the MapsIndoors plugin to embed the "offline" data
-apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroid/master/gradle/MapsIndoorsOfflineDataSync.gradle'
+apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroid/master/gradle/MapsIndoorsOfflineDataSync_v2.gradle'
 preBuild.dependsOn fetchData
 
 repositories {
@@ -109,7 +109,7 @@ dependencies {
     implementation "com.android.support:cardview-v7:27.1.1"
     implementation "com.android.support.constraint:constraint-layout:1.1.3"
 
-    implementation "com.mapspeople.mapsindoors:mapsindoorssdk:2.0.11@aar"
+    implementation "com.mapspeople.mapsindoors:mapsindoorssdk:2.1.4@aar"
     implementation "com.google.code.gson:gson:2.8.5"
 
     implementation "org.altbeacon:android-beacon-library:2.12.4"
