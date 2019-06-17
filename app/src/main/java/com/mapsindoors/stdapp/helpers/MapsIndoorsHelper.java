@@ -16,6 +16,7 @@ import com.mapsindoors.mapssdk.Location;
 import com.mapsindoors.mapssdk.LocationPropertyNames;
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.SphericalUtil;
+import com.mapsindoors.mapssdk.VenueInfo;
 import com.mapsindoors.mapssdk.dbglog;
 import com.mapsindoors.mapssdk.Building;
 import com.mapsindoors.mapssdk.BuildingCollection;
@@ -802,7 +803,14 @@ public class MapsIndoorsHelper
 
 			Venue venue = venueCollection.getVenue( venueCodeName );
 			if( venue != null ) {
-				venueName = venue.getName();
+
+				final VenueInfo venueInfo = venue.getVenueInfo();
+
+				if(venueInfo!=null)
+				{
+					venueName = venueInfo.getName();
+				}
+
 				if( TextUtils.isEmpty( venueName ) ) {
 					venueName = null;
 				}
@@ -902,7 +910,14 @@ public class MapsIndoorsHelper
 
 			Venue venue = venueCollection.getVenue( venueCodeName );
 			if( venue != null ) {
-				venueName = venue.getName();
+
+				final VenueInfo venueInfo = venue.getVenueInfo();
+
+				if(venueInfo!=null)
+				{
+					venueName = venueInfo.getName();
+				}
+
 				if( TextUtils.isEmpty( venueName ) ) {
 					venueName = null;
 				}
