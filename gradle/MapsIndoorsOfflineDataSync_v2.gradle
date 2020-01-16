@@ -9,8 +9,8 @@ import java.util.regex.Pattern
  * <p>Note that the backend version has nothing to do with the Android SDK version</p>
  *
  * Created by Mohammed Amine on 7/6/2017.
- * Modified by Jose J Varó on 12/6/2019.
- * Copyright © 2019 MapsPeople A/S. All rights reserved.
+ * Modified by Jose J Varó on 11/1/2020.
+ * Copyright © 2020 MapsPeople A/S. All rights reserved.
  */
 
 def mi_APIKey = ''
@@ -19,6 +19,9 @@ def mi_APIKey = ''
 ext {
 
     SHOW_DEBUG_INFO = false
+
+    // True when this script will run from a STD App project using the MapsIndoors SDK v2
+    IS_PROJECT_FORMAT_V3_PLUS = false
 
     // ------------------------------------------------------------
     // These reflect the settings in mapsindoors_api.xml
@@ -58,7 +61,16 @@ ext {
 
     // Scale is a floating point value (one could set it to, say, 2.5)
     MI_ADV_ICONS_MAX_DENSITY = 4
-    MI_ADV_ICONS_BASE_NAME = "advanced-icon_"
+
+    // =============================
+    //
+    //  CHECK IF WE COULD PARSE THE SOLUTIONS & LOCATIONS JSON TO CHECK FOR imageSize OBJECTS SET INSTEAD 
+    // 
+    // =============================
+    // Examples:
+    // - "https://api.mapsindoors.com/fb0c8bdd59a04f7ea142d23c/images/advanced-icon_vd7jc5gh.png?455287"
+    // - "https://api.mapsindoors.com/fb0c8bdd59a04f7ea142d23c/images/advanced-icon_vd7jc5gh.png"
+    MI_ADV_ICONS_SERVICE_DOMAIN_NAME = "api.mapsindoors.com"
     MI_BACKEND_VERSION_AS_STR = "&v=2"
 }
 
@@ -83,7 +95,7 @@ task unzipTiles {
 
         if( enableOfflineTiles )
         {
-            if ((new File( project.name + '/' + ASSETS_PATH )).exists())
+            if ((new File( getProjectDirPath() + '/' + ASSETS_PATH )).exists())
             {
                 def tree = fileTree(dir: MPOFFLINEDATA_PATH, include: ['*.zip'])
                 def treeContents = tree.collect { relativePath(it) }
@@ -158,16 +170,16 @@ task fetchData {
         dbgLogInfo('Fetching data ...')
 
 
-        final String outputPathPrefix = project.name + '/' + MPOFFLINEDATA_PATH + '/'
+        final String outputPathPrefix = getProjectDirPath() + '/' + MPOFFLINEDATA_PATH + '/'
         final String baseUrl = 'https://api.mapsindoors.com'
 
         // Pull the available languages list from the solution endpoint. This is used to get localized
         // strings for most of the relevant data
-        final String solutionDefaultLanguage = getSolutionDefaultLanguage(baseUrl, mi_APIKey)
+        final String solutionDefaultLanguage = getSolutionDefaultLanguage(baseUrl, mi_APIKey, MI_BACKEND_VERSION_AS_STR)
         String[] solutionAvailableLanguages
         if (!embedDefaultLanguageDataOnly)
         {
-            solutionAvailableLanguages = getSolutionAvailableLanguages(baseUrl, mi_APIKey)
+            solutionAvailableLanguages = getSolutionAvailableLanguages(baseUrl, mi_APIKey, MI_BACKEND_VERSION_AS_STR)
         }
         else
         {
@@ -198,16 +210,16 @@ task fetchData {
         }
 
         //create the mi directory that contains the maps indoor res
-        def miFile = new File(outputPathPrefix)
+        final def miFile = new File(outputPathPrefix)
         miFile.mkdirs()
 
         // Language agnostic end points download
         final def languageAgnosticEndPointsCount = languageAgnosticEndPoints.length
         for (int i = 0; i < languageAgnosticEndPointsCount; i++)
         {
-            def url = baseUrl + '/sync/' + languageAgnosticEndPoints[i] + '?solutionId=' + mi_APIKey + MI_BACKEND_VERSION_AS_STR
-            def outputPath = outputPathPrefix + mi_APIKey + '_' + languageAgnosticEndPoints[i]
-            def f = new File(outputPath)
+            final def url = baseUrl + '/sync/' + languageAgnosticEndPoints[i] + '?solutionId=' + mi_APIKey + MI_BACKEND_VERSION_AS_STR
+            final def outputPath = outputPathPrefix + mi_APIKey + '_' + languageAgnosticEndPoints[i]
+            final def f = new File(outputPath)
             new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
         }
 
@@ -217,9 +229,9 @@ task fetchData {
         {
             for (int i = 0; i < languageDependentEndPointsCount; i++)
             {
-                def url = baseUrl + '/sync/' + languageDependentEndPoints[i] + '?solutionId=' + mi_APIKey + "&lr=" + solutionAvailableLanguages[j] + MI_BACKEND_VERSION_AS_STR
-                def outputPath = outputPathPrefix + mi_APIKey + '_' + languageDependentEndPoints[i] + '_' + solutionAvailableLanguages[j]
-                def f = new File(outputPath)
+                final def url = baseUrl + '/sync/' + languageDependentEndPoints[i] + '?solutionId=' + mi_APIKey + "&lr=" + solutionAvailableLanguages[j] + MI_BACKEND_VERSION_AS_STR
+                final def outputPath = outputPathPrefix + mi_APIKey + '_' + languageDependentEndPoints[i] + '_' + solutionAvailableLanguages[j]
+                final def f = new File(outputPath)
                 new URL(url).withInputStream { inp -> f.withOutputStream { it << inp } }
             }
         }
@@ -235,26 +247,11 @@ task fetchData {
             filesWContentBaseName += ['_tiles']
         }
 
-        def filesWContentCount = filesWContentBaseName.length
+        final def filesWContentCount = filesWContentBaseName.length
         for (int i = 0; i < filesWContentCount; i++)
         {
             filesWContent.add(mi_APIKey + filesWContentBaseName[i])
         }
-
-        // =================================================================
-        // JJV: Skip menu item icons as they are not managed by the SDK.
-        // JJV: It's up to the consumer of the SDK to deal with them...
-        // =================================================================
-//        String[] filesWLangContentBaseName = ['_appconfig_']
-//
-//        def filesWLangContentCount = filesWLangContentBaseName.length
-//        for (int i = 0; i < filesWLangContentCount; i++)
-//        {
-//            for (int j = 0; j < languageCount; j++)
-//            {
-//                filesWContent.add(mi_APIKey + filesWLangContentBaseName[i] + solutionAvailableLanguages[j])
-//            }
-//        }
 
         //region ALL BUT LOCATION ICONS
 
@@ -310,9 +307,16 @@ task fetchData {
 
                 // Append the highest scale to the advanced icon's url
                 // Note that we are assuming there that the root name is
-                if (fileName.indexOf(MI_ADV_ICONS_BASE_NAME) >= 0)
+                if (fileName.indexOf(MI_ADV_ICONS_SERVICE_DOMAIN_NAME) >= 0)
                 {
-                    url += "&scale=" + MI_ADV_ICONS_MAX_DENSITY
+                    if (url.indexOf('?') < 0)
+                    {
+                        url += "?scale=" + MI_ADV_ICONS_MAX_DENSITY
+                    }
+                    else
+                    {
+                        url += "&scale=" + MI_ADV_ICONS_MAX_DENSITY
+                    }
                 }
 
                 // Avoid any casing error by setting the whole thing to lower case
@@ -384,9 +388,16 @@ task fetchData {
 
                 // Append the highest scale to the advanced icon's url
                 // Note that we are assuming there that the root name is
-                if (fileName.indexOf(MI_ADV_ICONS_BASE_NAME) >= 0)
+                if (fileName.indexOf(MI_ADV_ICONS_SERVICE_DOMAIN_NAME) >= 0)
                 {
-                    url += "&scale=" + MI_ADV_ICONS_MAX_DENSITY
+                    if (url.indexOf('?') < 0)
+                    {
+                        url += "?scale=" + MI_ADV_ICONS_MAX_DENSITY
+                    }
+                    else
+                    {
+                        url += "&scale=" + MI_ADV_ICONS_MAX_DENSITY
+                    }
                 }
 
                 // Avoid any casing error by setting the whole thing to lower case
@@ -449,7 +460,6 @@ task fetchData {
 
         dbgLogInfo(': Finished fetching data')
     }
-
 }
 
 /**
@@ -464,23 +474,30 @@ def getCurrentFlavor()
     }
 
     Gradle gradle = getGradle()
-    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
+    final String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
 
     Pattern pattern
 
-    if (tskReqStr.contains(":app:assemble"))
-    {
-        pattern = Pattern.compile(":app:assemble(\\w+)(Release|Debug)")
-    }
-    else
-    {
-        pattern = Pattern.compile(":app:generate(\\w+)(Release|Debug)")
-    }
+    final String wordStartingWithUppercase = "([A-Z][a-z']*)(\\s[A-Z][a-z']*)*"
 
-    Matcher matcher = pattern.matcher(tskReqStr)
+    if (tskReqStr.contains(":app:assemble")) {
+        if (IS_PROJECT_FORMAT_V3_PLUS) {
+            pattern = Pattern.compile(":app:assemble(${wordStartingWithUppercase})(${wordStartingWithUppercase})(${wordStartingWithUppercase})(Release|Debug)")
+        } else {
+            pattern = Pattern.compile(":app:assemble(${wordStartingWithUppercase})(${wordStartingWithUppercase})(Release|Debug)")
+        }
+    } else {
+        if (IS_PROJECT_FORMAT_V3_PLUS) {
+            pattern = Pattern.compile(":app:generate(${wordStartingWithUppercase})(${wordStartingWithUppercase})(${wordStartingWithUppercase})(Release|Debug)")
+        } else {
+            pattern = Pattern.compile(":app:generate(${wordStartingWithUppercase})(${wordStartingWithUppercase})(Release|Debug)")
+        }
+    }
+    dbgLogInfo("getCurrentFlavor - Pattern: " + pattern.toString())
 
-    if (matcher.find())
-    {
+    final Matcher matcher = pattern.matcher(tskReqStr)
+
+    if (matcher.find()) {
         MIAppFlavor = matcher.group(1).toLowerCase(Locale.ROOT)
 
         return MIAppFlavor
@@ -710,9 +727,9 @@ boolean areOfflineLocationsDataEnabled( defaultValue )
     return areOfflineLocationsEnabled
 }
 
-static String[] getSolutionAvailableLanguages(baseUrl, apiKey)
+static String[] getSolutionAvailableLanguages(baseUrl, apiKey, backendVersion)
 {
-    final String url = baseUrl + '/sync/solutions?solutionId=' + apiKey
+    final String url = baseUrl + '/sync/solutions?solutionId=' + apiKey + backendVersion
 
     try
     {
@@ -735,9 +752,9 @@ static String[] getSolutionAvailableLanguages(baseUrl, apiKey)
     return new String[0]
 }
 
-static String getSolutionDefaultLanguage(baseUrl, apiKey)
+static String getSolutionDefaultLanguage(baseUrl, apiKey, backendVersion)
 {
-    final String url = baseUrl + '/sync/solutions?solutionId=' + apiKey
+    final String url = baseUrl + '/sync/solutions?solutionId=' + apiKey + backendVersion
 
     String solutionDefaultLanguage = "en"
 
@@ -773,10 +790,10 @@ def parseMIAPIFile()
 
     MIAPIXMLNode = null
 
-    String flavor = getCurrentFlavor()
+    final String flavor = getCurrentFlavor()
 
     // Try getting the file for the given flavor
-    String miAPIFilePath = String.format(project.name + '/' + MI_API_FILE_FLAVORED_PATH, flavor)
+    String miAPIFilePath = String.format(getProjectDirPath() + '/' + MI_API_FILE_FLAVORED_PATH, flavor)
 
     boolean fileFromFlavor = true
     def miAPIFile = new File(miAPIFilePath)
@@ -785,7 +802,7 @@ def parseMIAPIFile()
     if ( !flavorFileExists )
     {
         // If it fails to do so (ie: the MIDemo flavor) get the default file
-        miAPIFilePath = project.name + '/' + MI_API_FILE_DEFAULT_PATH
+        miAPIFilePath = getProjectDirPath() + '/' + MI_API_FILE_DEFAULT_PATH
 
         fileFromFlavor = false
         miAPIFile = new File(miAPIFilePath)
@@ -830,7 +847,7 @@ def parseDefaultMIAPIFile()
     MIDefaultAPIFileXMLNode = null
 
     // Get the default file
-    String miAPIFilePath = project.name + '/' + MI_API_FILE_DEFAULT_PATH
+    String miAPIFilePath = getProjectDirPath() + '/' + MI_API_FILE_DEFAULT_PATH
 
     def miAPIFile = new File(miAPIFilePath)
 
@@ -862,10 +879,12 @@ def parseCurrentFlavorMIAPIFile()
 
     MIFlavorAPIFileXMLNode = null
 
-    String flavor = getCurrentFlavor()
+    final String flavor = getCurrentFlavor()
+
+    dbgLogInfo("parseCurrentFlavorMIAPIFile() - Resolved flavor: " + flavor )
 
     // Try getting the file for the given flavor
-    String miAPIFilePath = String.format(project.name + '/' + MI_API_FILE_FLAVORED_PATH, flavor)
+    String miAPIFilePath = String.format(getProjectDirPath() + '/' + MI_API_FILE_FLAVORED_PATH, flavor)
 
     def miAPIFile = new File(miAPIFilePath)
 
@@ -885,12 +904,25 @@ def parseCurrentFlavorMIAPIFile()
     }
 }
 
+def getProjectDirPath()
+{
+    if (IS_PROJECT_FORMAT_V3_PLUS) {
+        dbgLogInfo("getProjectDirPath(): " + projectDir.getAbsolutePath())
+        return projectDir.getAbsolutePath()
+    } else {
+        dbgLogInfo("getProjectDirPath(): " + project.name)
+        return project.name
+    }
+}
+
 def cleanUp()
 {
     MIAPIXMLNode = null
     MIDefaultAPIFileXMLNode = null
     MIFlavorAPIFileXMLNode = null
     MIAppFlavor = ""
+
+    dbgLogInfo("cleanup(): " + (projectDir.path + '/' + MPOFFLINEDATA_PATH) )
 
     delete {
         delete projectDir.path + '/' + MPOFFLINEDATA_PATH
@@ -907,3 +939,4 @@ def dbgLogInfo(String logStr)
         }
     }
 }
+
