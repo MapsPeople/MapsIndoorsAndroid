@@ -24,7 +24,7 @@
 		android:id="@+id/mp_floor_selector"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_above="@+id/mp_goto_mylocation_button"
+		android:layout_above="@+id/follow_me_button"
 		android:layout_alignParentStart="true"
 		android:layout_marginBottom="10dp"
 		android:layout_marginStart="10dp"
@@ -35,8 +35,8 @@
 		tools:visibility="visible"
 		/>
 
-	<ImageButton
-		android:id="@+id/mp_goto_mylocation_button"
+	<com.mapsindoors.stdapp.ui.tracking.FollowMeButton
+		android:id="@+id/follow_me_button"
 		android:layout_width="40dp"
 		android:layout_height="40dp"
 		android:layout_alignParentBottom="true"
@@ -46,8 +46,6 @@
 		android:background="@color/white"
 		android:padding="7dp"
 		android:scaleType="fitXY"
-		app:srcCompat="@drawable/ic_my_location_active"
-
 		android:elevation="6dp"
 		android:outlineProvider="bounds"
 		/>
@@ -65,6 +63,7 @@
 		android:paddingLeft="10dp"
 		android:paddingRight="10dp"
 		android:text="@string/zoom_for_detail_text"
+		android:textAllCaps="false"
 		android:textColor="@color/colorPrimary"
 		android:visibility="gone"
 		tools:alpha="1"
@@ -84,6 +83,7 @@
 		android:paddingLeft="10dp"
 		android:paddingRight="10dp"
 		android:text="@string/return_to_venue_text"
+		android:textAllCaps="false"
 		android:textColor="@color/colorPrimary"
 		android:visibility="gone"
 		tools:alpha="1"

@@ -1,9 +1,20 @@
 package com.mapsindoors.stdapp.ui.common.fragments;
 
-import android.support.v4.app.Fragment;
+import android.app.Activity;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import android.view.View;
 
+import com.mapsindoors.mapssdk.DataSetManagerStatus;
+import com.mapsindoors.mapssdk.MPDataSetCache;
+import com.mapsindoors.mapssdk.MPDataSetCacheManager;
+import com.mapsindoors.mapssdk.MPDataSetCacheSyncListener;
 import com.mapsindoors.mapssdk.OnStateChangedListener;
+import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
+import com.mapsindoors.stdapp.ui.common.enums.DrawerState;
+import com.mapsindoors.stdapp.ui.common.enums.MenuFrame;
 
 
 /**
@@ -13,32 +24,74 @@ import com.mapsindoors.mapssdk.OnStateChangedListener;
  * Created by Jose J Varó on 02/03/2017.
  * Copyright © 2017 MapsPeople A/S. All rights reserved.
  */
-public abstract class BaseFragment extends Fragment implements OnStateChangedListener
-{
-	protected View mMainView;
+public abstract class BaseFragment extends Fragment implements OnStateChangedListener {
+    protected View mMainView;
+    protected MenuFrame mFragment;
 
-	public boolean isFragmentSafe() {
-		return !isDetached() && !isRemoving() && isActive();
-	}
+    protected MPDataSetCacheManager mDatasetCacheManager;
 
-	public boolean isActive()
-	{
-		return (mMainView != null) && (mMainView.getVisibility() == View.VISIBLE);
-	}
+    protected BaseFragment() {
+        // Setup listener, to handle updated data, e.g. when conneting to network
+        mDatasetCacheManager = MPDataSetCacheManager.getInstance();
+        mDatasetCacheManager.addMPDataSetCacheSyncListener(new MPDataSetCacheSyncListener() {
+            @Override
+            public void onDataSetSyncStatusChanged(@NonNull MPDataSetCache dataSetCache, int status) {
+                if (status == DataSetManagerStatus.SYNC_FINISHED) {
+                    onDataUpdated();
+                }
+            }
+        });
+    }
 
-	public abstract void connectivityStateChanged( boolean state );
+    public boolean isFragmentSafe() {
+        return !isDetached() && !isRemoving() && isActive();
+    }
 
-	public abstract boolean onBackPressed();
+    public boolean isActive() {
+        return (mMainView != null) && (mMainView.getVisibility() == View.VISIBLE);
+    }
 
-	public abstract void onDrawerEvent( int newState, int prevState );
+    public boolean isAvailable() {
+        return mMainView != null;
+    }
 
+    public void connectivityStateChanged(boolean state) {
+    }
 
-	// so the listener can transmet the connectivity changments to all the fragments tha will override "connectivityStateChanged()" method
-	@Override
-	public void onStateChanged(boolean isEnabled) {
+    public boolean onBackPressed() {
+        final Activity activity = getActivity();
+        if (activity instanceof MapsIndoorsActivity) {
+            MapsIndoorsActivity mapsIndoorsActivity = (MapsIndoorsActivity) activity;
+            final boolean imActive = (getActivity() != null) && (mapsIndoorsActivity.getCurrentMenuShown() == mFragment);
 
-		if (isAdded()) {
-			connectivityStateChanged( isEnabled);
-		}
-	}
+            if (imActive) {
+                close(mapsIndoorsActivity);
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public void close(MapsIndoorsActivity activity) {
+        activity.menuGoBack();
+    }
+
+    public void onDrawerEvent(DrawerState newState, DrawerState prevState) {
+    }
+
+    public void willOpen(final MenuFrame fromIndex) {
+    }
+
+    public void onDataUpdated() {
+    }
+
+    // So the listener can transmit the connectivity changes to all the fragments tha will override "connectivityStateChanged()" method
+    @Override
+    public void onStateChanged(boolean isEnabled) {
+        if (isAdded()) {
+            connectivityStateChanged(isEnabled);
+        }
+    }
+
 }

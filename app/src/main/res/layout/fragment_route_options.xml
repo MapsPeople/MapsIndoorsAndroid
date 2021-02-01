@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    >
+<!--
+    Set setHasFixedSize() (on the list?)
+-->
+    <View
+        android:id="@+id/route_options_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageButton
+        android:id="@+id/route_options_back_button"
+        android:layout_width="@dimen/button_bounds_common_size"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/route_options_toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/route_options_toolbar"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/route_options_toolbar"
+        app:layout_constraintTop_toTopOf="@+id/route_options_toolbar"
+        app:srcCompat="@drawable/ic_arrow_back"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/action_settings"
+        android:textAppearance="@style/ToolbarTitle"
+        app:layout_constraintBottom_toBottomOf="@+id/route_options_toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/route_options_toolbar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/route_options_toolbar"
+        app:layout_constraintTop_toTopOf="@+id/route_options_toolbar"
+        app:layout_constraintVertical_bias="0.5"
+        />
+
+    <View
+        android:id="@+id/route_options_user_roles_group_title"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/light_grey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/route_options_toolbar"
+        app:layout_constraintVertical_bias="0"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/app_user_roles"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/route_options_user_roles_group_title"
+        app:layout_constraintTop_toTopOf="@+id/route_options_user_roles_group_title"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintVertical_bias="0.5"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/route_options_user_roles_group_users"
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentTop="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintTop_toBottomOf="@+id/route_options_user_roles_group_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
+
+        tools:listitem="@layout/control_route_options_user_roles_item"
+        tools:itemCount="4"
+        />
+
+    <View
+        android:id="@+id/route_options_user_roles_bottom_group_description"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/light_grey"
+        app:layout_constraintTop_toBottomOf="@+id/route_options_user_roles_group_users"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/route_settings_user_roles_description"
+        android:textColor="@color/black"
+        android:textAlignment="viewStart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/route_options_user_roles_bottom_group_description"
+        app:layout_constraintTop_toTopOf="@+id/route_options_user_roles_bottom_group_description"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintVertical_bias="0"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

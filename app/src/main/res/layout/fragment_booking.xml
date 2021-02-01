@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="false"
+    android:gravity="center_vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="0dp"
+    android:paddingTop="20dp"
+    >
+
+    <FrameLayout
+        android:id="@+id/booking_icons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/booking_icons"
+        >
+
+            <ImageView
+            android:id="@+id/booking_iconitem"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="top"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_date_range_24px"
+            android:tint="@color/misdk_colorPrimary"
+            />
+
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/booking_icons"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:gravity="end"
+        android:focusable="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout_height="match_parent"
+                android:paddingHorizontal="18dp">
+
+                    <FrameLayout
+                        android:id="@+id/frame_booking_top"
+                        android:layout_width="match_parent"
+                        android:layout_height="34dp">
+
+                            <TextView
+                                android:id="@+id/booking_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|center_vertical"
+                                android:textSize="18sp"
+                                android:textColor="@color/black"
+                                android:text="@string/booking_book" />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textColor="@color/misdk_grey"
+                            android:layout_gravity="center_vertical|end">
+
+                            <Switch
+                                android:visibility="visible"
+                                android:id="@+id/booking_timespan_switch"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:layout_gravity="end|center_vertical"
+                                android:track="@drawable/booking_time_interval_switch_track"
+                                android:thumb="@drawable/booking_time_interval_switch_thumb"
+                                tools:track="@drawable/booking_time_interval_switch_track"
+                                tools:thumb="@drawable/booking_time_interval_switch_thumb"
+                                />
+
+                            <FrameLayout
+                                android:layout_alignTop="@id/booking_timespan_switch"
+                                android:layout_alignStart="@id/booking_timespan_switch"
+                                android:layout_alignEnd="@id/booking_timespan_switch"
+                                android:layout_alignBottom="@id/booking_timespan_switch"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:layout_gravity="center"
+                                        android:textAlignment="center"
+                                        android:text="@string/booking_30m" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:paddingEnd="5dp"
+                                        android:layout_gravity="center"
+                                        android:textAlignment="center"
+                                        android:text="@string/booking_1h" />
+                                </LinearLayout>
+
+                            </FrameLayout>
+
+
+                        </RelativeLayout>
+
+                    </FrameLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/booking_slots_recyclerview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/frame_booking_top"
+                        tools:listitem="@layout/booking_row_view"
+                        />
+
+            </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

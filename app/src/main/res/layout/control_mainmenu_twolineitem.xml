@@ -25,7 +25,7 @@
 			android:layout_gravity="center"
 			android:scaleType="fitCenter"
 			android:visibility="visible"
-			tools:src="@drawable/menu_placeholder"
+			tools:src="@drawable/ic_generic_item_icon"
 			/>
 
 		<ImageView
@@ -47,6 +47,7 @@
 		android:layout_alignParentTop="true"
 		android:layout_gravity="center"
 		android:layout_toEndOf="@+id/ctrl_mainmenu_img_layout"
+		android:layout_toStartOf="@+id/distanceTextView"
 		android:layout_centerVertical="true"
 		android:orientation="vertical">
 
@@ -72,4 +73,13 @@
 
 			/>
 	</LinearLayout>
+	<TextView
+		android:id="@+id/distanceTextView"
+		android:layout_width="wrap_content"
+		android:layout_height="60dp"
+		android:layout_alignParentEnd="true"
+		android:paddingEnd="16dp"
+		android:paddingStart="16dp"
+		android:visibility="gone"
+		android:gravity="center_vertical|end" />
 </RelativeLayout>

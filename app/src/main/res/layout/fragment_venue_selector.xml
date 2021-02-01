@@ -58,11 +58,14 @@
 		android:layout_height="wrap_content"
 		>
 
-		<android.support.v7.widget.RecyclerView
+		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/venue_selector_list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:background="?attr/colorPrimary"
+			android:paddingTop="4dp"
+			android:clipToPadding="false"
+			android:paddingBottom="4dp"
 		    tools:listitem="@layout/control_venue_selector_item"
 			/>
 

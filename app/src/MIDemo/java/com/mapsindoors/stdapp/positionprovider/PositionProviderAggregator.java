@@ -1,11 +1,10 @@
 package com.mapsindoors.stdapp.positionprovider;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mapsindoors.mapssdk.PositionProvider;
-import com.mapsindoors.stdapp.R;
-import com.mapsindoors.stdapp.positionprovider.gpsPositionProvider.GoogleAPIPositionProvider;
+import com.mapsindoors.stdapp.positionprovider.gps.GoogleAPIPositionProvider;
 
 import java.util.ArrayList;
 import java.util.List;

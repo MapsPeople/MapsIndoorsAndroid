@@ -5,12 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -23,32 +17,47 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-import com.mapsindoors.mapssdk.Location;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.mapsindoors.mapssdk.BuildingCollection;
 import com.mapsindoors.mapssdk.LocationPropertyNames;
+import com.mapsindoors.mapssdk.MPFilter;
+import com.mapsindoors.mapssdk.MPLocation;
+import com.mapsindoors.mapssdk.MPQuery;
 import com.mapsindoors.mapssdk.MapControl;
-import com.mapsindoors.mapssdk.dbglog;
+import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.MenuInfo;
+import com.mapsindoors.mapssdk.OnLocationsReadyListener;
 import com.mapsindoors.mapssdk.Solution;
 import com.mapsindoors.mapssdk.VenueCollection;
+import com.mapsindoors.mapssdk.dbglog;
+import com.mapsindoors.mapssdk.errors.MIError;
 import com.mapsindoors.stdapp.BuildConfig;
 import com.mapsindoors.stdapp.R;
+import com.mapsindoors.stdapp.helpers.MapsIndoorsHelper;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsUtils;
 import com.mapsindoors.stdapp.listeners.IGenericRecyclerViewItemClickedListener;
 import com.mapsindoors.stdapp.managers.AppConfigManager;
+import com.mapsindoors.stdapp.managers.GoogleAnalyticsManager;
+import com.mapsindoors.stdapp.managers.UserRolesManager;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 import com.mapsindoors.stdapp.ui.common.adapters.GenericRecyclerViewAdapter;
+import com.mapsindoors.stdapp.ui.common.enums.MenuFrame;
 import com.mapsindoors.stdapp.ui.common.fragments.BaseFragment;
-import com.mapsindoors.stdapp.ui.common.listeners.MenuListener;
 import com.mapsindoors.stdapp.ui.common.models.GenericRecyclerViewListItem;
 import com.mapsindoors.stdapp.ui.locationmenu.LocationMenuFragment;
 import com.mapsindoors.stdapp.ui.search.SearchFragment;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class MenuFragment extends BaseFragment
-{
-    private static final String TAG = MenuFragment.class.getSimpleName();
+public class MenuFragment extends BaseFragment {
+    static final String TAG = MenuFragment.class.getSimpleName();
 
 
     public static final int FLIPPER_LIST_ITEMS = 0;
@@ -62,7 +71,6 @@ public class MenuFragment extends BaseFragment
 
     LocationMenuFragment mLocationMenuFragment;
 
-    protected MenuListener mMenuListener;
 
     private Solution mSolution;
 
@@ -85,22 +93,23 @@ public class MenuFragment extends BaseFragment
     private View mSearchIcon, mVenueSelectorBtn;
     ImageView mBackButton;
     ImageView mInfoButton;
+    ImageView mBookingButton;
+    ImageView mSettingsButton;
 
     private RelativeLayout mRootLayout;
-    List<GenericRecyclerViewListItem> mPrevLocationsItems;
-
-    private ActionBarDrawerToggle mDrawerToggle;
 
 
-    boolean mIsFirstLocationsSearch;
-    boolean mIsMenuCategoryMode;
+    private boolean mIsMenuCategoryMode;
     public boolean mIsOpenedFromBackpress;
-    List<GenericRecyclerViewListItem> mLocationItemsList;
-    SearchFragment mSearchFragment;
-    DrawerLayout mDrawerLayout;
+    private List<GenericRecyclerViewListItem> mLocationItemsList;
+    private SearchFragment mSearchFragment;
 
+    private MenuInfo selectedCateg;
 
-    MenuInfo selectedCateg;
+    private String mQueryCategoryFilter;
+
+    protected boolean mIsSearching = false;
+
 
     public MenuFragment() {
         super();
@@ -110,7 +119,7 @@ public class MenuFragment extends BaseFragment
     //region Fragment lifecycle events
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (mMainView == null) {
             mMainView = inflater.inflate(R.layout.fragment_mainmenu, container);
         }
@@ -119,7 +128,7 @@ public class MenuFragment extends BaseFragment
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         setupView(view);
@@ -132,8 +141,7 @@ public class MenuFragment extends BaseFragment
         mLocationItemsList.addAll(items);
     }
 
-    private void setupView( View view )
-    {
+    private void setupView(View view) {
         // Increase the drawer's width to 90% of the total
         mRootLayout = mMainView.findViewById(R.id.mainmenu);
         int width = (getResources().getDisplayMetrics().widthPixels / 100) * 90;
@@ -141,156 +149,141 @@ public class MenuFragment extends BaseFragment
         mRootLayout.setLayoutParams(params);
 
 
-        mViewFlipper = view.findViewById( R.id.mainmenu_itemlist_viewflipper );
-        mMainMenuListView = view.findViewById( R.id.mainmenu_itemlist );
+        mViewFlipper = view.findViewById(R.id.mainmenu_itemlist_viewflipper);
+        mMainMenuListView = view.findViewById(R.id.mainmenu_itemlist);
 
-        mSearchEditTextView = view.findViewById( R.id.mainmenu_edittext_search );
+        mSearchEditTextView = view.findViewById(R.id.mainmenu_edittext_search);
 
-        mSearchIcon = view.findViewById( R.id.mainmenu_searchicon );
-        mVenueSelectorBtn = view.findViewById( R.id.mainmenu_venue_ic );
-        mVenueNameTextView = view.findViewById( R.id.mainmenu_venue_text );
-        mCategSearchTextView = view.findViewById( R.id.mainmenu_text_categ_search );
+        mSearchIcon = view.findViewById(R.id.mainmenu_searchicon);
+        mVenueSelectorBtn = view.findViewById(R.id.mainmenu_venue_ic);
+        mVenueNameTextView = view.findViewById(R.id.mainmenu_venue_text);
+        mCategSearchTextView = view.findViewById(R.id.mainmenu_text_categ_search);
 
-        mBackButton = view.findViewById( R.id.mainmenu_back_ic );
-        mInfoButton = view.findViewById( R.id.mainmenu_info_ic );
-        mTopImage = view.findViewById( R.id.mainmmenu_topimage );
+        mBackButton = view.findViewById(R.id.mainmenu_back_ic);
+        mInfoButton = view.findViewById(R.id.mainmenu_info_ic);
+        mTopImage = view.findViewById(R.id.mainmmenu_topimage);
+        mSettingsButton = view.findViewById(R.id.mainmenu_settings_ic);
 
-        setupSearchBox(view);
+        mBookingButton = view.findViewById(R.id.mainmenu_booking_ic);
 
-        setupListView(view);
+        setupSearchBox();
+
+        setupListView();
+
+        mFragment = MenuFrame.MENU_FRAME_MAIN_MENU;
     }
 
-    public void init( Context context, MenuListener menuListener, MapControl mapControl )
-    {
+    public boolean hasBeenInitialized() {
+        // Using a ref here
+        return mLocationMenuFragment != null;
+    }
+
+    public void init(Context context, MapControl mapControl) {
         mContext = (mContext != null) ? mContext : getContext();
         mActivity = (mActivity != null) ? mActivity : (MapsIndoorsActivity) mContext;
-        mDrawerLayout = ((MapsIndoorsActivity) context).findViewById(R.id.main_drawer);
 
-
-        mMenuListener = menuListener;
         mMapControl = mapControl;
         mLocationMenuFragment = mActivity.getLocationMenuFragment();
-        mLocationMenuFragment.init( context, menuListener, mapControl );
+        mLocationMenuFragment.init(context, mapControl);
 
-        setupViewFlipper(mMainView);
-        setupListView(mMainView);
-
-        mPrevLocationsItems = new ArrayList<>();
-
+        setupViewFlipper();
+        setupListView();
 
         // Set the focus on the search box with clicking on the search icon
-        mSearchIcon.setOnClickListener( view -> {
+        mSearchIcon.setOnClickListener(view -> {
 
-            if(mIsMenuCategoryMode){
+            if (mIsMenuCategoryMode) {
                 openSearchFragment(SearchFragment.CATEG_MENU_SEARCH_TYPE);
 
-            } else{
+            } else {
                 openSearchFragment(SearchFragment.POI_MENU_SEARCH_TYPE);
             }
 
-        } );
+        });
 
         // Venue selector button
-        mVenueSelectorBtn.setOnClickListener( v -> {
+        mVenueSelectorBtn.setOnClickListener(v -> {
 
             // Open the fragment
-            mActivity.menuGoTo(MapsIndoorsActivity.MENU_FRAME_VENUE_SELECTOR, true);
-        } );
+            mActivity.menuGoTo(MenuFrame.MENU_FRAME_VENUE_SELECTOR, true);
+        });
 
-        mBackButton.setOnClickListener( v -> {
+        mBackButton.setOnClickListener(v -> {
 
             // Populate the menu with the categories
-            populateMenu();
+            populateCategoriesMenu();
             // Show the venue seklector button
             setToolbarBackAndVenueButtonVisibility(false);
-        } );
-
+        });
 
         mInfoButton.setOnClickListener( v -> {
-           mActivity.menuGoTo(MapsIndoorsActivity.MENU_FRAME_APP_INFO, true);
-
+            mActivity.menuGoTo( MenuFrame.MENU_FRAME_APP_INFO, true );
         } );
+
+        mBookingButton.setOnClickListener(v -> {
+            mActivity.menuGoTo( MenuFrame.MENU_FRAME_BOOKING, true);
+        });
+
+        mSettingsButton.setOnClickListener(v -> {
+            mActivity.menuGoTo(MenuFrame.MENU_FRAME_ROUTE_OPTIONS, true);
+        });
     }
 
-    public void openLocationMenu( final Location location )
-    {
+    public void openLocationMenu(final MPLocation location) {
+        openLocationMenu(location, false);
+    }
+
+    public void openLocationMenu(final MPLocation location, boolean infoWindowClick) {
+        setLocationMenu(location, infoWindowClick);
+        mActivity.menuGoTo(MenuFrame.MENU_FRAME_LOCATION_MENU, true);
+    }
+
+    public void setLocationMenu(final MPLocation location, boolean clickedOnMarker) {
         AppConfigManager acm = mActivity.getAppConfigManager();
 
-        Bitmap bitmap, logo;
-        bitmap = logo = null;
+        Bitmap bitmap = null;
+        Bitmap logo = null;
 
-        if( (location.getCategories() != null) && (location.getCategories().length > 0) )
-        {
-            final String locationImageUrl = (String)location.getProperty( LocationPropertyNames.IMAGE_URL );
+        final String[] locCategories = location.getCategories();
+        final String locationImageUrl = (String) location.getProperty(LocationPropertyNames.IMAGE_URL);
 
-            if( TextUtils.isEmpty( locationImageUrl ) )
-            {
-                List<MenuInfo> mainmenuEntryList = (acm != null)
-                        ? acm.getMainMenuEntries()
-                        : null;
-
-                if( mainmenuEntryList != null )
-                {
-                    outerLoop:
-                    for( MenuInfo element : mainmenuEntryList ) {
-
-                        String[] cats = location.getCategories();
-
-                        if( (cats != null) && (cats.length > 0) ) {
-                            for( String category : cats ) {
-                                if( element.getCategoryKey().equalsIgnoreCase( category ) ) {
-
-                                    bitmap = acm.getMainMenuImage( category );
-
-                                    String typeName = location.getType();
-                                    logo = acm.getPOITypeIcon( typeName );
-
-                                    if( BuildConfig.DEBUG ) {
-                                        if( (logo != null) && MapsIndoorsUtils.checkIfBitmapIsEmpty( logo ) ) {
-                                            dbglog.Log( TAG, "MenuFragment.openLocationMenu: EMPTY icon for " + category );
-                                        }
-                                    }
-
-                                    break outerLoop;
-                                }
-                            }
-                        }
+        if (locCategories != null
+                && locCategories.length > 0
+                && acm != null
+                && TextUtils.isEmpty(locationImageUrl)) {
+            for (final MenuInfo element : acm.getMainMenuEntries()) {
+                for (String category : locCategories) {
+                    if (element.getCategoryKey().equalsIgnoreCase(category)) {
+                        bitmap = acm.getMainMenuImage(category);
+                        String typeName = location.getType();
+                        logo = acm.getPOITypeIcon(typeName);
+                        break;
                     }
                 }
+                break;
             }
         }
 
-        if (bitmap == null) {
+        if (bitmap == null && mTopImage.getDrawable() != null) {
             //No category specific image found. Use the current venue image instead.
-            if( mTopImage.getDrawable() != null )
-            {
-                bitmap = ((BitmapDrawable) mTopImage.getDrawable()).getBitmap();
-            }
+            bitmap = ((BitmapDrawable) mTopImage.getDrawable()).getBitmap();
         }
 
-        if (logo == null) {
+        if (logo == null && acm != null) {
             String typeName = location.getType();
-            if( acm != null ) {
-                logo = acm.getPOITypeIcon( typeName );
-            }
+            logo = acm.getPOITypeIcon(typeName);
         }
 
-        mActivity.menuGoTo(MapsIndoorsActivity.MENU_FRAME_LOCATION_MENU, true);
+        mLocationMenuFragment.setLocation(location, bitmap, logo, clickedOnMarker);
 
-        if( bitmap != null )
-        {
-            mLocationMenuFragment.setLocation( location, bitmap, logo );
-        }
     }
 
-    public void initMenu( final Solution solution, AppConfigManager settings, VenueCollection venues, boolean isFirstRun) {
+    public void initMenu(final Solution solution, AppConfigManager settings, VenueCollection venues, boolean isFirstRun) {
 
         if (isFirstRun) {
             mSolution = solution;
-            mLocationMenuFragment.initMenu();
         }
 
-        mIsFirstLocationsSearch = true;
 
         // Venue stuff
         String selectedVenueName = venues.getCurrentVenue().getName();
@@ -304,25 +297,25 @@ public class MenuFragment extends BaseFragment
 
 
         //
-        setVenueName( venues.getCurrentVenue().getVenueInfo().getName() );
+        setVenueName(venues.getCurrentVenue().getVenueInfo().getName());
 
         setSearchBoxHint(null);
 
 
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.removeDrawerListener(mDrawerToggle);
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-
         //Finally populate the menu list
-        if(!mIsOpenedFromBackpress){
-            populateMenu();
+        if (!mIsOpenedFromBackpress) {
+            populateCategoriesMenu();
             setToolbarBackAndVenueButtonVisibility(false);
 
-        }
-        else
-        {
+        } else {
             mIsOpenedFromBackpress = false;
-            changeWaitStatus( MenuFragment.FLIPPER_LIST_ITEMS, true );
+            changeWaitStatus(MenuFragment.FLIPPER_LIST_ITEMS, true);
+        }
+
+        final UserRolesManager userRolesManager = mActivity.getUserRolesManager();
+        if (userRolesManager != null) {
+            final boolean showUserRolesButton = UserRolesManager.hasUserRoles();
+            mSettingsButton.setVisibility(showUserRolesButton ? View.VISIBLE : View.GONE);
         }
 
     }
@@ -338,39 +331,35 @@ public class MenuFragment extends BaseFragment
      *
      * @return
      */
-    public void populateMenu() {
+    public void populateCategoriesMenu() {
 
-        setMenuModeToCategory( true );
+        setMenuModeToCategory(true);
+        setSearchBoxHint(null);
 
         mListItems.clear();
-        mLayoutManager.scrollToPositionWithOffset( 0, 0 );
+        mLayoutManager.scrollToPositionWithOffset(0, 0);
 
-        AppConfigManager acm = mActivity.getAppConfigManager();
-        List<MenuInfo> mainmenuEntryList = (acm != null)
+        final AppConfigManager acm = mActivity.getAppConfigManager();
+        final List<MenuInfo> mainMenuEntryList = (acm != null)
                 ? acm.getMainMenuEntries()
                 : null;
 
-        if( (mSolution != null) && (mainmenuEntryList != null) ) {
+        if ((mSolution != null) && (mainMenuEntryList != null)) {
 
-            for( MenuInfo menuItem : mainmenuEntryList ) {
+            for (MenuInfo menuItem : mainMenuEntryList) {
 
-                Bitmap bm = acm.getMainMenuIcon( menuItem.getCategoryKey() );
+                final Bitmap bm = acm.getMainMenuIcon(menuItem.getCategoryKey());
 
-                if( BuildConfig.DEBUG ) {
-                    if( (bm != null) && MapsIndoorsUtils.checkIfBitmapIsEmpty( bm ) ) {
-                        dbglog.Log( TAG, "MenuFragment.openLocationMenu: EMPTY icon for " + menuItem.getName() );
+                if (BuildConfig.DEBUG) {
+                    if ((bm != null) && MapsIndoorsUtils.checkIfBitmapIsEmpty(bm)) {
+                        dbglog.Log(TAG, "MenuFragment.openLocationMenu: EMPTY icon for " + menuItem.getName());
                     }
                 }
 
-                if( bm != null )
-                {
-                    mListItems.add( new GenericRecyclerViewListItem( menuItem.getName(), bm, menuItem, GenericRecyclerViewAdapter.VIEWTYPE_CATEGORY ) );
-                }
-                else {
-                    if( BuildConfig.DEBUG)
-                    {
-                        dbglog.Log(TAG, "");
-                    }
+                if (bm != null) {
+                    mListItems.add(new GenericRecyclerViewListItem(menuItem.getName(), bm, menuItem, GenericRecyclerViewAdapter.VIEWTYPE_CATEGORY));
+                } else {
+                    mListItems.add(new GenericRecyclerViewListItem(menuItem.getName(), R.drawable.ic_generic_item_icon, menuItem, GenericRecyclerViewAdapter.VIEWTYPE_CATEGORY));
                 }
             }
         }
@@ -384,7 +373,7 @@ public class MenuFragment extends BaseFragment
 
         mMainMenuListView.invalidate();
 
-        mActivity.resetLocationsSearchCategoryFilter();
+        setLocationQueryCategoryFilter(null);
 
     }
 
@@ -398,67 +387,69 @@ public class MenuFragment extends BaseFragment
         mLayoutManager.scrollToPositionWithOffset(0, 0);
     }
 
-    public void populateItemList(@NonNull List<GenericRecyclerViewListItem> items) {
+    public void populatePOIsMenu(@NonNull List<GenericRecyclerViewListItem> items) {
 
-        changeWaitStatus(FLIPPER_LIST_ITEMS, true);
-        setToolbarBackAndVenueButtonVisibility( true );
+        setToolbarBackAndVenueButtonVisibility(true);
         mIsMenuCategoryMode = false;
 
-        mMainMenuListViewAdapter.setItems(items);
+        if (items.size() > 0) {
+            mMainMenuListViewAdapter.setItems(items);
+            setCategLocationItems(items);
+
+            changeWaitStatus(FLIPPER_LIST_ITEMS, true);
+        } else {
+            changeWaitStatus(FLIPPER_LIST_NO_RESULTS, true);
+        }
+
+
     }
 
     private boolean isBackBtnActive() {
         return mBackButton.getVisibility() == View.VISIBLE;
     }
 
-    private void setupSearchBox( View view )
-    {
-        mCategSearchTextView.setOnClickListener( view1 -> {
+    private void setupSearchBox() {
+        mCategSearchTextView.setOnClickListener(view1 -> {
             mSearchEditTextView.getText().clear();
 
             //
             if (mIsMenuCategoryMode) {
                 openSearchFragment(SearchFragment.CATEG_MENU_SEARCH_TYPE);
-            }
-            else
-            {
+            } else {
                 openSearchFragment(SearchFragment.POI_MENU_SEARCH_TYPE);
             }
-        } );
+        });
     }
 
-    void openSearchFragment( int searchType )
-    {
+    String mLastSearchText;
+
+    void openSearchFragment(int searchType) {
         mSearchEditTextView.clearFocus();
 
         mSearchFragment = mActivity.getDirectionsFullMenuSearchFragment();
-        mSearchFragment.init( getContext(), mMapControl );
-        mSearchFragment.setOnLocationFoundHandler( location -> {
+        mSearchFragment.init(getContext(), mMapControl);
+        mSearchFragment.setOnLocationFoundHandler((queryString, searchResult) -> {
             //User selected a location.
-            openLocationMenu( (Location) location );
-            closeKeyboard();
-        } );
-
-        switch( searchType )
-        {
-            case SearchFragment.POI_MENU_SEARCH_TYPE:
-            {
-                mSearchFragment.setCategFilter( selectedCateg.getCategoryKey() );
-                mSearchFragment.setSearchHint( selectedCateg.getName() );
-                break;
+            if (searchResult != null) {
+                mLastSearchText = queryString;
+                openLocationMenu((MPLocation) searchResult);
+                closeKeyboard();
             }
+        });
+
+        if (searchType == SearchFragment.POI_MENU_SEARCH_TYPE) {
+            mSearchFragment.setCategFilter(selectedCateg.getCategoryKey());
+            mSearchFragment.setSearchHint(selectedCateg.getName());
         }
 
-        mSearchFragment.setSearchType( searchType );
-
-        mSearchFragment.setActive( true );
+        mSearchFragment.setSearchType(searchType, -1);
+        mSearchFragment.setActive(true);
     }
 
 
     //region ViewFlipper
-    private void setupViewFlipper( View view )
-    {
-        mViewFlipper.setDisplayedChild( FLIPPER_LIST_PROGRESS );
+    private void setupViewFlipper() {
+        mViewFlipper.setDisplayedChild(FLIPPER_LIST_PROGRESS);
     }
 
     /**
@@ -476,8 +467,7 @@ public class MenuFragment extends BaseFragment
 
 
     //region RecyclerView
-    private void setupListView( View view )
-    {
+    private void setupListView() {
         mContext = (mContext != null) ? mContext : getContext();
         mActivity = (mActivity != null) ? mActivity : (MapsIndoorsActivity) mContext;
 
@@ -495,13 +485,13 @@ public class MenuFragment extends BaseFragment
         // Add the feedback guy, if any
         {
             AppConfigManager appConfigManager = mActivity.getAppConfigManager();
-            if( appConfigManager != null ) {
+            if (appConfigManager != null) {
 
                 final String feedbackURL = appConfigManager.getFeedbackUrl();
 
                 // Validate the url string
-                if( !TextUtils.isEmpty( feedbackURL ) && Patterns.WEB_URL.matcher( feedbackURL ).matches() ) {
-                    mMainMenuListViewAdapter.setFeedbackItem( feedbackURL );
+                if (!TextUtils.isEmpty(feedbackURL) && Patterns.WEB_URL.matcher(feedbackURL).matches()) {
+                    mMainMenuListViewAdapter.setFeedbackItem(feedbackURL);
                 }
             }
         }
@@ -514,62 +504,66 @@ public class MenuFragment extends BaseFragment
     /**
      *
      */
-    IGenericRecyclerViewItemClickedListener mGenericRecyclerViewItemClickedListener = new IGenericRecyclerViewItemClickedListener() {
+    final IGenericRecyclerViewItemClickedListener mGenericRecyclerViewItemClickedListener = new IGenericRecyclerViewItemClickedListener() {
         @Override
-        public void OnGenericRVItemClicked( GenericRecyclerViewListItem item )
-        {
-            if( item.mViewType == GenericRecyclerViewAdapter.VIEWTYPE_CATEGORY )
-            {
-                closeKeyboard();
-                //
-                changeWaitStatus( MenuFragment.FLIPPER_LIST_PROGRESS, true );
-            }
+        public void OnGenericRVItemClicked(GenericRecyclerViewListItem item) {
+            switch (item.mViewType) {
+                case GenericRecyclerViewAdapter.VIEWTYPE_LOCATION: {
+                    //A specific location is selected. Get detailed data from it and launch the POI detail menu
+                    MPLocation location = (MPLocation) item.mObj;
 
-            if( mMenuListener != null )
-            {
-                if( mIsMenuCategoryMode )
-                {
-                    selectedCateg = (MenuInfo) item.mObj;
+                    openLocationMenu(location);
+                    break;
                 }
 
-                mMenuListener.onMenuSelect( item.mObj, item.mViewType );
+                case GenericRecyclerViewAdapter.VIEWTYPE_CATEGORY: {
+                    closeKeyboard();
+
+                    selectedCateg = (MenuInfo) item.mObj;
+
+                    final String categoryKey = selectedCateg.getCategoryKey();
+                    final String categoryName = selectedCateg.getName();
+
+                    // A location type is selected. Find all locations with that category.
+                    setLocationQueryCategoryFilter(categoryKey);
+
+                    // Change the toolbar title with the category name
+                    mActivity.getSelectionManager().setCurrentCategory(categoryKey);
+                    changeWaitStatus(MenuFragment.FLIPPER_LIST_PROGRESS, true);
+
+                    findLocations();
+
+                    setMenuModeToCategory(false);
+                    setSearchBoxHint(categoryName);
+
+                    GoogleAnalyticsManager.reportScreen(categoryName, mActivity);
+                    break;
+                }
             }
+
+
         }
     };
     //endregion
 
 
     @Override
-    public void connectivityStateChanged( boolean state ) {}
-
-    @Override
     public boolean onBackPressed() {
-        if(isActive()){
-
-            if (!mActivity.isDrawerOpen() ) {
-                mActivity.openDrawer(true);
-            }
-            else {
-
+        if (isActive()) {
+            if (!mActivity.isDrawerOpen()) {
+                return false;
+            } else {
                 if (isBackBtnActive()) {
-                    setToolbarBackAndVenueButtonVisibility(false);// show the venue seklector button
+                    setToolbarBackAndVenueButtonVisibility(false);
                     // populate the menu with the categories
-                    populateMenu();
-                }
-                else {
-                    closeKeyboard();
-                    return true;
+                    populateCategoriesMenu();
+                } else {
+                    mActivity.closeDrawer();
                 }
             }
-
-            return false;
         }
-
         return true;
     }
-
-    @Override
-    public void onDrawerEvent( int newState, int prevState ) {}
     //endregion
 
 
@@ -593,13 +587,14 @@ public class MenuFragment extends BaseFragment
     }
 
 
-    boolean mSelectorButtonshouldBeShown = true ;
+    boolean mSelectorButtonshouldBeShown = true;
+
     public void setVenueSelectorButtonshouldBeShown(boolean state) {
 
         mSelectorButtonshouldBeShown = state;
 
         // set the visiblity of the icon to gone
-        if(!state){
+        if (!state) {
             mVenueSelectorBtn.setVisibility(View.GONE);
         }
     }
@@ -634,4 +629,120 @@ public class MenuFragment extends BaseFragment
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mMainView.getWindowToken(), 0);
     }
+
+
+    //// search region
+
+    /**
+     * Finds and shows locations based on a search string and optionally with optional type and category filters (can be null)
+     */
+    public void findLocations() {
+
+        String currentVenueID = mActivity.getCurrentVenueId();
+
+
+        MPQuery.Builder queryBuilder = new MPQuery.Builder();
+        MPFilter.Builder filterBuilder = new MPFilter.Builder();
+
+
+        if (mQueryCategoryFilter != null) {
+            filterBuilder.setCategories(Collections.singletonList(mQueryCategoryFilter));
+            if (currentVenueID != null) {
+                filterBuilder.setParents(Collections.singletonList(currentVenueID));
+                filterBuilder.setDepth(4);
+            }
+
+
+        }
+
+        if (!mIsSearching) {
+            mIsSearching = true;
+
+
+            MPQuery q = queryBuilder.build();
+            MPFilter f = filterBuilder.build();
+
+
+            MapsIndoors.getLocationsAsync(q, f, mSearchLocationsReadyListener);
+
+        }
+    }
+
+    private OnLocationsReadyListener mSearchLocationsReadyListener = new OnLocationsReadyListener() {
+        @Override
+        public void onLocationsReady(final List<MPLocation> locations, @Nullable MIError error) {
+
+            if (!mIsSearching) {
+                return;
+            }
+
+            if (error != null) {
+                if (error.code == MIError.INVALID_API_KEY) {
+                    MapsIndoorsUtils.showInvalidAPIKeyDialogue(getContext());
+                }
+            } else {
+
+                final List<GenericRecyclerViewListItem> elements = getCleanItemList();
+
+                if (locations != null) {
+                    VenueCollection venueCollection = mActivity.getVenueCollection();
+                    BuildingCollection buildingCollection = mActivity.getBuildingCollection();
+                    AppConfigManager acm = mActivity.getAppConfigManager();
+
+                    for (MPLocation location : locations) {
+
+                        if (location != null) {
+
+                            final String subText = MapsIndoorsHelper.composeLocationInfoString(
+                                    location,
+                                    venueCollection,
+                                    buildingCollection,
+                                    MapsIndoorsHelper.FORMAT_LOCATION_INFO_STRING_USE_COMMAS,
+                                    true,
+                                    mContext
+                            );
+
+                            double airDistance = 0;
+                            final String typeName = location.getType();
+                            final Bitmap bm = acm.getPOITypeIcon(typeName);
+
+                            if (BuildConfig.DEBUG) {
+                                if ((bm != null) && MapsIndoorsUtils.checkIfBitmapIsEmpty(bm)) {
+                                    dbglog.Log(TAG, "Main Menu mSearchLocationsReadyListener.onLocationsReady: mLocationTypeImages bm IS EMPTY for " + typeName);
+                                }
+                            }
+
+                            if (bm != null) {
+                                elements.add(new GenericRecyclerViewListItem(location.getName(), subText, airDistance, bm, location, GenericRecyclerViewAdapter.VIEWTYPE_LOCATION));
+                            } else {
+                                elements.add(new GenericRecyclerViewListItem(location.getName(), subText, airDistance, R.drawable.ic_generic_item_icon, location, GenericRecyclerViewAdapter.VIEWTYPE_LOCATION));
+                            }
+                        }
+                    }
+                }
+
+                mActivity.runOnUiThread(() -> {
+                    if (locations != null) {
+
+                        // Select the search result on the map
+                        mActivity.getSelectionManager().selectSearchResult(locations);
+                        resetScroll();
+                        populatePOIsMenu(elements);
+                    }
+                });
+
+                // Report to our Analytics
+                int locationCount = (locations != null) ? locations.size() : 0;
+                GoogleAnalyticsManager.reportSearch("", Collections.singletonList(mQueryCategoryFilter), locationCount);
+
+                mIsSearching = false;
+            }
+        }
+    };
+
+
+    private void setLocationQueryCategoryFilter(@Nullable String categoryFilter) {
+        mQueryCategoryFilter = categoryFilter;
+    }
+
 }

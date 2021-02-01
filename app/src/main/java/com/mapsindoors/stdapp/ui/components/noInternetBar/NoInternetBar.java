@@ -8,12 +8,12 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.AttrRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.StyleRes;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.annotation.AttrRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StyleRes;
+import androidx.core.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -84,7 +84,7 @@ public class NoInternetBar extends FrameLayout
 	{
 		view.setOnClickListener( view1 -> {
 
-			Intent gpsOptionsIntent = null;
+			Intent gpsOptionsIntent;
 
 			if( isAirplaneModeOn( mContext ) )
 			{

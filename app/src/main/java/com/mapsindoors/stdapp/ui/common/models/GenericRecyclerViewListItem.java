@@ -2,7 +2,7 @@ package com.mapsindoors.stdapp.ui.common.models;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.stdapp.R;
@@ -34,6 +34,15 @@ public class GenericRecyclerViewListItem
 		mSubText = mDistText = null;
 		mImgId = -1;
 		mImg = img;
+		mObj = obj;
+		mViewType = viewType;
+	}
+
+	public GenericRecyclerViewListItem( String name, Integer imgId, Object obj, int viewType ) {
+		mName = name;
+		mSubText = mDistText = null;
+		mImgId = imgId;
+		mImg = null;
 		mObj = obj;
 		mViewType = viewType;
 	}

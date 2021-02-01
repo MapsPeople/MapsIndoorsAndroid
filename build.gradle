@@ -3,12 +3,13 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven { url 'https://maven.fabric.io/public' }
+        maven {url 'https://maven.fabric.io/public'}
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.0'
-        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.google.gms:google-services:4.3.5'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
     }
 }
 
@@ -16,6 +17,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "http://indooratlas-ltd.bintray.com/mvn-public" }
 
         maven { url 'https://maven.mapsindoors.com/' }
         maven { url 'https://maven.fabric.io/public' }

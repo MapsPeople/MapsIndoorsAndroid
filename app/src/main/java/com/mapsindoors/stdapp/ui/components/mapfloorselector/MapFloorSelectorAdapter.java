@@ -1,44 +1,43 @@
 package com.mapsindoors.stdapp.ui.components.mapfloorselector;
 
-
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.mapsindoors.mapssdk.FloorBase;
-import com.mapsindoors.stdapp.Application;
+import com.mapsindoors.mapssdk.Floor;
+import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.stdapp.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by Jose J Varó (jjv@mapspeople.com) on 2/28/2017.
- */
+class MapFloorSelectorAdapter extends ArrayAdapter<Floor> {
 
-public class MapFloorSelectorAdapter extends ArrayAdapter<String> {
-    public static final String TAG = MapFloorSelectorAdapter.class.getSimpleName();
+    private MapFloorSelectorAdapterListener mMapFloorSelectorAdapterListener;
+    private List<Floor> mItems;
+    private int mSelectedPosition;
+    private int mUserLocationListPosition;
 
-    private Context mContext;
-    private ArrayList<FloorBase> mItemList;
-    private int mSelectedButtonIndex;
-
-
+    /**
+     * Default constructor
+     * @param context Context for inflating layouts
+     * @param resource Default item layout
+     */
     MapFloorSelectorAdapter(@NonNull Context context, @LayoutRes int resource) {
         super(context, resource);
-
-        mContext = context;
-        mItemList = new ArrayList<>();
-        mSelectedButtonIndex = 0;
-
+        mSelectedPosition = 0;
+        mUserLocationListPosition = Floor.NO_FLOOR_INDEX;
+        mItems = new ArrayList<>();
     }
 
     @NonNull
@@ -46,72 +45,124 @@ public class MapFloorSelectorAdapter extends ArrayAdapter<String> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
 
-        if (convertView == null) {
-            view = LayoutInflater.from(mContext).inflate(R.layout.control_mapsindoors_floor_selector_button, parent, false);
+        if(convertView == null) {
+            view = LayoutInflater.from(getContext()).inflate(R.layout.control_mapsindoors_floor_selector_button,parent,false);
         } else {
             view = convertView;
         }
 
         TextView textView = view.findViewById(R.id.mapspeople_floor_selector_btn);
 
-        Resources res = mContext.getResources();
-        Resources.Theme appTheme = Application.getInstance().getTheme();
+        int selectedColor;
+        int unselectedColor;
+        int selectedText;
+        int unselectedTextColor;
 
-        if (position != mSelectedButtonIndex) {
+        if(MapsIndoors.getApplicationContext() != null) {
+            Resources res = getContext().getResources();
+            Resources.Theme appTheme = MapsIndoors.getApplicationContext().getTheme();
 
-            // Non selected
-            textView.setBackgroundColor(ResourcesCompat.getColor(res, R.color.white, appTheme));
-            textView.setTextColor(ResourcesCompat.getColor(res, R.color.grey, appTheme));
-            textView.setTypeface(null, Typeface.NORMAL);
-
+            selectedColor = ResourcesCompat.getColor(res, R.color.floorselector_background_btn_selected,appTheme);
+            unselectedColor = ResourcesCompat.getColor(res, R.color.floorselector_background_btn_default,appTheme);
+            selectedText = ResourcesCompat.getColor(res, R.color.blueGray,appTheme);
+            unselectedTextColor = ResourcesCompat.getColor(res, R.color.grey, appTheme);
         } else {
-            // Selected
-            textView.setBackgroundResource(R.color.secondaryButtonColor);
-            textView.setTextColor(ResourcesCompat.getColor(res, R.color.blueGray, appTheme));
-            textView.setTypeface(null, Typeface.BOLD);
+            selectedColor = Color.WHITE;
+            unselectedColor = Color.parseColor("#d1d1d1");
+            selectedText = Color.parseColor("#43aaa0");
+            unselectedTextColor = Color.parseColor("#89000000");
         }
 
-        String floorValue = getItem(position);
-        textView.setText(floorValue);
+        textView.setTextColor(unselectedTextColor);
 
-        int floorIntValue = mItemList.get(position).getZIndex();
-        view.setTag(floorIntValue);
+        if(position == mSelectedPosition){
+            textView.setBackgroundColor(selectedColor);
+            textView.setTypeface(null, Typeface.BOLD);
+        } else {
+            textView.setBackgroundColor(unselectedColor);
+            textView.setTypeface(null, Typeface.NORMAL);
+        }
+
+        if((mItems.get(position).getZIndex() == mUserLocationListPosition) && (mUserLocationListPosition != Floor.NO_FLOOR_INDEX)){
+            textView.setTextColor(selectedText);
+        }
+
+        textView.setText(mItems.get(position).getDisplayName());
 
         return view;
     }
 
     @Override
     public int getCount() {
-        return mItemList.size();
+        return mItems.size();
     }
 
-    public void setList(ArrayList<FloorBase> list) {
-        clear();
-        mItemList.clear();
+    @Nullable
+    @Override
+    public Floor getItem(int position) {
+        return mItems.get(position);
+    }
 
-        int listLen = list.size();
+    /**
+     * Sets the list of {@link Floor}s to show in the ListView
+     * @param floors Floors.
+     */
+    void setFloors(@NonNull List<Floor> floors){
+        mItems.clear();
+        mItems.addAll(floors);
+    }
 
-        ArrayList<String> iList = new ArrayList<>(listLen);
-
-        for (int i = listLen; --i >= 0; ) {
-            FloorBase fb = list.get(i);
-            iList.add(String.format("%s", fb.getDisplayName()));
-            mItemList.add(fb);
+    /**
+     * The ONLY actual selection in this adapter.
+     * Sets the internal selection, notifies both internal and if a {@link MapFloorSelectorAdapterListener}
+     * is set, alerts that too.
+     *
+     * @param position The LIST position to select,
+     */
+    void setSelectedListPosition(int position){
+        mSelectedPosition = position;
+        notifyDataSetChanged();
+        if(mMapFloorSelectorAdapterListener != null){
+            mMapFloorSelectorAdapterListener.onFloorSelectionChanged(mItems.get(position));
         }
-
-        addAll(iList);
     }
 
-
-
-    public int setSelectedButtonWithFloorValue(int floorValue) {
-        for (int i = 0, aLen = mItemList.size(); i < aLen; i++) {
-            if (mItemList.get(i).getZIndex() == floorValue) {
-                mSelectedButtonIndex = i;
-                notifyDataSetChanged();
-                return i;
+    /**
+     * Selects the floor by the Z index of the Floor
+     * @param value Z index to select
+     */
+    private void selectFloorByZIndex(int value){
+        for(int i = 0, length = mItems.size(); i <length; ++i){
+            if(mItems.get(i).getZIndex() == value) {
+                setSelectedListPosition(i);
+                return;
             }
         }
-        return -1;
+    }
+
+    /**
+     * Sets the selection, based on a {@link Floor}
+     * @param selectedFloor Floor to select.
+     */
+    void setSelectedFloor(@NonNull Floor selectedFloor){
+        selectFloorByZIndex(selectedFloor.getZIndex());
+    }
+
+    /**
+     * Sets a {@link MapFloorSelectorAdapterListener} for receiving callbacks for ALL selections
+     * in stead of standard onItemClick.
+     * @param callback Callback if necessary
+     */
+    void setCallback(@Nullable MapFloorSelectorAdapterListener callback){
+        mMapFloorSelectorAdapterListener = callback;
+    }
+
+
+    /**
+     * Sets the current floor for the user's position
+     * @param zIndex Z-index of the floor.
+     */
+    void setUserPositionFloor(int zIndex) {
+        mUserLocationListPosition = zIndex;
     }
 }

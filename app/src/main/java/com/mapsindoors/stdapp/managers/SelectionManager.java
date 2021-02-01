@@ -1,215 +1,252 @@
 package com.mapsindoors.stdapp.managers;
 
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.mapsindoors.mapssdk.Location;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.mapsindoors.mapssdk.Category;
+import com.mapsindoors.mapssdk.Geometry;
+import com.mapsindoors.mapssdk.MPLocation;
 import com.mapsindoors.mapssdk.MapControl;
-import com.mapsindoors.mapssdk.Point;
+import com.mapsindoors.mapssdk.MapsIndoors;
+import com.mapsindoors.mapssdk.MultiPolygonGeometry;
+import com.mapsindoors.mapssdk.PolygonGeometry;
+import com.mapsindoors.mapssdk.ReadyListener;
 import com.mapsindoors.mapssdk.Venue;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsSettings;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 import com.mapsindoors.stdapp.ui.activitymain.TopSearchField;
 
 import java.util.List;
-import java.util.Locale;
 
 
 /**
  * Created by jose on 07-05-2017.
- *
+ * <p>
  * Temp class for handling location selection
  */
-public class SelectionManager
-{
-
-	public static final int QUERY_CATEGORY        = (1 << 0);
-	public static final int QUERY_TYPE            = (1 << 1);
-
-	private static final int LAST_SELECTION_TYPE_VENUE             = 0;
-	private static final int LAST_SELECTION_TYPE_SINGLE_LOCATION   = 1;
-	private static final int LAST_SELECTION_TYPE_NEAREST_POSITION  = 2;
-	private static final int LAST_SELECTION_TYPE_SEARCH_RESULT     = 3;
+public class SelectionManager {
+    private static final int LAST_SELECTION_TYPE_VENUE = 0;
+    private static final int LAST_SELECTION_TYPE_SINGLE_LOCATION = 1;
+    private static final int LAST_SELECTION_TYPE_NEAREST_POSITION = 2;
+    private static final int LAST_SELECTION_TYPE_SEARCH_RESULT = 3;
 
 
-	private MapsIndoorsActivity mActivity;
-	private TopSearchField mTopSearchField;
+    private MapsIndoorsActivity mActivity;
+    private TopSearchField mTopSearchField;
 
-	private Venue mCurrentVenue;
+    private Venue mCurrentVenue;
 
-	/** Category name (facilities, etc.), Type (POI */
-	private String mSelectedLocationCriteria;
-	private MapControl mMapControl;
-
-	//
-	Object currentSelection;
-
-	private int lastSelectionType;
-	private int lastCriteriaFlags;
+    /**
+     * Category name (facilities, etc.), Type (POI
+     */
+    private MapControl mMapControl;
 
 
-	public SelectionManager( MapsIndoorsActivity activity, MapControl mapControl, TopSearchField topSearchField )
-	{
-		mActivity = activity;
-		mTopSearchField = topSearchField;
-		mMapControl = mapControl;
-	}
+    public SelectionManager(MapsIndoorsActivity activity, MapControl mapControl, TopSearchField topSearchField) {
+        mActivity = activity;
+        mTopSearchField = topSearchField;
+        mMapControl = mapControl;
+    }
 
-	public void clearSelection()
-	{
-		mTopSearchField.setToolbarText( null, false );
-		lastSelectionType = -1;
+    public void clearSelection() {
+        mTopSearchField.setToolbarText(null, false);
 
-		currentSelection = null;
+        if (mMapControl != null) {
+            mMapControl.clearMap();
+        }
+    }
 
-		if( mMapControl != null )
-		{
-			mMapControl.deSelectLocation();
-		}
-	}
+    public void setCurrentVenue(@Nullable Venue venue) {
+        if (venue != null) {
+            mCurrentVenue = venue;
 
-	public void setCurrentVenue( @Nullable Venue venue )
-	{
-		if( venue != null )
-		{
-			mCurrentVenue = venue;
+            clearSelection();
 
-			mMapControl.selectFloor( mCurrentVenue.getDefaultFloor() );
+            mMapControl.selectFloor(mCurrentVenue.getDefaultFloor());
 
+            focusOnLocationBoundaries(
+                    venue.getGeometry(),
+                    MapsIndoorsSettings.MAPSINDOORS_TILES_AVAILABLE_ZOOM_LEVEL,
+                    false
+            );
 
-			final GoogleMap gmap = mActivity.getGoogleMap();
-			final Point cameraTargetPoint = mCurrentVenue.getAnchor();
+            mTopSearchField.setToolbarText(venue.getVenueInfo().getName(), false);
 
-			if( gmap != null )
-			{
-				final CameraPosition newCameraPosition = new CameraPosition.Builder().
-						target( cameraTargetPoint.getLatLng() ).
-						zoom( MapsIndoorsSettings.VENUE_TILE_LAYER_VISIBLE_START_ZOOM_LEVEL ).
-						tilt( 0 ).
-						bearing( 0 ).
-						build();
+        }
+    }
 
-				gmap.moveCamera( CameraUpdateFactory.newCameraPosition( newCameraPosition ) );
-			}
+    @Nullable
+    public Venue getCurrentVenue() {
+        return mCurrentVenue;
+    }
 
-			mTopSearchField.setToolbarText( venue.getVenueInfo().getName(), false );
+    public void setCurrentCategory(@Nullable String categoryKey) {
+        if (categoryKey != null) {
+            Category category = MapsIndoors.getCategories().getCategory(categoryKey);
+            setCurrentCategory(category);
+        }
+    }
 
-			currentSelection = mCurrentVenue;
-			lastSelectionType = LAST_SELECTION_TYPE_VENUE;
-		}
-	}
+    public void setCurrentCategory(@Nullable Category category) {
+        if (category != null) {
+            mTopSearchField.setToolbarText(category.getValue(), true);
+        }
+    }
 
-	public void selectLocation( Location location, boolean changeZoomLevel, boolean showNameInToolbar )
-	{
-		if(showNameInToolbar){
-			mTopSearchField.setToolbarText( location.getName(), true );
-		}
+    @MainThread
+    public void selectLocation(MPLocation location, boolean changeZoomLevel, boolean showNameInToolbar, boolean clearMapButtonVisible, boolean clickedOnMarker) {
+        if (showNameInToolbar) {
+            mTopSearchField.setToolbarText(location.getName(), clearMapButtonVisible);
+        }
 
-		if( mMapControl != null )
-		{
-			mMapControl.selectLocation( location, changeZoomLevel );
-			currentSelection = location;
-			lastSelectionType = LAST_SELECTION_TYPE_SINGLE_LOCATION;
-		}
-	}
+        if (mMapControl != null) {
+            // Check the location type:
+            final boolean locationIsVenue = location.isLocationOfTypeVenue();
+            final boolean locationIsBuilding = location.isLocationOfTypeBuilding();
+            final boolean locationIsFloor = location.isLocationOfTypeFloor();
 
-	public void selectLocationsBy( List<Location> locations, int criteriaFlags )
-	{
-		mSelectedLocationCriteria = null;
+            final boolean animateToLocationBoundaries = locationIsVenue || locationIsBuilding || locationIsFloor;
 
-		if( (criteriaFlags & QUERY_CATEGORY) != 0 )
-		{
-			String[] categories = locations.get( 0 ).getCategories();
+            if (!animateToLocationBoundaries) {
+                if (clickedOnMarker) {
+                    mMapControl.selectLocation(location, true, changeZoomLevel, true, true);
+                } else {
+                    mMapControl.selectLocation(location, changeZoomLevel);
+                }
+            } else {
+                focusOnLocationBoundaries(
+                        location.getGeometry(),
+                        MapsIndoorsSettings.MAPSINDOORS_TILES_AVAILABLE_ZOOM_LEVEL,
+                        true
+                );
+            }
+        }
+    }
 
-			if( (categories != null) && (categories.length > 0) )
-			{
-				mSelectedLocationCriteria = categories[0].toUpperCase( Locale.ROOT );
-			}
-		}
+    public void selectLocations(@NonNull List<MPLocation> locations) {
+        if (mMapControl != null) {
+            mMapControl.selectFloor(locations.get(0).getFloor());   // .getFloorIndex() );
 
-		if( TextUtils.isEmpty( mSelectedLocationCriteria ) )
-		{
-			clearSelection();
-		}
-		else
-		{
-			mTopSearchField.setToolbarText( mSelectedLocationCriteria, true );
+            mMapControl.displaySearchResults(
+                    locations,
+                    true,
+                    MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP
+            );
+        }
+    }
 
-			if( mMapControl != null )
-			{
-				mMapControl.selectFloor( locations.get( 0 ).getFloorIndex() );
-				mMapControl.displaySearchResults(
-						locations,
-						true,
-						MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP
-				);
-			}
-		}
+    public void selectSearchResult(@NonNull List<MPLocation> locations) {
+        mMapControl.displaySearchResults(
+                locations,
+                true,
+                MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP, () -> {
+                    if (!locations.isEmpty())
+                        mMapControl.selectFloor(locations.get(0).getFloor());
+                });
 
-		currentSelection = locations;
-		lastCriteriaFlags = criteriaFlags;
-		lastSelectionType = LAST_SELECTION_TYPE_NEAREST_POSITION;
-	}
+    }
 
-	public void selectSearchResult( List<Location> locations )
-	{
-		mMapControl.displaySearchResults(
-				locations,
-				true,
-				MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP
-		);
+    // this function is linked to the returnToVenueButton logic, if you need the selection label for other purpose please implement your own method
+    @NonNull
+    public String getSelectionLabelForReturnToVenue() {
 
-		currentSelection = locations;
-		lastSelectionType = LAST_SELECTION_TYPE_SEARCH_RESULT;
-	}
+        if (mCurrentVenue != null) {
+            return mCurrentVenue.getVenueInfo().getName();
+        }
 
-	@SuppressWarnings("unchecked")
-	public void selectLastSelection()
-	{
-		switch( lastSelectionType )
-		{
-			case LAST_SELECTION_TYPE_SINGLE_LOCATION:
-				selectLocation( (Location) currentSelection, true, true );
-				break;
+        return "";
+    }
 
-			case LAST_SELECTION_TYPE_NEAREST_POSITION:
-				selectLocationsBy( (List< Location >) currentSelection, lastCriteriaFlags );
-				break;
+    public void selectCurrentVenue() {
+        setCurrentVenue(mCurrentVenue);
+    }
 
-			case LAST_SELECTION_TYPE_VENUE:
-				setCurrentVenue( (Venue) currentSelection );
-				break;
+    boolean focusOnLocationBoundaries(@NonNull Geometry locationGeometry, float minZoomLevel, boolean animateCamera) {
+        final LatLngBounds latLngBounds;
+        @Geometry.GeometryType final int geometryType = locationGeometry.getIType();
+        switch (geometryType) {
 
-			case LAST_SELECTION_TYPE_SEARCH_RESULT:
-				selectSearchResult( (List< Location >) currentSelection );
-				break;
+            case Geometry.TYPE_GEOMETRYCOLLECTION:
+            case Geometry.TYPE_LINESTRING:
+            case Geometry.TYPE_MULTILINESTRING:
+            case Geometry.TYPE_MULTIPOINT:
+            case Geometry.TYPE_POINT:
+            default:
+                latLngBounds = null;
+                break;
+            case Geometry.TYPE_MULTIPOLYGON: {
+                final MultiPolygonGeometry geometry = (MultiPolygonGeometry) locationGeometry;
+                latLngBounds = geometry.getLatLngBounds();
+                break;
+            }
+            case Geometry.TYPE_POLYGON: {
+                final PolygonGeometry geometry = (PolygonGeometry) locationGeometry;
+                latLngBounds = geometry.getLatLngBounds();
+                break;
+            }
+        }
 
-			default:
-				setCurrentVenue( mCurrentVenue );
-		}
-	}
+        if (latLngBounds != null) {
+            final GoogleMap googleMap = mActivity.getGoogleMap();
+            if (googleMap != null) {
+                // Save current camera values
+                final CameraPosition srcCameraPosition = googleMap.getCameraPosition();
 
-	// this function is linked to the returnToVenueButton logic, if you need the selection label for other purpose please implement your own method
-	public String getSelectionLabelForReturnToVenue()
-	{
-		switch( lastSelectionType )
-		{
-			case LAST_SELECTION_TYPE_SINGLE_LOCATION:
-				return ((Location) currentSelection).getName();
-			default:
-				if(mCurrentVenue!= null){
-					return mCurrentVenue.getName();
-				}
-		}
-		return "";
-	}
+                // Move to the given bounds
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 10));
 
-	public void selectCurrentVenue()
-	{
-		setCurrentVenue( mCurrentVenue );
-	}
+                // Check the resulting zoom level
+                final CameraPosition dstCameraPosition = googleMap.getCameraPosition();
+                final float resZoomLevel = dstCameraPosition.zoom;
+                final boolean animateCameraToCappedZoomLevel = resZoomLevel < minZoomLevel;
 
+                // Move the camera back to the src position
+                googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(srcCameraPosition));
+
+                if (animateCameraToCappedZoomLevel) {
+                    // Build a new camera position reusing all but zoom values
+                    final CameraPosition newCameraPosition = new CameraPosition.Builder().
+                            target(dstCameraPosition.target).
+                            tilt(dstCameraPosition.tilt).
+                            bearing(dstCameraPosition.bearing).
+                            zoom(minZoomLevel).
+                            build();
+
+                    if (animateCamera) {
+                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
+                    } else {
+                        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
+                    }
+                } else {
+                    // Reuse the camera position object we've got from the first camera move
+                    if (animateCamera) {
+                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(dstCameraPosition));
+                    } else {
+                        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(dstCameraPosition));
+                    }
+                }
+            }
+        }
+
+        return latLngBounds != null;
+    }
+
+    public void moveCameraToCurrentVenue() {
+        if (mCurrentVenue != null) {
+            //Disable any tracking state, the use may be in, when clicking "return to venue"
+            mActivity.getUserPositionTrackingViewModel().stopTracking();
+
+            // Set camera position to venue
+            focusOnLocationBoundaries(
+                    mCurrentVenue.getGeometry(),
+                    MapsIndoorsSettings.MAPSINDOORS_TILES_AVAILABLE_ZOOM_LEVEL,
+                    false
+            );
+        }
+    }
 }

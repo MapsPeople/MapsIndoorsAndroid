@@ -5,7 +5,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/directionsmenu"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
+	android:layout_height="wrap_content"
 	android:clickable="false"
 	android:orientation="vertical"
 	android:gravity="bottom"
@@ -18,12 +18,12 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="@color/white"
-
 		>
 		<View
 			android:layout_width="match_parent"
 			android:layout_height="1dp"
 			android:background="@color/colorPrimaryDark" />
+
 		<ImageButton
 			android:id="@+id/directions_menu_horiz_toolbar_button_back"
 			android:layout_width="@dimen/button_bounds_common_size"

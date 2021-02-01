@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="dialog" parent="android:Theme.Holo.Dialog">
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
+
+    <style name="transparentButton">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">#00000000</item>
+    </style>
+
+</resources>

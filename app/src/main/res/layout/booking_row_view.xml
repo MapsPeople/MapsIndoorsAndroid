@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/booking_row_view"
+    android:layout_marginVertical="2dp">
+
+        <TextView
+            android:id="@+id/bookingRow_timespan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textSize="16sp"
+            tools:text="XX:XX - XX:XX"
+            />
+
+        <ProgressBar
+        android:id="@+id/booking_row_loading_wheel"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
+        android:layout_toStartOf="@id/bookingRow_button"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:indeterminate="true"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/misdk_grey"/>
+
+    <Button
+        android:id="@+id/bookingRow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:textAlignment="viewEnd"
+        android:textSize="16sp"
+        android:text="book"
+        android:textColor="@color/misdk_colorPrimary"
+        android:background="@android:color/transparent"/>
+
+</RelativeLayout>

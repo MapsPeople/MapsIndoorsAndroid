@@ -14,30 +14,27 @@ import com.mapsindoors.stdapp.positionprovider.helpers.PSUtils;
  * Created by Mohammed Amine Naimi on 03/08/2017.
  * Copyright © 2017 MapsPeople A/S. All rights reserved.
  */
-public class GPSStateChangeReceiver extends BaseBroadcastReceiver
-{
-	public static final String TAG = GPSStateChangeReceiver.class.getSimpleName();
+public class GPSStateChangeReceiver extends BaseBroadcastReceiver {
+    public static final String TAG = GPSStateChangeReceiver.class.getSimpleName();
 
 
+    public GPSStateChangeReceiver(Context activityContext) {
+        super(activityContext);
 
-	public GPSStateChangeReceiver(Context activityContext )
-	{
-		super(activityContext);
+    }
 
-	}
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        final String intentAction = intent.getAction();
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		final String intentAction = intent.getAction();
+        if ((intentAction != null) && intentAction.matches(LocationManager.PROVIDERS_CHANGED_ACTION)) {
 
-		if ((intentAction != null) && intentAction.matches(LocationManager.PROVIDERS_CHANGED_ACTION)) {
+            boolean gpsState = PSUtils.isLocationServiceEnabled(mContext);
 
-			boolean gpsState = PSUtils.isLocationServiceEnabled(mContext);
+            reportStateToListeners(gpsState);
 
-			reportStateToListeners(gpsState);
-
-		}
-	}
+        }
+    }
 
 
 }
