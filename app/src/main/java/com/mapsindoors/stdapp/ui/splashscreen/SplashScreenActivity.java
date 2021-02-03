@@ -4,24 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewPropertyAnimatorListener;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
-import com.mapsindoors.mapssdk.dbglog;
-import com.mapsindoors.stdapp.Application;
-import com.mapsindoors.stdapp.BuildConfig;
+import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsUtils;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
-
-import java.util.Locale;
 
 import static com.mapsindoors.stdapp.helpers.MapsIndoorsUtils.isNetworkReachable;
 
@@ -32,168 +28,129 @@ import static com.mapsindoors.stdapp.helpers.MapsIndoorsUtils.isNetworkReachable
  * <p>
  * Created by Jose J Varó on 03/19/2017.
  * Copyright © 2017 MapsPeople A/S. All rights reserved.
- */public class SplashScreenActivity extends AppCompatActivity
-{
-	private static final String TAG = SplashScreenActivity.class.getSimpleName();
+ */
+public class SplashScreenActivity extends AppCompatActivity {
+    private static final String TAG = SplashScreenActivity.class.getSimpleName();
 
-	private static final long MINIMUM_SCREEN_DELAY = 250;
+    private ViewGroup mSplashMainLayout;
+    private ViewGroup mSplashMainView;
+    private ImageView mIconStatic, mIconDynamic;
 
-	private long mStartTime;
-	private long mOnCreateTime, mAppCreateTDiff;
-
-	ViewGroup mSplashMainLayout;
-	ViewGroup mSplashMainView;
-	ImageView mIconStatic, mIconDynamic;
-
-	boolean mAnimIconDone, mAnimMainViewDone;
+    private boolean mAnimIconDone, mAnimMainViewDone;
 
 
-	@Override
-	protected void onCreate( @Nullable Bundle savedInstanceState ) {
-		super.onCreate( savedInstanceState );
-
-		if( BuildConfig.DEBUG )
-		{
-			mOnCreateTime = System.nanoTime();
-			mAppCreateTDiff = mOnCreateTime - Application.getInstance().mAppCreateTime;
-		}
-
-		mAnimIconDone = mAnimMainViewDone = false;
-
-		setContentView( R.layout.fragment_splashscreen );
-		mSplashMainLayout = findViewById( R.id.splash_layout );
-		mSplashMainView = findViewById( R.id.splash_main );
-
-		mIconStatic = mSplashMainLayout.findViewById( R.id.splash_icon);
-		mIconDynamic = mSplashMainLayout.findViewById( R.id.splash_icon_2);
-
-		if(! isNetworkReachable(this)){
-			Snackbar.make(getWindow().getDecorView().getRootView()
-					, getResources().getString(R.string.no_internet_snackbar_message),
-					Snackbar.LENGTH_LONG)
-					.setAction("Action", null).show();
-		}
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
 
-		mSplashMainLayout.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener() {
-			public void onGlobalLayout() {
-				//Remove the listener before proceeding
-				mSplashMainLayout.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+        mAnimIconDone = mAnimMainViewDone = false;
 
-				int dstTop = mIconStatic.getTop();
-				int srcTop = mIconDynamic.getTop();
+        setContentView(R.layout.fragment_splashscreen);
+        mSplashMainLayout = findViewById(R.id.splash_layout);
+        mSplashMainView = findViewById(R.id.splash_main);
 
-				animateIcon( dstTop - srcTop );
-			}
-		});
-	}
+        mIconStatic = mSplashMainLayout.findViewById(R.id.splash_icon);
+        mIconDynamic = mSplashMainLayout.findViewById(R.id.splash_icon_2);
+
+        if (!isNetworkReachable(this) && MapsIndoors.checkOfflineDataAvailability()) {
+            Snackbar.make(getWindow().getDecorView().getRootView()
+                    , getResources().getString(R.string.no_internet_snackbar_message),
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
 
 
-	void animateIcon(int toTopPos)
-	{
-		ViewCompat.animate( mIconDynamic )
-				.translationY( toTopPos )
-				.setDuration( 500 )
-				//.setInterpolator( new DecelerateInterpolator() )
-				.setListener( new ViewPropertyAnimatorListener()
-				{
-					@Override
-					public void onAnimationStart( View view ) {
-						mAnimIconDone = false;
+        mSplashMainLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                //Remove the listener before proceeding
+                mSplashMainLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-						animateMainView( 0 );
-					}
+                int dstTop = mIconStatic.getTop();
+                int srcTop = mIconDynamic.getTop();
 
-					@Override
-					public void onAnimationEnd( View view ) {
-						mAnimIconDone = true;
-						view.setAlpha( 1f );
-						continueToGooglePlayServicesCheck();
-					}
+                animateIcon(dstTop - srcTop);
+            }
+        });
+    }
 
-					@Override
-					public void onAnimationCancel( View view ) {}
-				} )
-				.setStartDelay( 125 );
-	}
 
-	void animateMainView(int initDelay )
-	{
-		ViewCompat.animate( mSplashMainView )
-				.alpha( 1f )
-				.setDuration( 250 )
-				.setListener( new ViewPropertyAnimatorListener() {
-					@Override
-					public void onAnimationStart( View view ) {
-						mAnimMainViewDone = false;
-					}
+    void animateIcon(int toTopPos) {
+        ViewCompat.animate(mIconDynamic)
+                .translationY(toTopPos)
+                .setDuration(500)
+                //.setInterpolator( new DecelerateInterpolator() )
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        mAnimIconDone = false;
 
-					@Override
-					public void onAnimationEnd( View view ) {
-						mAnimMainViewDone = true;
-						view.setAlpha( 1f );
-						continueToGooglePlayServicesCheck();
-					}
+                        animateMainView(0);
+                    }
 
-					@Override
-					public void onAnimationCancel( View view ) {}
-				})
-				.setStartDelay( initDelay );
-	}
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        mAnimIconDone = true;
+                        view.setAlpha(1f);
+                        continueToGooglePlayServicesCheck();
+                    }
 
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
+                    @Override
+                    public void onAnimationCancel(View view) {
+                    }
+                })
+                .setStartDelay(125);
+    }
 
-		if( BuildConfig.DEBUG )
-		{
-			long tDiff = (System.nanoTime() - mOnCreateTime);
-			float tDiffF = tDiff * (1 / 1000000f);
-			float tAppDiffF = mAppCreateTDiff * (1 / 1000000f);
-			dbglog.Log( TAG, String.format( Locale.US, "App to Splash: %.2f, Splash create to resume: %.2f", tAppDiffF, tDiffF ) );
-		}
-	}
+    void animateMainView(int initDelay) {
+        ViewCompat.animate(mSplashMainView)
+                .alpha(1f)
+                .setDuration(250)
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        mAnimMainViewDone = false;
+                    }
 
-	void continueToGooglePlayServicesCheck()
-	{
-		if( mAnimIconDone && mAnimMainViewDone ) {
-			if( MapsIndoorsUtils.CheckGooglePlayServices( this ) ) {
-				if( BuildConfig.DEBUG ) {
-					mStartTime = System.currentTimeMillis();
-				}
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        mAnimMainViewDone = true;
+                        view.setAlpha(1f);
+                        continueToGooglePlayServicesCheck();
+                    }
 
-				prepareNextActivity();
-			}
-		}
-	}
+                    @Override
+                    public void onAnimationCancel(View view) {
+                    }
+                })
+                .setStartDelay(initDelay);
+    }
 
-	private void prepareNextActivity()
-	{
-		final long timeToWait = getSplashScreenDelay();
+    void continueToGooglePlayServicesCheck() {
+        if (mAnimIconDone && mAnimMainViewDone) {
+            if (MapsIndoorsUtils.CheckGooglePlayServices(this)) {
+                prepareNextActivity();
+            }
+        }
+    }
 
-		final Class clazz = MapsIndoorsActivity.class;
+    private void prepareNextActivity() {
+        //	final long timeToWait = getSplashScreenDelay();
 
-		Handler handler = new Handler( Looper.getMainLooper() );
-		handler.postDelayed( () -> startNextActivity( clazz ), timeToWait );
-	}
 
-	void startNextActivity( Class clazz ) {
-		Intent intent = new Intent( SplashScreenActivity.this, clazz );
+        final long timeToWait = 0;
+        final Class clazz = MapsIndoorsActivity.class;
 
-		startActivity( intent );
-		overridePendingTransition( 0, 0 );
-		finish();
-	}
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> startNextActivity(clazz), timeToWait);
+    }
 
-	private long getSplashScreenDelay() {
-		long timeToWait = 0;
-		long difference = System.currentTimeMillis() - mStartTime;
+    void startNextActivity(Class clazz) {
+        Intent intent = new Intent(SplashScreenActivity.this, clazz);
 
-		if( difference < MINIMUM_SCREEN_DELAY ) {
-			timeToWait = MINIMUM_SCREEN_DELAY - difference;
-		}
-
-		return timeToWait;
-	}
+        startActivity(intent);
+        overridePendingTransition(0, 0);
+        finish();
+    }
 }

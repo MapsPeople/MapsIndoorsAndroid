@@ -1,7 +1,8 @@
 package com.mapsindoors.stdapp.ui.common.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,21 +21,18 @@ public class SplashScreenFragment extends BaseFragment
 {
 	@Nullable
 	@Override
-	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+	public View onCreateView( @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState ) {
 		if( mMainView == null ) {
 			mMainView = inflater.inflate( R.layout.fragment_splashscreen, container );
 		}
 		return mMainView;
 	}
 
-	@Override
-	public void connectivityStateChanged(boolean state) {}
 
 	@Override
-	public boolean onBackPressed() {
+	public boolean onBackPressed()
+	{
 		return false;
 	}
-
-	@Override
-	public void onDrawerEvent( int newState, int prevState ) {}
+	//endregion
 }

@@ -15,7 +15,8 @@
         android:id="@+id/directionsfullmenu_searchbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimary"
+        >
         <!--locations_backbutton-->
         <ImageButton
             android:id="@+id/directionsfullmenusearch_back_button"
@@ -26,16 +27,18 @@
             android:clickable="true"
             android:tint="@color/white"
             android:visibility="visible"
-            app:srcCompat="@drawable/ic_arrow_back"/>
+            app:srcCompat="@drawable/ic_arrow_back"
+            />
+
         <EditText
             android:id="@+id/search_fragment_edittext_search"
             android:layout_width="match_parent"
             android:layout_height="24dp"
             android:layout_centerInParent="true"
             android:layout_gravity="center"
-            android:layout_marginEnd="16dp"
-
             android:layout_marginStart="16dp"
+
+            android:layout_marginEnd="16dp"
             android:layout_toEndOf="@+id/directionsfullmenusearch_back_button"
             android:background="@color/colorPrimaryDark"
 
@@ -46,11 +49,12 @@
             android:imeOptions="actionSearch"
             android:inputType="textVisiblePassword"
             android:maxLines="1"
-            android:paddingEnd="8dp"
             android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:textColor="@color/white"
             android:textColorHint="@color/search_edittext_hint"
-            android:theme="@style/SearchBoxEditTextTheme"/>
+            android:theme="@style/SearchBoxEditTextTheme"
+            />
 
         <ImageButton
             android:id="@+id/directionsfullmenu_search_clear_btn"
@@ -65,29 +69,27 @@
             android:focusableInTouchMode="true"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_clear_white_24dp"
-            tools:visibility="visible"/>
+            tools:visibility="visible"
+            />
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_alignBottom="@+id/directionsfullmenu_searchbar"
-        android:background="@color/colorPrimaryDark"/>
-
+        android:background="@color/colorPrimaryDark"
+        />
 
     <com.mapsindoors.stdapp.ui.components.noInternetBar.NoInternetBar
         android:id="@+id/search_frag_no_connection_layout"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_below="@+id/directionsfullmenu_searchbar"
-        android:visibility="gone"
         android:elevation="1dp"
         android:outlineProvider="bounds"
-
-
+        android:visibility="gone"
         tools:visibility="visible"
         />
-
 
     <ViewFlipper
         android:id="@+id/directionsfullmenu_itemlist_viewflipper"
@@ -99,10 +101,11 @@
         >
 
         <RelativeLayout
-            android:layout_width="wrap_content"
             android:id="@+id/list_layout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true">
+            android:animateLayoutChanges="true"
+            >
 
             <ListView
                 android:id="@+id/directionsfullmenu_itemlist"
@@ -114,10 +117,7 @@
                 android:dividerHeight="0dp"
                 android:orientation="vertical"
                 tools:listitem="@layout/control_mainmenu_item"
-
-               />
-
-
+                />
 
             <TextView
                 android:id="@+id/search_text_label"
@@ -127,13 +127,10 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:text="@string/poi_search_text"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                />
 
         </RelativeLayout>
-
-
-
-
 
         <ProgressBar
             android:id="@+id/directionsfullmenu_search_workingprogressbar"
@@ -141,7 +138,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminate="false"/>
+            android:indeterminate="false"
+            />
 
         <FrameLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -169,35 +167,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|bottom"
-                android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="120dp"
+                android:layout_marginEnd="16dp"
                 android:gravity="center"
                 android:textColor="@color/grey_lighter"
                 tools:text="@string/search_explaining_text"
                 />
         </FrameLayout>
 
-
-        <include layout="@layout/control_no_results"/>
-
-
-
-
-
-
+        <include layout="@layout/control_no_results" />
     </ViewFlipper>
-
-
-
 
     <FrameLayout
         android:id="@+id/powered_by_image_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:layout_alignParentBottom="true"
-
+        android:background="@color/white"
         >
 
         <ImageView
@@ -209,8 +196,6 @@
             />
 
     </FrameLayout>
-
-
 </RelativeLayout>
 
 

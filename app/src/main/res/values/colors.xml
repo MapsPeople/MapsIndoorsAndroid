@@ -18,6 +18,20 @@
 
 	<color name="secondaryButtonColor">#d1d1d1</color>
 	<color name="blueGray">#43aaa0</color>
+	<color name="hotPink">#EF6CCE</color>
 
 	<color name="light_grey">#ededed</color>
+
+	<color name="info_window_text_color">@color/blueGray</color>
+
+	<color name="building_outline_color">@color/hotPink</color>
+
+	<color name="yellow">#FFC107</color>
+	<color name="directionLegColor">#3071D9</color>
+
+
+
+	<color name="floorselector_background_btn_default">@android:color/white</color>
+	<color name="floorselector_background_btn_selected">@color/secondaryButtonColor</color>
+
 </resources>

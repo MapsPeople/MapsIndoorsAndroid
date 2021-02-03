@@ -1,7 +1,4 @@
 <resources>
-	<string name="mapsindoors_api_key" translatable="false">[YOUR MAPSINDOORS API KEY GOES HERE]</string>
-
-
 	<!--
 					Offline data switches
 	-->
@@ -19,12 +16,18 @@
 	<bool name="mapsindoors_offlinemode_routing_enabled">false</bool>
 
 	<!-- If true, ALL the solution tiles will be included -->
-	<bool name="mapsindoors_offlinemode_tiles_enabled">false</bool>
+	<bool name="mapsindoors_offlinemode_tiles_enabled">true</bool>
 
 	<!--
 		If true, location data will be pulled from the backend server.
 		Set to false if you have a custom locations provider
 	-->
 	<bool name="mapsindoors_offlinemode_locations_enabled">false</bool>
+
+	<!--
+    If true, when the user opens the direction view will find the current position set as origin
+    and a precalculated route is shown as default from the position to the desired POI
+-->
+	<bool name="default_starting_position_enabled">true</bool>
 
 </resources>

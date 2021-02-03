@@ -1,11 +1,12 @@
 <resources>
 
     <!-- App specific -->
-	<string name="app_name" translatable="false">MI Demo</string>
+	<string name="app_name" translatable="false">MI demo</string>
 	<string name="title_activity_mapsindoors" translatable="false">@string/app_name</string>
+	<string name="app_scheme" translatable="false">mapsindoorsapp</string>
 
 	<string name="app_provider" translatable="false">MapsPeople</string>
-	<string name="app_provider_website" translatable="false">https://www.mapspeople.com</string>
+	<string name="app_provider_website" translatable="false">https://www.mapspeople.com/</string>
 	<string name="app_supplier" translatable="false">@string/app_default_supplier</string>
 	<string name="app_supplier_website" translatable="false">@string/app_default_supplier_website</string>
 
@@ -13,6 +14,7 @@
 	<string name="app_provider_name_in_search" translatable="false">@string/app_provider</string>
 
 	<!-- Splash screen -->
-	<string name="splash_screen_welcome">Welcome to the map service of MapsPeople</string>
+	<string name="splash_screen_welcome">Welcome to the map service of MI demo</string>
 	<string name="splash_screen_status">Buildings and rooms are being loaded…</string>
+    <string name="route_settings_user_roles_description">Choose the App User Roles you are part of. This affects the directions you get, and the locations you see on the map.</string>
 </resources>

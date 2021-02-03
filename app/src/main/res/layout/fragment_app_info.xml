@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,11 +8,6 @@
     android:background="@color/white"
     android:clickable="true"
     android:orientation="vertical">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPrimaryDark" />
 
     <RelativeLayout
         android:id="@+id/transport_sources_bar"
@@ -34,13 +30,11 @@
             android:gravity="center_vertical"
             android:text="@string/app_info"
             android:textAppearance="@style/ToolbarTitle" />
-
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        >
+        android:layout_height="100dp">
 
         <ImageView
             android:id="@+id/app_info_logo"
@@ -48,44 +42,59 @@
             android:layout_height="70dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="40dp"
-            app:srcCompat="@drawable/app_logo_info_screen"
-            />
+            app:srcCompat="@drawable/app_logo_info_screen" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/app_info_logo"
-            android:orientation="vertical"
             android:layout_marginStart="20dp"
-            android:layout_marginEnd="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
-            >
+            android:layout_toEndOf="@+id/app_info_logo"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@string/app_name"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:ellipsize="end"
-                />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/app_info_provider_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@string/app_provider"
                 android:textColor="@color/blueGray"
                 android:textSize="14sp"
-                android:textStyle="bold"
-                android:ellipsize="end"
-                />
+                android:textStyle="bold" />
         </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/solution_logout_button"
+            android:visibility="gone"
+            android:textAllCaps="false"
+            android:layout_width="92dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="7dp"
+            android:background="@color/yellow"
+            android:elevation="2dp"
+            android:text="@string/log_out"
+            android:shadowRadius="4"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:drawableStart="@drawable/ic_lock_open_black_24dp"
+            tools:visibility="visible"
+            />
 
     </RelativeLayout>
 
@@ -116,10 +125,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-
                 android:layout_marginStart="10dp"
+
                 android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:text="@string/app_version_app_title" />
 
             <TextView
@@ -140,9 +149,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:text="@string/app_version_sdk_title" />
 
             <TextView
@@ -152,7 +161,29 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="10dp"
-                tools:text="1.12.1-beta" />
+                tools:text="5.0.0" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/app_info_positioning_provider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp" />
+
+            <TextView
+                android:id="@+id/app_info_positioning_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="10dp" />
 
         </RelativeLayout>
 
@@ -184,9 +215,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:text="@string/app_supplier"
             android:textColor="@color/blueGray"
             android:textStyle="bold" />
@@ -198,8 +229,7 @@
         android:id="@+id/debug_settings"
         layout="@layout/debug_control_app_info"
         android:visibility="gone"
-        tools:visibility="visible"
-        />
+        tools:visibility="visible" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -216,20 +246,17 @@
 
     </RelativeLayout>
 
-
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:layout_alignParentTop="true"
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/credit_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/feedback_layout"
+            android:layout_alignParentTop="true"
             tools:listitem="@layout/control_app_info_credits_item" />
-
 
 
         <RelativeLayout
@@ -240,10 +267,12 @@
             android:background="?attr/selectableItemBackground"
             android:paddingBottom="10dp"
             android:visibility="invisible">
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/light_grey" />
+
             <ImageView
                 android:id="@+id/feedback_logo"
                 android:layout_width="35dp"
@@ -263,7 +292,5 @@
                 android:textStyle="bold" />
         </RelativeLayout>
     </RelativeLayout>
-
-
 </LinearLayout>
 

@@ -49,6 +49,8 @@
 	<string name="prefix_escalator">Rulletrappe:</string>
 	<string name="prefix_enter">Gå ind:</string>
 	<string name="prefix_exit">Gå ud:</string>
+	<string name="prefix_park">Parkér:</string>
+
 	<string name="action_name_elevator">elevator</string>
 	<string name="action_name_escalator">rulletrappe</string>
 	<string name="action_name_steps">trin</string>
@@ -76,13 +78,13 @@
 	<string name="stops">Stoppesteder</string>
 	<string name="continue_">Fortsæt</string>
 
-	<string name="travel_mode_walking">Gang</string>
+	<string name="travel_mode_walking">Gå</string>
 	<string name="travel_mode_by_walk">gang</string>
-	<string name="travel_mode_bicycling">Cykel</string>
+	<string name="travel_mode_bicycling">Kør</string>
 	<string name="travel_mode_by_bike">på cykel</string>
 	<string name="travel_mode_transit">Bus</string>
 	<string name="travel_mode_by_transit">med off. transport</string>
-	<string name="travel_mode_driving">Køre</string>
+	<string name="travel_mode_driving">Kør</string>
 	<string name="travel_mode_by_car">i bil</string>
 
 	<string name="direction_time_to_destination">%1$s %2$s (%3$s)</string><!-- %1$s to destination (%2$s) -->
@@ -91,7 +93,7 @@
 	<string name="search_no_locations_to_show">Ingen steder fundet</string>
 	<string name="search_no_matches_for">Ingen resultater for "%1$s"</string>
 	<string name="no_network_available_popup_title">Din enhed ser ud til at være offline</string>
-	<string name="no_network_available_popup_text">Slå flytilstand fra eller aktivér mobil data eller wifi.\ \Du kan i nogle tilfælde opnå bedre netværksforbindelse ved at bevæge dig.</string>
+	<string name="no_network_available_popup_text">Slå flytilstand fra eller aktivér mobil data eller WiFi.\ \Du kan i nogle tilfælde opnå bedre netværksforbindelse ved at bevæge dig.</string>
 
 	<string name="feedback_label_text">Har du feedback?</string>
 
@@ -117,16 +119,20 @@
 	<string name="__hour__">t</string>
 
 	<string name="elapsed_time_format_min">%1$d min</string>
+	<string name="elapsed_time_format_min_plural">%1$d mins</string>
 	<string name="elapsed_time_format_hour">%1$d t</string>
 	<string name="elapsed_time_format_hour_min">%1$d t %2$d min</string>
+	<string name="elapsed_time_format_hour_min_plural">%1$d t %2$d mins</string>
 	<string name="elapsed_time_format_day">%1$d d</string>
 	<string name="elapsed_time_format_day_hour">%1$d d %2$d t</string>
 	<string name="elapsed_time_format_day_hour_min">%1$d d %2$d t %3$d min</string>
+	<string name="elapsed_time_format_day_hour_min_plural">%1$d d %2$d t %3$d mins</string>
 
-	<string name="distance_format_meters">%1$dm</string>
-	<string name="distance_format_kilometers">%1$dkm</string>
+	<string name="distance_format_meters">%1$d m</string>
+	<string name="distance_format_kilometers">%1$d km</string>
 
-	<string name="location_menu_info_all">%1$s, Etage %2$s, %3$s</string>
+	<string name="location_menu_info_floor">Etage %1$s</string>
+	<string name="location_menu_info_all">Etage %1$s, %2$s, %3$s</string>
 	<string name="location_menu_info_floor_venue">Etage %1$s, %2$s</string>
 	<string name="location_menu_info_building_venue">%1$s, %2$s</string>
 	<string name="location_menu_info_building_floor">Etage %1$s,\n%2$s,\n%3$s.</string>
@@ -148,6 +154,8 @@
 
 	<string name="clear_map_button_text">Ryd kort</string>
 	<string name="poi_search_text">Søg efter indendørs og udendørs lokationer</string>
+
+	<string name="zoom_for_detail_text">Zoom ind for detaljer</string>
 
 	<string name="return_to_venue_text">Vend tilbage til %1$s</string>
 
@@ -172,5 +180,12 @@
 	<string name="invalid_api_key_dialogue_title">API Key ugyldig</string>
 	<string name="invalid_api_key_dialogue_text">API Key ugyldig. Kontakt app udbyder for mere information</string>
 
+	<string name="wrong_api_key_message">Den angivne API-nøgle er ugyldig</string>
+	<string name="api_key_input_hint">Indtast API-nøgle</string>
+	<string name="log_out">Log ud</string>
+
+	<string name="route_settings">Rute Indstillinger</string>
+	<string name="app_user_roles">App bruger roller</string>
+	<string name="route_settings_user_roles_description">Vælg de app bruger roller du tilhører. Dette påvirker ruter og de lokationer du ser på kortet</string>
 
 </resources>

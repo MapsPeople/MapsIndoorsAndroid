@@ -2,6 +2,7 @@ package com.mapsindoors.stdapp.helpers;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.usage.NetworkStatsManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.res.Resources;
@@ -10,10 +11,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
 import android.widget.TextView;
@@ -83,7 +84,6 @@ public class MapsIndoorsUtils {
             case ConnectionResult.SERVICE_INVALID:
             case ConnectionResult.SERVICE_MISSING:
             case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED: {
-                // getErrorDialog(Activity activity, int errorCode, int requestCode)
                 Dialog dialog = gap.getErrorDialog(activity, googlePlayServicesCheck, 0);
                 dialog.setOnCancelListener( dialogInterface -> activity.finish() );
                 dialog.show();
@@ -120,18 +120,11 @@ public class MapsIndoorsUtils {
         return online;
     }
 
-
     public static boolean isBluetoothEnabled()
     {
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        final BluetoothAdapter defaultBLEAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        if (mBluetoothAdapter == null) {
-            return false;
-        } else {
-            return mBluetoothAdapter.isEnabled();
-
-        }
-
+        return (defaultBLEAdapter != null) && defaultBLEAdapter.isEnabled();
     }
 
     /**
@@ -181,7 +174,6 @@ public class MapsIndoorsUtils {
 
     //region ANDROID SDK VERSION AWARE WRAPPERS
     @NonNull
-    @SuppressWarnings("deprecation")
     public static Locale getDeviceDefaultLocale( @NonNull Resources res )
     {
         Locale locale;
@@ -196,7 +188,6 @@ public class MapsIndoorsUtils {
         return locale;
     }
 
-    @SuppressWarnings( "deprecation" )
     public static void setTextAppearance( @Nullable Context context, @Nullable TextView textView, @StyleRes int resId )
     {
         if( (context == null) || (textView == null) )

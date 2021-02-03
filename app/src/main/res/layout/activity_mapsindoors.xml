@@ -1,37 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    android:id="@+id/main_content"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-<android.support.v4.widget.DrawerLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:descendantFocusability="blocksDescendants"
-
-    android:id="@+id/main_drawer"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="false"
     >
 
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/main_drawer"
 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:descendantFocusability="blocksDescendants"
+        >
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
         android:animateLayoutChanges="true">
 
-        <FrameLayout
-            android:id="@+id/main_frame_layout"
+        <FrameLayout android:id="@+id/main_frame_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:descendantFocusability="blocksDescendants"
-            android:layout_above="@+id/main_activity_boottom_message"
             >
-
             <!--<android.support.constraint.ConstraintLayout-->
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -40,30 +35,95 @@
                 tools:visibility="visible"
                 >
 
-                <fragment
-                    android:id="@+id/mapfragment"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:visibility="visible"
+                android:layout_above="@+id/main_activity_bottom_message"
+                >
+
+                <fragment android:id="@+id/mapfragment"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clickable="true"
                     tools:context=".ui.activitymain.MapsIndoorsActivity"
-                    tools:layout="@layout/control_mainmenu_item" />
+                    tools:layout="@layout/control_mainmenu_item"
+
+                    />
+
+                <fragment android:id="@+id/overlayfragment"
+                    android:name="com.mapsindoors.stdapp.ui.common.fragments.OverlayFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    tools:context=".ui.activitymain.MapsIndoorsActivity"
+                    tools:layout="@layout/fragment_overlay_layout"
+                    tools:visibility="visible"
+
+                    />
+
+                <View android:id="@+id/blur_effect_view"
+                    android:background="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0"
+                    android:visibility="visible"
+                    android:clickable="false"
+                    android:focusable="false"
+
+
+                    tools:visibility="visible"
+                    tools:alpha="1"
+                    tools:background="@color/blueGray"
+                    />
+
+                <fragment android:id="@+id/float_button_fragment"
+                    android:name="com.mapsindoors.stdapp.ui.common.fragments.FloatButtonFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    tools:context=".ui.activitymain.MapsIndoorsActivity"
+                    tools:layout="@layout/fragment_float_button_layout"
+                    tools:visibility="visible"
+                    />
+
+
+
+                <fragment android:id="@+id/directionsmenufragment"
+                    android:name="com.mapsindoors.stdapp.ui.direction.DirectionsHorizontalFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    tools:context=".ui.activitymain.MapsIndoorsActivity"
+                    tools:layout="@layout/fragment_directions_horizontal"
+                    tools:visibility="invisible"
+                    android:layout_alignParentBottom="true"
+                    />
+            </RelativeLayout>
+
+                <FrameLayout android:id="@+id/main_activity_bottom_message"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@color/black"
+                    android:layout_alignParentBottom="true"
+                    >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/unable_load_map_snackbar_message"
+                        android:textColor="@color/white"
+                        />
+
+                </FrameLayout>
 
             </RelativeLayout>
 
-            <fragment
-                android:id="@+id/overlayfragment"
-                android:name="com.mapsindoors.stdapp.ui.common.fragments.OverlayFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize"
-                android:clickable="true"
-                tools:context=".ui.activitymain.MapsIndoorsActivity"
-                tools:layout="@layout/fragment_overlay_layout"
-                tools:visibility="visible"
-                />
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -88,64 +148,19 @@
                     tools:text="Toolbar title, single line, capped with ellipsis"
                     />
 
-                <Button
+                <ImageButton
+                    android:src="@drawable/ic_clear_white_24dp"
+                    android:background="@null"
                     android:id="@+id/clear_map_button"
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    android:layout_width="70dp"
-                    android:layout_height="30dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_gravity="end"
-                    android:background="@color/colorPrimaryDark"
-                    android:clickable="true"
-                    android:text="@string/clear_map_button_text"
-                    android:textAllCaps="false"
-                    android:layout_marginEnd="5dp" />
+                    android:layout_marginEnd="10dp" />
 
-            </android.support.v7.widget.Toolbar>
-
-
-            <View
-                android:id="@+id/blur_effect_view"
-                android:background="@color/white"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:alpha="0"
-                android:visibility="gone"
-                android:clickable="true"
-
-                tools:visibility="visible"
-                tools:alpha="1"
-                tools:background="@color/blueGray"
-                />
-
-            <fragment
-                android:id="@+id/float_button_fragment"
-                android:name="com.mapsindoors.stdapp.ui.common.fragments.FloatButtonFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize"
-                android:clickable="true"
-                tools:context=".ui.activitymain.MapsIndoorsActivity"
-                tools:layout="@layout/fragment_float_button_layout"
-                tools:visibility="visible"
-                />
-
-
-
-            <fragment
-                android:id="@+id/directionsmenufragment"
-                android:name="com.mapsindoors.stdapp.ui.direction.DirectionsHorizontalFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                tools:context=".ui.activitymain.MapsIndoorsActivity"
-                tools:layout="@layout/fragment_directions_horizontal"
-                tools:visibility="invisible"
-                />
-
-
-            <FrameLayout
-                android:id="@+id/no_available_network_fragment_layout"
+            </androidx.appcompat.widget.Toolbar>
+            <FrameLayout android:id="@+id/no_available_network_fragment_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="?attr/actionBarSize"
@@ -165,39 +180,17 @@
                     />
             </FrameLayout>
 
-            <fragment
-                android:id="@+id/splashscreenfragment"
+            <fragment android:id="@+id/splashscreenfragment"
                 android:name="com.mapsindoors.stdapp.ui.common.fragments.SplashScreenFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:context=".ui.activitymain.MapsIndoorsActivity"
                 tools:layout="@layout/fragment_splashscreen"
-                tools:visibility="gone" />
-
-
+                tools:visibility="gone"
+                />
         </FrameLayout>
 
-        <FrameLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@color/black"
-            android:layout_alignParentBottom="true"
-            android:id="@+id/main_activity_boottom_message"
 
-
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/unable_load_map_snackbar_message"
-                android:textColor="@color/white"
-
-            />
-
-        </FrameLayout>
     </RelativeLayout>
 
     <!-- side menu -->
@@ -280,9 +273,20 @@
                 tools:context=".ui.activitymain.MapsIndoorsActivity"
                 tools:layout="@layout/fragment_app_info"
                 />
+
+
+            <fragment
+                android:id="@+id/route_options_fragment"
+                android:name="com.mapsindoors.stdapp.ui.routeoptions.RouteOptionsFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                tools:context=".ui.activitymain.MapsIndoorsActivity"
+                tools:layout="@layout/fragment_route_options"
+                />
         </ViewFlipper>
 
     </FrameLayout>
 
-</android.support.v4.widget.DrawerLayout>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

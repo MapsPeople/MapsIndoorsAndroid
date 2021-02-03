@@ -2,7 +2,7 @@
 <selector
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	>
-	<item android:drawable="@drawable/btn_dir_panel_navi_pressed" android:state_pressed="true"/>
-	<item android:drawable="@drawable/btn_dir_panel_navi_disabled" android:state_enabled="false"/>
+	<item android:state_pressed="true" android:drawable="@drawable/btn_dir_panel_navi_pressed"/>
+	<item android:state_enabled="false" android:drawable="@drawable/btn_dir_panel_navi_disabled"/>
 	<item android:drawable="@drawable/btn_dir_panel_navi_enabled"/>
 </selector>

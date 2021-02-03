@@ -1,7 +1,7 @@
 package com.mapsindoors.stdapp.apis.googleplaces.listeners;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mapsindoors.stdapp.apis.googleplaces.models.AutoCompleteField;
 

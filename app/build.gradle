@@ -1,27 +1,66 @@
 buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/public' }
-    }
-
-    dependencies {
-        classpath "io.fabric.tools:gradle:1.28.1"
-    }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
-
-// Add the MapsIndoors plugin to embed the "offline" data
-apply from: 'https://raw.githubusercontent.com/MapsIndoors/MapsIndoorsAndroid/master/gradle/MapsIndoorsOfflineDataSync_v2.gradle'
-preBuild.dependsOn fetchData
 
 repositories {
     flatDir { dirs 'libs' }
     mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'http://maven.mapsindoors.com/' }
 }
 
 android {
+
+    compileSdkVersion 29
+    buildToolsVersion '29.0.3'
+
+    //
+    defaultConfig {
+
+        minSdkVersion 21
+        targetSdkVersion 29
+
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        release {
+
+            // https://developer.android.com/studio/build/optimize-your-build#disable_crunching
+            crunchPngs false
+            minifyEnabled true      // SET TO TRUE TO RUN PROGUARD
+
+            // ====================================================================================
+            //    Caution: You must use zipalign at one of two specific points in the app-building process,
+            //    depending on which app-signing tool you use:
+            //    • If you use apksigner, zipalign must only be performed before the APK file has been
+            //      signed. If you sign your APK using apksigner and make further changes to the APK,
+            //      its signature is invalidated.
+            //    • If you use jarsigner, zipalign must only be performed after the APK file has been
+            //      signed.
+            // ====================================================================================
+            zipAlignEnabled true    // Comment out if Proguard is disabled (minifyEnabled == false)
+            shrinkResources true    // -idem-
+
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            //
+            buildConfigField "boolean", "DEBUG_ENABLE_UI_SETTINGS", "false"
+        }
+
+        debug {
+            debuggable true
+            versionNameSuffix ".debug"
+
+            ext.alwaysUpdateBuildId = false
+
+            //
+            buildConfigField "boolean", "DEBUG_ENABLE_UI_SETTINGS", "false"
+
+        }
+    }
+
     signingConfigs {
         miDemo {
             keyAlias 'put_your_own_key'
@@ -36,57 +75,41 @@ android {
 
         checkReleaseBuilds false
 
-        check 'Interoperability' // Ref: https://developer.android.com/studio/preview/features/index.html#java_kotlin_interop
+        check 'Interoperability'
+        // Ref: https://developer.android.com/studio/preview/features/index.html#java_kotlin_interop
 
+        // To files
+        //locations for the rules and output
+        //lintConfig file("${rootDir}/config/lint-config.xml")
         htmlReport true
         htmlOutput file("${buildDir}/reports/lint/lint.html")
     }
 
-    compileSdkVersion 27
-    buildToolsVersion '28.0.3'
-
-    //
-    defaultConfig {
-
-        minSdkVersion    21
-        targetSdkVersion 27
-
-        vectorDrawables.useSupportLibrary = true
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled true
-            zipAlignEnabled true
-            shrinkResources true
-
-            proguardFile 'proguard-rules.pro'
-            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
-        }
-
-        debug {
-            debuggable true
-
-            ext.enableCrashlytics = false
-            ext.alwaysUpdateBuildId = false
-        }
-    }
-
     // Specifies a flavor dimension.
-    flavorDimensions "default"
+    // Default set to poc_app / gps / prod
+    flavorDimensions "default", "apiURL"
 
     productFlavors {
-
-        miDemo {
+        midemo {
             dimension "default"
-           // signingConfig signingConfigs.miDemo
+            signingConfig signingConfigs.miDemo
             applicationId "com.mapsindoors.mapsindoorsdemo"
-            versionCode 21
-            versionName '2.1.0'
+            versionCode 32
+            versionName '2.2.0'
 
             // check: https://developer.android.com/studio/build/shrink-code#unused-alt-resources
             resConfigs "en", "da"
         }
+
+        //region apiURL
+        dev {
+            dimension "apiURL"
+            versionNameSuffix "-dev"
+        }
+        prod {
+            dimension "apiURL"
+        }
+        //endregion
     }
 
     compileOptions {
@@ -94,6 +117,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    // https://developer.android.com/guide/app-bundle/configure
     bundle {
         density.enableSplit = true
         abi.enableSplit = true
@@ -102,31 +126,38 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    implementation "com.android.support:appcompat-v7:27.1.1"
-    implementation "com.android.support:design:27.1.1"
-    implementation "com.android.support:cardview-v7:27.1.1"
-    implementation "com.android.support.constraint:constraint-layout:1.1.3"
+    implementation 'com.mapspeople.mapsindoors:mapsindoorssdk:3.8.1'
 
-    implementation "com.mapspeople.mapsindoors:mapsindoorssdk:2.1.4@aar"
-    implementation "com.google.code.gson:gson:2.8.5"
+    implementation "com.google.code.gson:gson:2.8.6"
 
-    implementation "org.altbeacon:android-beacon-library:2.12.4"
+    implementation "com.google.android.gms:play-services-maps:16.1.0"
+    implementation "com.google.android.gms:play-services-location:16.0.0"
+    implementation "com.google.firebase:firebase-core:16.0.7"
 
-    implementation 'com.google.android.gms:play-services-maps:16.1.0'
-    implementation 'com.google.android.gms:play-services-location:16.0.0'
-    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation "com.google.firebase:firebase-crashlytics:17.2.2"
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.9@aar') {transitive = true;}
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.4.0"
+
     implementation "com.squareup.picasso:picasso:2.71828"
-    implementation "uk.co.chrisjenx:calligraphy:2.3.0"
-    implementation "com.karumi:dexter:4.2.0"
+    implementation "com.karumi:dexter:5.0.0"
+    implementation 'io.github.inflationx:calligraphy3:3.1.1'
+    implementation 'io.github.inflationx:viewpump:2.0.3'
+
+    implementation 'com.google.firebase:firebase-config:19.2.0'
+    implementation 'com.google.firebase:firebase-analytics:17.6.0'
+    implementation 'com.google.firebase:firebase-core:17.5.1'
+
+    implementation "com.squareup.okhttp3:okhttp:4.4.1"
+    implementation 'androidx.fragment:fragment:1.2.5'
 
     // DEV ONLY
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
-    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 }
 
 gradle.projectsEvaluated {
@@ -137,3 +168,4 @@ gradle.projectsEvaluated {
 
 // Google Services, placed at the bottom to avoid a "version conflict" error when building, solution is mentioned here: http://stackoverflow.com/questions/34370603/version-conflict-updating-to-8-4-0
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'

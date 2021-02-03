@@ -1,187 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="search_places">Search</string>
-	<string name="search_param">Search in %1$s</string>
-	<string name="desc">dest</string>
-	<string name="cancel">Cancel</string>
-	<string name="yes">Yes</string>
-	<string name="ab_find_nearest">FIND NEAREST</string>
+    <string name="search_places">Search</string>
+    <string name="search_param">Search in %1$s</string>
+    <string name="desc">dest</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="ab_find_nearest">FIND NEAREST</string>
 
-	<string name="directions_routeto">Route to: %1$s</string>
-	<string name="action_settings">Settings</string>
+    <string name="directions_routeto">Route to: %1$s</string>
+    <string name="action_settings">Settings</string>
 
-	<string name="show_on_map">Show on map</string>
-	<string name="route">ROUTE</string>
-	<string name="previous">PREVIOUS</string>
-	<string name="next">NEXT</string>
-	<string name="you_are_here">YOU ARE HERE</string>
-	<string name="estimated_position_near">Estimated: %1$s</string>
-	<string name="destination">DESTINATION</string>
-	<string name="stairs_level">STAIRS LEVEL </string>
-	<string name="elevator_level">ELEVATOR LEVEL </string>
-	<string name="location_title">LOCATION</string>
-	<string name="search_for">Search for</string>
-	<string name="avoid_stairs">Avoid stairs</string>
-	<string name="my_position">My position</string>
-	<string name="toolbar_label_directions">DIRECTIONS</string>
+    <string name="show_on_map">Show on map</string>
+    <string name="route">ROUTE</string>
+    <string name="previous">PREVIOUS</string>
+    <string name="next">NEXT</string>
+    <string name="you_are_here">YOU ARE HERE</string>
+    <string name="estimated_position_near">Estimated: %1$s</string>
+    <string name="destination">DESTINATION</string>
+    <string name="stairs_level">STAIRS LEVEL </string>
+    <string name="elevator_level">ELEVATOR LEVEL </string>
+    <string name="location_title">LOCATION</string>
+    <string name="search_for">Search for</string>
+    <string name="avoid_stairs">Avoid stairs</string>
+    <string name="my_position">My position</string>
+    <string name="toolbar_label_directions">DIRECTIONS</string>
 
-	<string name="walk_outside">Walk outside</string>
-	<string name="walk_inside">Walk inside</string>
-	<string name="by_walk">walk</string>
-	<string name="by_drive">drive</string>
+    <string name="walk_outside">Walk outside</string>
+    <string name="walk_inside">Walk inside</string>
+    <string name="by_walk">walk</string>
+    <string name="by_drive">drive</string>
 
-	<string name="finding_route">Finding route…</string>
-	<string name="level">Level</string>
-	<string name="building">Building</string>
-	<string name="no_pois_found">No POIs found near you in category: %1$s</string>
-	<string name="no_matching_results">No matching results</string>
-	<string name="select_venue">Select Venue</string>
-	<string name="sources">Sources</string>
-	<string name="website">Website</string>
+    <string name="finding_route">Finding route…</string>
+    <string name="level">Level</string>
+    <string name="building">Building</string>
+    <string name="no_pois_found">No results for: %1$s</string>
+    <string name="no_matching_results">No matching results</string>
+    <string name="select_venue">Select Venue</string>
+    <string name="sources">Sources</string>
+    <string name="website">Website</string>
 
-	<string name="choose_starting_point">Choose starting point</string>
-	<string name="choose_destination">Choose destination</string>
+    <string name="choose_starting_point">Choose starting point</string>
+    <string name="choose_destination">Choose destination</string>
 
-	<string name="prefix_start">Start:</string>
-	<string name="prefix_end">End:</string>
-	<string name="prefix_stairs">Stairs:</string>
-	<string name="prefix_lift">Lift:</string>
-	<string name="prefix_escalator">Escalator:</string>
-	<string name="prefix_enter">Enter:</string>
-	<string name="prefix_exit">Exit:</string>
-	<string name="action_name_elevator">elevator</string>
-	<string name="action_name_escalator">escalator</string>
-	<string name="action_name_steps">steps</string>
-	<string name="action_name_travelator">travelator</string>
+    <string name="prefix_start">Start:</string>
+    <string name="prefix_end">End:</string>
+    <string name="prefix_stairs">Stairs:</string>
+    <string name="prefix_lift">Lift:</string>
+    <string name="prefix_escalator">Escalator:</string>
+    <string name="prefix_enter">Enter:</string>
+    <string name="prefix_exit">Exit:</string>
+    <string name="prefix_park">Park:</string>
 
-	<string name="direction_right"><![CDATA[Go <b>right</b> and continue]]></string>
-	<string name="direction_left"><![CDATA[Go <b>left</b> and continue]]></string>
-	<string name="direction_straight"><![CDATA[Continue straight ahead]]></string>
-	<string name="direction_straight_via_stairs"><![CDATA[Continue via stairs]]></string>
-	<string name="direction_slightly_right"><![CDATA[Go slight <b>right</b> and continue]]></string>
-	<string name="direction_slightly_left"><![CDATA[Go slight <b>left</b> and continue]]></string>
-	<string name="direction_sharp_right"><![CDATA[Go sharp <b>right</b> and continue]]></string>
-	<string name="direction_sharp_left"><![CDATA[Go sharp <b>left</b> and continue]]></string>
-	<string name="direction_keep_right"><![CDATA[Keep <b>right</b>]]></string>
-	<string name="direction_keep_left"><![CDATA[Keep <b>left</b>]]></string>
-	<string name="direction_roundabout_left"><![CDATA[Turn roundabout <b>left</b>]]></string>
-	<string name="direction_roundabout_right"><![CDATA[Turn roundabout <b>right</b>]]></string>
-	<string name="direction_ramp_left"><![CDATA[Turn ramp <b>left</b>]]></string>
-	<string name="direction_ramp_right"><![CDATA[Turn ramp <b>right</b>]]></string>
-	<string name="direction_make_uturn"><![CDATA[Turn around and continue]]></string>
-	<string name="direction_make_uturn_left"><![CDATA[Turn around and continue]]></string>
-	<string name="direction_make_uturn_right"><![CDATA[Turn around and continue]]></string>
+    <string name="action_name_elevator">elevator</string>
+    <string name="action_name_escalator">escalator</string>
+    <string name="action_name_steps">steps</string>
+    <string name="action_name_travelator">travelator</string>
 
-	<string name="stop">Stop</string>
-	<string name="stops">Stops</string>
-	<string name="continue_">Continue</string>
+    <string name="direction_right"><![CDATA[Go <b>right</b> and continue]]></string>
+    <string name="direction_left"><![CDATA[Go <b>left</b> and continue]]></string>
+    <string name="direction_straight"><![CDATA[Continue straight ahead]]></string>
+    <string name="direction_straight_via_stairs"><![CDATA[Continue via stairs]]></string>
+    <string name="direction_slightly_right"><![CDATA[Go slight <b>right</b> and continue]]></string>
+    <string name="direction_slightly_left"><![CDATA[Go slight <b>left</b> and continue]]></string>
+    <string name="direction_sharp_right"><![CDATA[Go sharp <b>right</b> and continue]]></string>
+    <string name="direction_sharp_left"><![CDATA[Go sharp <b>left</b> and continue]]></string>
+    <string name="direction_keep_right"><![CDATA[Keep <b>right</b>]]></string>
+    <string name="direction_keep_left"><![CDATA[Keep <b>left</b>]]></string>
+    <string name="direction_roundabout_left"><![CDATA[Turn roundabout <b>left</b>]]></string>
+    <string name="direction_roundabout_right"><![CDATA[Turn roundabout <b>right</b>]]></string>
+    <string name="direction_ramp_left"><![CDATA[Turn ramp <b>left</b>]]></string>
+    <string name="direction_ramp_right"><![CDATA[Turn ramp <b>right</b>]]></string>
+    <string name="direction_make_uturn"><![CDATA[Turn around and continue]]></string>
+    <string name="direction_make_uturn_left"><![CDATA[Turn around and continue]]></string>
+    <string name="direction_make_uturn_right"><![CDATA[Turn around and continue]]></string>
 
-	<string name="travel_mode_walking">Walk</string>
-	<string name="travel_mode_by_walk">walk</string>
-	<string name="travel_mode_bicycling">Bicycle</string>
-	<string name="travel_mode_by_bike">by bike</string>
-	<string name="travel_mode_transit">Bus</string>
-	<string name="travel_mode_by_transit">transit</string>
-	<string name="travel_mode_driving">Drive</string>
-	<string name="travel_mode_by_car">car</string>
+    <string name="stop">Stop</string>
+    <string name="stops">Stops</string>
+    <string name="continue_">Continue</string>
 
-	<string name="direction_time_to_destination">%1$s %2$s (%3$s)</string>
+    <string name="travel_mode_walking">Walk</string>
+    <string name="travel_mode_by_walk">walk</string>
+    <string name="travel_mode_bicycling">Bike</string>
+    <string name="travel_mode_by_bike">by bike</string>
+    <string name="travel_mode_transit">Bus</string>
+    <string name="travel_mode_by_transit">transit</string>
+    <string name="travel_mode_driving">Drive</string>
+    <string name="travel_mode_by_car">car</string>
 
-	<string name="search_no_results_found_generic">No results found</string>
-	<string name="search_no_locations_to_show">No locations to show</string>
-	<string name="search_no_matches_for">No matches for \"%1$s\"</string>
-	<string name="no_network_available_popup_title">Your device appears to be offline</string>
-	<string name="no_network_available_popup_text">Please disable flight mode or enable mobile data or wifi.\ \Moving to an alternate location can improve network connectivity.</string>
+    <string name="direction_time_to_destination">%1$s %2$s (%3$s)</string>
 
-	<string name="feedback_label_text">Send feedback</string>
+    <string name="search_no_results_found_generic">No results found</string>
+    <string name="search_no_locations_to_show">No locations to show</string>
+    <string name="search_no_matches_for">No matches for \"%1$s\"</string>
+    <string name="no_network_available_popup_title">Your device appears to be offline</string>
+    <string name="no_network_available_popup_text">Please disable flight mode or enable mobile data or WiFi.\ \Moving to an alternate location can improve network connectivity.</string>
 
-	<string name="no_gps_dialogue_title">Location Services are disabled</string>
-	<string name="no_gps_dialogue_text">Please turn on your phone GPS to determine your location</string>
+    <string name="feedback_label_text">Send feedback</string>
 
-	<string name="no_gps_permission_dialogue_title">Allow the app to access this device\'s location.</string>
-	<string name="no_gps_permission_dialogue_text">The location is used to show your position on the map and for routing.</string>
+    <string name="no_gps_dialogue_title">Location Services are disabled</string>
+    <string name="no_gps_dialogue_text">Please turn on your phone GPS to determine your location</string>
 
-	<string name="leaving_app_dialogue_title">Exit</string>
-	<string name="leaving_app_dialogue_text">Are you sure you want to leave the app?</string>
+    <string name="no_gps_permission_dialogue_title">Allow the app to access this device\'s location.</string>
+    <string name="no_gps_permission_dialogue_text">The location is used to show your position on the map and for routing.</string>
 
-	<string name="directions_no_gps_message">Turn on location services to get your estimated position</string>
+    <string name="leaving_app_dialogue_title">Exit</string>
+    <string name="leaving_app_dialogue_text">Are you sure you want to leave the app?</string>
 
-	<string name="main_menu_categories_headline">Categories</string>
+    <string name="directions_no_gps_message">Turn on location services to get your estimated position</string>
 
-	<string name="transport_agencies_sources"><![CDATA[TICKETS AND INFORMATION <font color="grey">(%1$d)</font>]]></string>
+    <string name="main_menu_categories_headline">Categories</string>
 
-	<string name="no_route_found">No route found</string>
-	<string name="from_param">From %1$s</string>
+    <string name="transport_agencies_sources"><![CDATA[TICKETS AND INFORMATION <font color="grey">(%1$d)</font>]]></string>
 
-	<string name="__minutes__">min</string>
-	<string name="__hour__">hr</string>
+    <string name="no_route_found">No route found</string>
+    <string name="from_param">From %1$s</string>
 
-	<string name="elapsed_time_format_min">%1$d min</string>
-	<string name="elapsed_time_format_hour">%1$d h</string>
-	<string name="elapsed_time_format_hour_min">%1$d h %2$d min</string>
-	<string name="elapsed_time_format_day">%1$d d</string>
-	<string name="elapsed_time_format_day_hour">%1$d d %2$d h</string>
-	<string name="elapsed_time_format_day_hour_min">%1$d d %2$d h %3$d min</string>
+    <string name="__minutes__">min</string>
+    <string name="__hour__">hr</string>
 
-	<string name="distance_format_meters">%1$dm</string>
-	<string name="distance_format_kilometers">%1$dkm</string>
-	<string name="distance_format_kilometers_f" translatable="false">%1$.1fkm</string>
+    <string name="elapsed_time_format_min">%1$d min</string>
+    <string name="elapsed_time_format_min_plural">%1$d mins</string>
+    <string name="elapsed_time_format_hour">%1$d h</string>
+    <string name="elapsed_time_format_hour_min">%1$d h %2$d min</string>
+    <string name="elapsed_time_format_hour_min_plural">%1$d h %2$d min</string>
+    <string name="elapsed_time_format_day">%1$d d</string>
+    <string name="elapsed_time_format_day_hour">%1$d d %2$d h</string>
+    <string name="elapsed_time_format_day_hour_min">%1$d d %2$d h %3$d min</string>
+    <string name="elapsed_time_format_day_hour_min_plural">%1$d d %2$d h %3$d mins</string>
 
-	<string name="distance_format_miles" translatable="false">%1$d mi</string>
-	<string name="distance_format_miles_f" translatable="false">%1$.1f mi</string>
-	<string name="distance_format_feets" translatable="false">%1$d ft</string>
+    <string name="distance_format_meters">%1$d m</string>
+    <string name="distance_format_kilometers">%1$d km</string>
 
-	<string name="location_menu_info_all">%1$s, Level %2$s, %3$s</string>
-	<string name="location_menu_info_floor_venue">Level %1$s, %2$s</string>
-	<string name="location_menu_info_building_venue">%1$s, %2$s</string>
-	<string name="location_menu_info_building_floor">Level %1$s,\n%2$s,\n%3$s.</string>
-	<string name="location_menu_info_building_floor_name">%1$s,\n%2$s,\n%3$s.</string>
+    <string name="location_menu_info_floor">Level %1$s</string>
+    <string name="location_menu_info_all">Level %1$s, %2$s, %3$s</string>
+    <string name="location_menu_info_floor_venue">Level %1$s, %2$s</string>
+    <string name="location_menu_info_building_venue">%1$s, %2$s</string>
+    <string name="location_menu_info_building_floor">Level %1$s,\n%2$s,\n%3$s.</string>
+    <string name="location_menu_info_building_floor_name">%1$s,\n%2$s,\n%3$s.</string>
 
-	<string name="location_address_street_name_number">%1$s %2$s</string>
-	<string name="location_address_street_name">%1$s</string>
+    <string name="location_address_street_name_number">%1$s %2$s</string>
+    <string name="location_address_street_name">%1$s</string>
 
-	<string name="estimated_route_duration_by_means_walk">%1$s walk</string>
-	<string name="estimated_route_duration_by_means_by_car">%1$s by car</string>
-	<string name="estimated_route_duration_by_means_transit">%1$s transit</string>
-	<string name="estimated_route_duration_by_means_by_bike">%1$s by bike</string>
+    <string name="estimated_route_duration_by_means_walk">%1$s walk</string>
+    <string name="estimated_route_duration_by_means_by_car">%1$s by car</string>
+    <string name="estimated_route_duration_by_means_transit">%1$s transit</string>
+    <string name="estimated_route_duration_by_means_by_bike">%1$s by bike</string>
 
-	<string name="search_explaining_text">Use the search to search across\n%1$s</string>
+    <string name="search_explaining_text">Use the search to search across\n%1$s</string>
 
-	<string name="routing_endpoint_level_format_start">Level %1$s</string>
-	<string name="routing_endpoint_level_format_middle">%1$s, Level %2$s</string>
-	<string name="routing_endpoint_field_format_middle">%1$s, %2$s</string>
+    <string name="routing_endpoint_level_format_start">Level %1$s</string>
+    <string name="routing_endpoint_level_format_middle">%1$s, Level %2$s</string>
+    <string name="routing_endpoint_field_format_middle">%1$s, %2$s</string>
 
-	<string name="clear_map_button_text">Clear map</string>
-	<string name="poi_search_text">Search for locations indoors or outdoors</string>
+    <string name="clear_map_button_text">Clear map</string>
+    <string name="poi_search_text">Search for locations indoors or outdoors</string>
 
-	<string name="zoom_for_detail_text">Zoom for more details</string>
+    <string name="zoom_for_detail_text">Zoom for more details</string>
 
-	<string name="return_to_venue_text">Return to %1$s</string>
+    <string name="return_to_venue_text">Return to %1$s</string>
 
-	<string name="app_info">App information</string>
-	<string name="app_version_title">App version</string>
-	<string name="app_version_app_title">App</string>
-	<string name="app_version_sdk_title">SDK</string>
-	<string name="app_info_supplier_title">Supplier</string>
-	<string name="app_info_credits_title">Credits</string>
+    <string name="app_info">App information</string>
+    <string name="app_version_title">App version</string>
+    <string name="app_version_app_title">App</string>
+    <string name="app_version_sdk_title">SDK</string>
+    <string name="app_info_supplier_title">Supplier</string>
+    <string name="app_info_credits_title">Credits</string>
 
-	<string name="poi_info_window_title_text_format">%1$s - %2$s</string>
+    <string name="poi_info_window_title_text_format">%1$s - %2$s</string>
 
-	<string name="unable_load_map_snackbar_message">No internet - Unable to update map</string>
-	<string name="no_internet_snackbar_message">No internet - Content from last use is available</string>
-	<string name="no_internet_trying_message">Trying to reconnect</string>
-	<string name="no_internet_reconnect_message">No internet - Try to reconnect</string>
-	<string name="no_internet">No internet</string>
-	<string name="no_internet_frag_text_1st">Your device appears to be offline please disable flight mode or enable wifi.</string>
-	<string name="no_internet_frag_text_2nd">Moving to an alternate location can improve the network connectivity.</string>
-	<string name="search_frag_no_con_title">No internet - not showing Google results</string>
-	<string name="search_frag_no_con_details">Search in indoor/outdoor locations is still available</string>
-	<string name="invalid_api_key_dialogue_title" >Invalid API Key</string>
-	<string name="invalid_api_key_dialogue_text" >Your API key is invalid. Please contact your provider</string>
+    <string name="unable_load_map_snackbar_message">No internet - Unable to update map</string>
+    <string name="no_internet_snackbar_message">No internet - Content from last use is available</string>
+    <string name="no_internet_trying_message">Trying to reconnect</string>
+    <string name="no_internet_reconnect_message">No internet - Try to reconnect</string>
+    <string name="no_internet">No internet</string>
+    <string name="no_internet_frag_text_1st">Your device appears to be offline.\nPlease disable flight mode or enable WiFi.</string>
+    <string name="no_internet_frag_text_2nd">Moving to an alternate location can improve the network connectivity.</string>
+    <string name="search_frag_no_con_title">No internet - not showing Google results</string>
+    <string name="search_frag_no_con_details">Search in indoor/outdoor locations is still available</string>
+    <string name="invalid_api_key_dialogue_title">Invalid API Key</string>
+    <string name="invalid_api_key_dialogue_text">Your API key is invalid. Please contact your provider</string>
+
+    <string name="wrong_api_key_message">The requested API Key was invalid</string>
+    <string name="api_key_input_hint">Enter API Key</string>
+    <string name="log_out">Log out</string>
+
+    <string name="route_settings">Route Settings</string>
+    <string name="app_user_roles">App User Roles</string>
+
+    <!-- Non Translatable strings -->
+    <string name="app_default_supplier" translatable="false">MapsPeople A/S</string>
+    <string name="app_default_supplier_website" translatable="false">https://www.mapspeople.com</string>
+
+    <string name="distance_format_kilometers_f" translatable="false">%1$.1f km</string>
+    <string name="distance_format_miles" translatable="false">%1$d mi</string>
+    <string name="distance_format_miles_f" translatable="false">%1$.1f mi</string>
+    <string name="distance_format_feets" translatable="false">%1$d ft</string>
+
+    <string name="booking_book" translatable="false">Book</string>
+    <string name="booking_booked" translatable="false">Booked</string>
+    <string name="booking_booking" translatable="false">Booking</string>
+    <string name="booking_cancel" translatable="false">Cancel</string>
+    <string name="booking_cancelling" translatable="false">Cancelling</string>
+    <string name="booking_30m" translatable="false">30m</string>
+    <string name="booking_1h" translatable="false">1h</string>
 
 
-	<!-- Non Translatable strings -->
-	<string name="app_default_supplier" translatable="false">MapsPeople A/S</string>
-	<string name="app_default_supplier_website" translatable="false" >https://www.mapspeople.com</string>
 
 </resources>

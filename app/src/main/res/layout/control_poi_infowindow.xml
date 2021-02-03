@@ -10,7 +10,7 @@
     <TextView
         android:padding="5dp"
         android:id="@+id/poi_info_title"
-        android:textColor="@color/blueGray"
+        android:textColor="@color/info_window_text_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"

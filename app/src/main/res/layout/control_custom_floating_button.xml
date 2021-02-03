@@ -9,7 +9,7 @@
 	tools:background="#f0f"
 	>
 
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		android:id="@+id/fab_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

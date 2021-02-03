@@ -3,8 +3,8 @@ package com.mapsindoors.stdapp.ui.appInfo.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,11 +49,9 @@ public class AppInfoAdapter extends RecyclerView.Adapter< RecyclerView.ViewHolde
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType ) {
 
-		switch( viewType ) {
-			case TYPE_CREDIT_ITEM: {
-				View v = LayoutInflater.from( parent.getContext() ).inflate( R.layout.control_app_info_credits_item, parent, false );
-				return new AppInfoCreditViewHolder( v );
-			}
+		if (viewType == TYPE_CREDIT_ITEM) {
+			View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.control_app_info_credits_item, parent, false);
+			return new AppInfoCreditViewHolder(v);
 		}
 
 		return null;
@@ -91,9 +89,9 @@ public class AppInfoAdapter extends RecyclerView.Adapter< RecyclerView.ViewHolde
 
 
 	//region View Holders
-	private class AppInfoCreditViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
+	class AppInfoCreditViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
 	{
-		private TextView titleTextView;
+		TextView titleTextView;
 
 		AppInfoCreditViewHolder(View itemView ) {
 			super( itemView );

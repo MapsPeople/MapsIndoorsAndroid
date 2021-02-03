@@ -3,9 +3,10 @@ package com.mapsindoors.stdapp.ui.venueselector;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.mapsindoors.stdapp.managers.AppConfigManager;
 import com.mapsindoors.stdapp.managers.GoogleAnalyticsManager;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 import com.mapsindoors.stdapp.ui.common.fragments.BaseFragment;
+import com.mapsindoors.stdapp.ui.common.enums.MenuFrame;
 import com.mapsindoors.stdapp.ui.common.listeners.MenuListener;
 import com.mapsindoors.stdapp.ui.venueselector.adapters.VenueSelectorAdapter;
 import com.mapsindoors.stdapp.ui.venueselector.listeners.IVenueClickedListener;
@@ -37,8 +39,7 @@ import java.util.List;
  */
 public class VenueSelectorFragment extends BaseFragment
         implements
-            IVenueClickedListener
-{
+        IVenueClickedListener {
 
     private static final String TAG = VenueSelectorFragment.class.getSimpleName();
 
@@ -55,43 +56,27 @@ public class VenueSelectorFragment extends BaseFragment
     private ViewFlipper mViewFlipper;
     private VenueSelectorAdapter mRecyclerViewAdapter;
 
-    View venueSelectorBackBtn;
-    View venueSelectorBtn;
+    private View venueSelectorBackBtn;
+    private View venueSelectorBtn;
 
 
     //region Fragment lifecycle events
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_venue_selector, container);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mMainView = view;
+        mFragment = MenuFrame.MENU_FRAME_VENUE_SELECTOR;
     }
     //endregion
 
 
-    public void init(Context context, MenuListener menuListener, MapControl mapControl, VenueCollection venues)
-    {
+    public void init(Context context, MenuListener menuListener) {
         mContext = (mContext != null) ? mContext : context;
         mActivity = (mActivity != null) ? mActivity : (MapsIndoorsActivity) context;
         mMenuListener = menuListener;
@@ -99,16 +84,11 @@ public class VenueSelectorFragment extends BaseFragment
         venueSelectorBtn = mMainView.findViewById(R.id.venueselector_venue_ic);
         venueSelectorBackBtn = mMainView.findViewById(R.id.venueselector_back_button);
 
-        venueSelectorBackBtn.setOnClickListener( v -> close() );
+        venueSelectorBackBtn.setOnClickListener(v -> close(mActivity));
 
         setupViewFlipper(mMainView);
         setupListView(mMainView);
     }
-
-    public void close() {
-        mActivity.menuGoBack();
-    }
-
 
     //region List
     private void setupViewFlipper(View view) {
@@ -128,7 +108,7 @@ public class VenueSelectorFragment extends BaseFragment
         layoutManager.setAutoMeasureEnabled(true);
         mVenueSelectorList.setLayoutManager(layoutManager);
 
-        mRecyclerViewAdapter = new VenueSelectorAdapter( this);
+        mRecyclerViewAdapter = new VenueSelectorAdapter(this);
         mVenueSelectorList.setAdapter(mRecyclerViewAdapter);
     }
 
@@ -137,15 +117,14 @@ public class VenueSelectorFragment extends BaseFragment
         AppConfigManager appConfigManager = mActivity.getAppConfigManager();
         VenueCollection venueCollection = mActivity.getVenueCollection();
 
-        if ((venueCollection != null) && (appConfigManager != null))
-        {
+        if ((venueCollection != null) && (appConfigManager != null)) {
             List<Venue> venues = venueCollection.getVenues();
 
             List<VenueSelectorItem> venueItemList = new ArrayList<>(venues.size());
 
             for (Venue venue : venues) {
 
-                VenueSelectorItem venueItem = new VenueSelectorItem(venue.getVenueId(), venue.getVenueInfo().getName(), appConfigManager.getVenueImage(venue.getName()));
+                VenueSelectorItem venueItem = new VenueSelectorItem(venue.getId(), venue.getVenueInfo().getName(), appConfigManager.getVenueImage(venue.getName()));
                 venueItemList.add(venueItem);
             }
 
@@ -162,59 +141,37 @@ public class VenueSelectorFragment extends BaseFragment
     }
     //endregion
 
-
-    @Override
-    public void connectivityStateChanged( boolean state ) {}
-
-    //region Implements IActivityEvents
-    @Override
-    public boolean onBackPressed() {
-        final boolean imActive = (mActivity != null) && (mActivity.getCurrentMenuShown() == MapsIndoorsActivity.MENU_FRAME_VENUE_SELECTOR);
-        if (imActive) {
-            close();
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public void onDrawerEvent(int newState, int prevState) {}
     //endregion
 
 
     //region Implements IVenueClickedListener
     @Override
-    public void OnVenueClicked( final String venueId )
-    {
-        if( mMenuListener != null )
-        {
-            mMenuListener.onMenuVenueSelect( venueId );
+    public void OnVenueClicked(final String venueId) {
+        if (mMenuListener != null) {
+            mMenuListener.onMenuVenueSelect(venueId);
 
-            if( mContext != null )
-            {
-                new Handler( mContext.getMainLooper() ).postDelayed( () -> {
+            if (mContext != null) {
+                new Handler(mContext.getMainLooper()).postDelayed(() -> {
                     //close();
-                    mActivity.menuGoTo( MapsIndoorsActivity.MENU_FRAME_MAIN_MENU, true );
-                    setToolbarBackAndVenueButtonVisibility( true );
+                    mActivity.menuGoTo(MenuFrame.MENU_FRAME_MAIN_MENU, true);
+                    setToolbarBackAndVenueButtonVisibility(true);
 
-                    SharedPrefsHelper.setUserHasChoosenVenue( mContext, true );
+                    SharedPrefsHelper.setUserHasChosenVenue(mContext, true);
 
                     {
                         final Bundle eventParams = new Bundle();
-                        eventParams.putString( getString( R.string.fir_param_Venue ), venueId );
+                        eventParams.putString(getString(R.string.fir_param_Venue), venueId);
 
-                        GoogleAnalyticsManager.reportEvent( getString( R.string.fir_event_Venue_Selected ), eventParams );
+                        GoogleAnalyticsManager.reportEvent(getString(R.string.fir_event_Venue_Selected), eventParams);
                     }
-                }, 150 );
+                }, 150);
             }
         }
     }
     //endregion
 
 
-    public void setToolbarBackAndVenueButtonVisibility( boolean backButtonState )
-    {
+    public void setToolbarBackAndVenueButtonVisibility(boolean backButtonState) {
         if (backButtonState) {
             venueSelectorBackBtn.setVisibility(View.VISIBLE);
             venueSelectorBtn.setVisibility(View.GONE);

@@ -6,12 +6,14 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,50 +22,47 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.mapsindoors.mapssdk.Convert;
-import com.mapsindoors.mapssdk.Location;
+import com.mapsindoors.mapssdk.Building;
+import com.mapsindoors.mapssdk.BuildingCollection;
+import com.mapsindoors.mapssdk.Floor;
 import com.mapsindoors.mapssdk.MPDirectionsRenderer;
-import com.mapsindoors.mapssdk.MPRoutingProvider;
+import com.mapsindoors.mapssdk.MPFilter;
+import com.mapsindoors.mapssdk.MPLocation;
+
+import com.mapsindoors.mapssdk.MPQuery;
 import com.mapsindoors.mapssdk.MapControl;
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.OnLegSelectedListener;
-import com.mapsindoors.mapssdk.RoutingProvider;
-import com.mapsindoors.mapssdk.SphericalUtil;
-import com.mapsindoors.mapssdk.dbglog;
-import com.mapsindoors.mapssdk.errors.MIError;
-import com.mapsindoors.mapssdk.Building;
+
+import com.mapsindoors.mapssdk.OnLocationsReadyListener;
 import com.mapsindoors.mapssdk.Route;
 import com.mapsindoors.mapssdk.RouteCoordinate;
 import com.mapsindoors.mapssdk.RouteLeg;
 import com.mapsindoors.mapssdk.RouteStep;
+import com.mapsindoors.mapssdk.SphericalUtil;
 import com.mapsindoors.mapssdk.TransitDetails;
 import com.mapsindoors.mapssdk.TravelMode;
+import com.mapsindoors.mapssdk.dbglog;
+import com.mapsindoors.mapssdk.errors.MIError;
 import com.mapsindoors.stdapp.BuildConfig;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsHelper;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsRouteHelper;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsSettings;
-import com.mapsindoors.stdapp.helpers.MapsIndoorsUtils;
 import com.mapsindoors.stdapp.listeners.IDirectionPanelListener;
 import com.mapsindoors.stdapp.managers.GoogleAnalyticsManager;
 import com.mapsindoors.stdapp.models.UIRouteNavigation;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 import com.mapsindoors.stdapp.ui.common.fragments.BaseFragment;
-import com.mapsindoors.stdapp.ui.components.mapfloorselector.MapFloorSelector;
-import com.mapsindoors.stdapp.ui.direction.listeners.DirectionViewSelectedStepListener;
+import com.mapsindoors.stdapp.ui.direction.listeners.RouteListener;
 import com.mapsindoors.stdapp.ui.direction.models.RoutingEndPoint;
 import com.squareup.picasso.Picasso;
 
@@ -71,40 +70,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static android.os.Looper.getMainLooper;
-
 
 /**
  * Fragment that shows routes on the map (using mDirectionsRenderer)
  */
 public class DirectionsHorizontalFragment extends BaseFragment
         implements
-            IDirectionPanelListener,
-            OnLegSelectedListener
-{
+        IDirectionPanelListener,
+        OnLegSelectedListener {
     static final String TAG = DirectionsHorizontalFragment.class.getSimpleName();
 
-    private static final boolean DBG_RENDER_ALL_MARKERS = BuildConfig.DEBUG && false;
-    private static final boolean DBG_RENDER_ENTRY_MARKERS = BuildConfig.DEBUG && (DBG_RENDER_ALL_MARKERS || false);
 
-
-    Route mCurrentRoute;
+    private Route mCurrentRoute;
 
     // Rendering object used to draw routes on top of the google map.
-    MPDirectionsRenderer mMyDirectionsRenderer;
+    private MPDirectionsRenderer mMyDirectionsRenderer;
 
     private GoogleMap mGoogleMap;
     private MapsIndoorsActivity mActivity;
-    Context mContext;
-    MapControl mMapControl;
+    private Context mContext;
+    private MapControl mMapControl;
 
     private int[] mActionFileId = {R.drawable.ic_vec_sig_lift, R.drawable.ic_vec_sig_escalator, R.drawable.ic_vec_sig_stairs, R.drawable.ic_vec_sig_stairs};
 
 
     private RoutingEndPoint mOrigin, mDestination;
 
-	/** On a new route, the travel mode selected */
-	private @MapsIndoorsHelper.Vehicle int mSelectedTravelMode;
+    /**
+     * On a new route, the travel mode selected
+     */
+    private @MapsIndoorsHelper.Vehicle
+    int mSelectedTravelMode;
 
 
     // ----------------------------------
@@ -119,12 +115,12 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
     private ArrayList<RouteStep> mTempRouteList;
 
-    int mCurrentRouteNaviIndex;
+    private int mCurrentRouteNaviIndex;
 
     /**
      * Navigation object, to be used by the prev/next buttons
      */
-    List<UIRouteNavigation> mUINaviList;
+    private List<UIRouteNavigation> mUINaviList;
 
     private List<RouteCoordinate> mTmpRCPointList;
 
@@ -135,14 +131,13 @@ public class DirectionsHorizontalFragment extends BaseFragment
     private android.graphics.Point mViewPortScreenCenter;
     private int mViewPortPadding;
 
-    DirectionViewSelectedStepListener mDirectionViewSelectedStepListener;
-
+    private RouteListener mRouteListener;
 
 
     //region Fragment lifecycle events
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (mMainView == null) {
             mMainView = inflater.inflate(R.layout.fragment_directions_horizontal, container);
         }
@@ -153,7 +148,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         setupView(view);
@@ -161,20 +156,18 @@ public class DirectionsHorizontalFragment extends BaseFragment
     //endregion
 
 
-    private void setupView( View view )
-    {
+    private void setupView(View view) {
         mPanelToolbar = view.findViewById(R.id.directions_menu_horiz_toolbar);
         mPanelControls = view.findViewById(R.id.directions_fullmenu_horiz_controls);
         mScrollingContainerLayout = view.findViewById(R.id.directions_menu_horiz_horizontalScrollView);
         mBackgroundLayout = view.findViewById(R.id.directions_background);
         mForegroundLayout = view.findViewById(R.id.directions_foreground);
-        mNextButton =  view.findViewById(R.id.directions_menu_horiz_button_next);
+        mNextButton = view.findViewById(R.id.directions_menu_horiz_button_next);
         mPreviousButton = view.findViewById(R.id.directions_menu_horiz_button_prev);
         mCancelBtn = view.findViewById(R.id.directions_menu_horiz_toolbar_button_back);
     }
 
-    public void init( @NonNull final MapsIndoorsActivity activity, @NonNull GoogleMap map )
-    {
+    public void init(@NonNull final MapsIndoorsActivity activity, @NonNull GoogleMap map) {
         mActivity = activity;
         mContext = activity;
         mMapControl = activity.getMapControl();
@@ -183,37 +176,36 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         mViewPortScreenCenter = new android.graphics.Point(0, 0);
 
-        MapsIndoorsHelper.init( activity );
+        MapsIndoorsHelper.init(activity);
 
 
-        mMyDirectionsRenderer = new MPDirectionsRenderer( mContext, map, mMapControl, this );
-        mMyDirectionsRenderer.setAnimated( false );
+        mMyDirectionsRenderer = new MPDirectionsRenderer(mContext, map, mMapControl, this);
+        mMyDirectionsRenderer.setAnimated(false);
 
-        mMyDirectionsRenderer.setPrimaryColor( ContextCompat.getColor( mContext, R.color.colorPrimary ) );
-        mMyDirectionsRenderer.setAccentColor( ContextCompat.getColor( mContext, R.color.colorAccent ) );
-        mMyDirectionsRenderer.setTextColor( ContextCompat.getColor( mContext, R.color.white ) );
+        mMyDirectionsRenderer.setPrimaryColor(ContextCompat.getColor(mContext, R.color.directionLegColor));
+        mMyDirectionsRenderer.setAccentColor(ContextCompat.getColor(mContext, R.color.colorAccent));
+        mMyDirectionsRenderer.setTextColor(ContextCompat.getColor(mContext, R.color.white));
 
         initHorizontalDirectionsPanel();
     }
 
-    private void initHorizontalDirectionsPanel()
-    {
+    private void initHorizontalDirectionsPanel() {
         mTempRouteList = new ArrayList<>();
         mUINaviList = new ArrayList<>();
         mTmpRCPointList = new ArrayList<>();
 
-        mIsStarted = mIsLegIndoors = true;
+        mIsLegIndoors = true;
 
         // Default to walking
         mSelectedTravelMode = MapsIndoorsHelper.VEHICLE_WALKING;
 
         // Setup the route navigation buttons
-        mNextButton.setOnClickListener( v -> routeNavigateToNext() );
+        mNextButton.setOnClickListener(v -> routeNavigateToNext());
 
-        mPreviousButton.setOnClickListener( v -> routeNavigateToPrev() );
+        mPreviousButton.setOnClickListener(v -> routeNavigateToPrev());
 
         // Setup the cancel button
-        mCancelBtn.setOnClickListener( v -> closeAndOpenMenu() );
+        mCancelBtn.setOnClickListener(v -> closeAndOpenMenu());
     }
 
     void closeAndOpenMenu() {
@@ -221,139 +213,70 @@ public class DirectionsHorizontalFragment extends BaseFragment
         ((MapsIndoorsActivity) mContext).openDrawer(true);
     }
 
-    public void setStartEndLocations( @NonNull RoutingEndPoint origin, @NonNull RoutingEndPoint destination )
-    {
+    public void setStartEndLocations(@NonNull RoutingEndPoint origin, @NonNull RoutingEndPoint destination) {
+
+        if (mOrigin != null) {
+            final MPLocation loc = mOrigin.getLocation();
+            if (loc != null) {
+                if (loc.isInfoWindowShown()) {
+                    loc.hideInfoWindow();
+                }
+            }
+        }
+
+        if (mDestination != null) {
+            final MPLocation loc = mDestination.getLocation();
+            if (loc != null) {
+                if (loc.isInfoWindowShown()) {
+                    loc.hideInfoWindow();
+                }
+            }
+        }
+
         mOrigin = origin;
         mDestination = destination;
     }
 
-    public void setCurrentTravelMode( @Nullable String travelMode )
-    {
-        mSelectedTravelMode = MapsIndoorsHelper.travelModeToVehicle( travelMode );
+    public void setCurrentTravelMode(@Nullable String travelMode) {
+        mSelectedTravelMode = MapsIndoorsHelper.travelModeToVehicle(travelMode);
     }
 
-    /**
-     * Sets the first leg/step as the current one
-     */
-    public void resetDirectionsPanel() {
-        resetNavigation();
-    }
+    public void renderRoute(@Nullable final Route route, final int legIndexToSelect) {
+        final Activity activity = mActivity;
 
-    /**
-     *
-     * @param origin
-     * @param destination
-     * @param travelMode
-     * @param avoids
-     * @param departure Set to zero to use the current time, or to a epoch time (in seconds)
-     * @param arrival Set to zero to use the current time, or to a epoch time (in seconds). If both departure and arrival are set, arrival is used
-     */
-    public void route( @Nullable final Location origin, @Nullable final Location destination, @Nullable final String travelMode, String[] avoids, int departure, int arrival )
-    {
-        clearRoute();
-
-        if (origin == null || destination == null) {
+        if (route == null || activity == null) {
             return;
         }
 
-        setCurrentTravelMode(travelMode);
+        if (route != mCurrentRoute) {
 
-        //
-        RoutingProvider routingProvider = new MPRoutingProvider();
-
-        routingProvider.setLanguage( MapsIndoors.getLanguage() );
-
-        routingProvider.setTravelMode( travelMode );
-        routingProvider.clearRouteRestrictions();
-
-        if (avoids != null) {
-            for (String avoid : avoids) {
-                routingProvider.addRouteRestriction(avoid);
-            }
-        }
-
-        if( !TextUtils.isEmpty( travelMode ) && travelMode.equalsIgnoreCase( TravelMode.TRAVEL_MODE_TRANSIT ) )
-        {
-            if( arrival > 0 )
-            {
-                routingProvider.setDateTime( arrival, false );
-            }
-            else if( departure > 0 )
-            {
-                routingProvider.setDateTime( departure, true );
-            }
-        }
-
-        routingProvider.setOnRouteResultListener( ( newRoute, error ) -> renderRoute(newRoute, error, 0) );
-
-        routingProvider.query(origin.getPoint(), destination.getPoint());
-    }
-
-    public void renderRoute( @Nullable final Route route, @Nullable MIError error, final int legIndexToSelect )
-    {
-        Activity activity = mActivity;
-        if( activity == null )
-        {
-            return;
-        }
-
-        if( error == null )
-        {
-            activity.runOnUiThread( () -> {
+            mActivity.runOnUiThread(() -> {
 
                 clearRoute();
-
-                if( route == null )
-                {
-                    return;
-                }
-
-                mCurrentRoute = route;
-                mMyDirectionsRenderer.setRoute( route );
-
                 mCurrentRouteNaviIndex = 0;
+
+                mMyDirectionsRenderer.setRoute(route);
 
                 mUINaviList.clear();
 
-                    renderDirectionsView( route, legIndexToSelect );
-            } );
-        }
-        else
-        {
-            if( error.code == MIError.INVALID_API_KEY )
-            {
-                MapsIndoorsUtils.showInvalidAPIKeyDialogue( getContext() );
-            }
-            else
-            {
-                final @MIError.MISDKErrorCode int errorCode = error.code;
-                final String errorMessage = error.message;
+                renderDirectionsView(route);
+                mCurrentRoute = route;
 
-                activity.runOnUiThread( () -> {
+            });
 
-                    Toast.makeText(
-                            mContext,
-                            "renderRoute() - ERROR: code <" + errorCode +">, message <" + errorMessage + ">",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                });
-            }
+            mCurrentRoute = route;
         }
+
+        routeNavigateToIndex(legIndexToSelect, false);
     }
 
 
     /**
      * Clear the route.
      */
-    public void clearRoute()
-    {
-        if( mMyDirectionsRenderer != null )
-        {
+    public void clearRoute() {
+        if (mMyDirectionsRenderer != null) {
             mMyDirectionsRenderer.clear();
-        }
-        if( mMapControl != null )
-        {
-            mMapControl.clearMap();
         }
     }
 
@@ -362,12 +285,11 @@ public class DirectionsHorizontalFragment extends BaseFragment
      *
      * @param active
      */
-    public void setActive( boolean active )
-    {
-        setShow( active );
+    public void setActive(boolean active) {
+        setShow(active);
 
-        if( mActivity != null ) {
-            if( active ) {
+        if (mActivity != null) {
+            if (active) {
                 mActivity.horizontalDirectionsPanelWillOpen();
             } else {
                 mActivity.horizontalDirectionsPanelWillClose();
@@ -375,18 +297,9 @@ public class DirectionsHorizontalFragment extends BaseFragment
         }
 
         if ((mMapControl != null) && (mMapControl.getFloorSelector() != null)) {
-            MapFloorSelector fs = (MapFloorSelector) mMapControl.getFloorSelector();
-
             if (active) {
                 // hide the floor selector...
-                fs.show(false, true);
-
-                // ... and set turn off updates from the map control object
-                fs.addFlags(
-                        MapFloorSelector.FLAG_PREVENT_SHOW_HIDE_FROM_CONTROL
-                                | MapFloorSelector.FLAG_DISABLE_AUTO_FLOOR_CHANGE
-                                | MapFloorSelector.FLAG_DISABLE_AUTO_POPULATE
-                );
+                mMapControl.enableFloorSelector(false);
 
                 // Calc some the viewport width, height and center, after taking the horizontal panel's height
                 {
@@ -402,40 +315,31 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
                     mViewPortScreenCenter.x = mapViewW >> 1;
                     mViewPortScreenCenter.y = mapH - (mapViewH >> 1);
-                    mViewPortPadding = Convert.getPixels(getResources().getDimension(R.dimen.directions_map_viewport_padding), mContext);
+                    mViewPortPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, getResources().getDimension(R.dimen.directions_map_viewport_padding), mContext.getResources().getDisplayMetrics());
+
                 }
             } else {
                 // Remove the flag and show the floor selector
-                fs.clearFlags(
-                        MapFloorSelector.FLAG_PREVENT_SHOW_HIDE_FROM_CONTROL
-                                | MapFloorSelector.FLAG_DISABLE_AUTO_FLOOR_CHANGE
-                                | MapFloorSelector.FLAG_DISABLE_AUTO_POPULATE
-                );
-                fs.show(true, true);
+                mMapControl.enableFloorSelector(true);
+                mMapControl.selectFloor(mMapControl.getCurrentFloorIndex());
             }
         }
     }
 
-    public void setShow( boolean show )
-    {
-        if( isActive() == show )
-        {
+    public void setShow(boolean show) {
+        if (isActive() == show) {
             return;
         }
 
-        if( mMainView != null )
-        {
-            mMainView.setVisibility( show ? View.VISIBLE : View.INVISIBLE );
+        if (mMainView != null) {
+            mMainView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
     public int getPanelHeight() {
         // Sum up all the three layout heights
-        int panelTotalHeight = mPanelToolbar.getHeight()
-                + mScrollingContainerLayout.getHeight()
-                + mPanelControls.getHeight();
 
-        return panelTotalHeight;
+        return mPanelToolbar.getHeight() + mScrollingContainerLayout.getHeight() + mPanelControls.getHeight();
     }
 
 
@@ -447,38 +351,68 @@ public class DirectionsHorizontalFragment extends BaseFragment
      * @param legIndex
      */
     @Override
-    public void onLegSelected( final int legIndex, int itemIndex )
-    {
-        mMyDirectionsRenderer.setAlpha( 255 );
+    public void onLegSelected(final int legIndex, int itemIndex) {
+        mMyDirectionsRenderer.setAlpha(255);
 
-        new Handler( mContext.getMainLooper() ).postDelayed( () -> {
+
+        new Handler(mContext.getMainLooper()).postDelayed(() -> {
 
             // Highlight the given route's leg
-            mMyDirectionsRenderer.setRouteLegIndex( legIndex );
-
+            mMyDirectionsRenderer.setRouteLegIndex(legIndex);
             //=============================================================
-            // Select the floor (highlights it in the UI)
-            final int legFloor = mMyDirectionsRenderer.getLegFloor();
-            mMapControl.selectFloor( legFloor );
 
-        }, 100 );
+            //if the next navObj is indoor then switch to the navObj floor
+
+
+            RouteLeg nextLeg = (legIndex < mCurrentLegs.size() - 1) ? mCurrentLegs.get(legIndex + 1) : null;
+            RouteLeg currentLeg = mCurrentLegs.get(legIndex);
+            final int legFloor;
+            // when the current leg is google maps and the next is mapsindoors then we should select the floor of the next leg otherwise select the floor chosen by the renderer
+            if (nextLeg != null && nextLeg.isMapsIndoors() && !currentLeg.isMapsIndoors()) {
+                legFloor = nextLeg.getEndPoint().getZIndex();
+
+            } else {
+                // Select the floor (highlights it in the UI)
+                legFloor = mMyDirectionsRenderer.getLegFloor();
+            }
+
+
+            if (mMapControl.getCurrentFloorIndex() != legFloor) {
+                mMapControl.selectFloor(legFloor);
+
+            }
+
+        }, 100);
 
     }
 
     @Override
-    public void onStepSelected( final int legIndex, final int stepIndex, int itemIndex )
-    {
+    public void onStepSelected(final int legIndex, final int stepIndex, int itemIndex) {
         mMyDirectionsRenderer.setAlpha(255);
 
-        new Handler( mContext.getMainLooper() ).postDelayed( () -> {
+        new Handler(mContext.getMainLooper()).postDelayed(() -> {
 
             mMyDirectionsRenderer.setRouteLegIndex(legIndex, stepIndex);
 
-            // Select the floor (highlights it in the UI)
-            final int legFloor = mMyDirectionsRenderer.getLegFloor();
-            mMapControl.selectFloor(legFloor);
+            RouteLeg nextLeg = (legIndex < mCurrentLegs.size() - 1) ? mCurrentLegs.get(legIndex + 1) : null;
+            RouteLeg currentLeg = mCurrentLegs.get(legIndex);
+            final int legFloor;
 
-        }, 250);
+            // when the current leg is google maps and the next is mapsindoors then we should select the floor of the next leg otherwise select the floor chosen by the renderer
+            if (nextLeg != null && nextLeg.isMapsIndoors() && !currentLeg.isMapsIndoors()) {
+                legFloor = nextLeg.getEndPoint().getZIndex();
+
+            } else {
+                // Select the floor (highlights it in the UI)
+                legFloor = mMyDirectionsRenderer.getLegFloor();
+            }
+
+            if (mMapControl.getCurrentFloorIndex() != legFloor) {
+                mMapControl.selectFloor(legFloor);
+
+            }
+
+        }, 100);
     }
 
     //endregion
@@ -486,15 +420,12 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
     //region Implements OnLegSelectedListener
     @Override
-    public void onLegSelected( int nextLegIndex )
-    {
-        if( mCurrentRoute != null )
-        {
+    public void onLegSelected(int nextLegIndex) {
+        if (mCurrentRoute != null) {
             int legCount = mCurrentRoute.getLegs().size();
 
-            if( nextLegIndex < legCount )
-            {
-                routeNavigateToIndex( legToUINaviIndex( nextLegIndex ), true );
+            if (nextLegIndex < legCount) {
+                routeNavigateToIndex(legToUINaviIndex(nextLegIndex), true);
             }
         }
     }
@@ -506,36 +437,28 @@ public class DirectionsHorizontalFragment extends BaseFragment
      * @param legIndex
      * @return
      */
-    int legToUINaviIndex( @IntRange(from = 0) int legIndex )
-    {
+    int legToUINaviIndex(@IntRange(from = 0) int legIndex) {
         int res = 0;
 
-        if( mCurrentRoute != null )
-        {
+        if (mCurrentRoute != null) {
             final int legCount = mCurrentRoute.getLegs().size();
 
-            if( legIndex < legCount )
-            {
+            if (legIndex < legCount) {
                 final boolean travelModeIsTransit = mSelectedTravelMode == MapsIndoorsHelper.VEHICLE_TRANSIT;
 
                 final List<RouteLeg> legs = mCurrentRoute.getLegs();
 
-                for( int i = 0; i < legCount; i++ )
-                {
+                for (int i = 0; i < legCount; i++) {
                     final RouteLeg cLeg = legs.get(i);
-                    if( i == legIndex )
-                    {
+                    if (i == legIndex) {
                         break;
                     }
 
-                    if( travelModeIsTransit )
-                    {
-                        final List< RouteStep > legSteps = cLeg.getSteps();
-                        boolean isCurrentLegIndoors = MapsIndoorsHelper.isStepInsideBuilding( legSteps.get( 0 ) );
+                    if (travelModeIsTransit) {
+                        final List<RouteStep> legSteps = cLeg.getSteps();
+                        boolean isCurrentLegIndoors = MapsIndoorsHelper.isStepInsideBuilding(legSteps.get(0));
                         res += !isCurrentLegIndoors ? cLeg.getSteps().size() : 1;
-                    }
-                    else
-                    {
+                    } else {
                         res++;
                     }
                 }
@@ -547,17 +470,15 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
 
     List<RouteLeg> mCurrentLegs;
+
     /**
      * Populate the directions view with the legs from a route
      *
      * @param route
      */
-    void renderDirectionsView(Route route, int legIndexToSelect ) {
-        // ===============================================
-        long t0 = System.currentTimeMillis();
-
-
-        // ===============================================
+    void renderDirectionsView(Route route) {
+        mMapControl.setMapPadding(0,0,0,getView().getHeight() );
+        mActivity.setPositioningBtnBottomPadding(getView().getHeight());
 
         resetLegs();
         mCurrentLegs = route.getLegs();
@@ -582,23 +503,19 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         String locationLabel = mDestination.getLocationName(mActivity);
         String details = mDestination.getFormattedDetails(mActivity);
-        locationLabel = String.format(Locale.US, "%s\n(%s)", locationLabel, details);
+        if(details != null){
+            locationLabel = String.format(Locale.US, "%s\n(%s)", locationLabel, details);
+        } else {
+            locationLabel = String.format(Locale.US, "%s", locationLabel);
+        }
 
         titleTextView.setText(locationLabel);
 
-        setActive( true );
+        setActive(true);
 
         mBackgroundLayout.setVisibility(View.VISIBLE);
         mForegroundLayout.setVisibility(View.VISIBLE);
 
-        routeNavigateToIndex(legIndexToSelect, false);
-
-
-        //===================================================================================
-        if (dbglog.isDebugMode()) {
-            dbglog.Log(TAG, "renderDirectionsView() - took (ms): " + (System.currentTimeMillis() - t0));
-        }
-        //===================================================================================
     }
 
 
@@ -611,7 +528,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         int startLevel = currentRouteLeg.getStartPoint().getZIndex();
         int endLevel = currentRouteLeg.getEndPoint().getZIndex();
-        boolean isAction = (startLevel != endLevel) && (firstStep.getHighway() != null);
+        boolean isAction = (startLevel != endLevel);
 
         // Get the current leg context
         boolean isCurrentLegIndoors = MapsIndoorsHelper.isStepInsideBuilding(firstStep);
@@ -619,38 +536,39 @@ public class DirectionsHorizontalFragment extends BaseFragment
         // Check if the context has changed from the last leg
         boolean didContextChange = (mIsLegIndoors != isCurrentLegIndoors);
 
+        mIsStarted = legIndex == 0;
         // Raise the exit flag on context change, from Indoors to out
         mDidExit = didContextChange && !isCurrentLegIndoors;
         mIsLegIndoors = isCurrentLegIndoors;
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
 
-        //
-        if (!isCurrentLegIndoors) {
+        // in case it's the transit mode, outside steps should be presented as legs
+        if (!isCurrentLegIndoors && mSelectedTravelMode == TravelMode.VEHICLE_TRANSIT) {
             mTempRouteList.clear();
 
             RouteStep currentTravelStep = firstStep;
             RouteStep previousTravelStep = currentTravelStep;
-            String nextTravelStepTM;
+            int nextTravelStepTM;
 
             for (int i = 0; i < legStepCount; i++) {
                 boolean isLastStepInLeg = (i == (legStepCount - 1));
                 RouteStep nextTravelStep = ((i + 1) < legStepCount) ? stepList.get(i + 1) : null;
-                nextTravelStepTM = (nextTravelStep != null) ? nextTravelStep.getTravelMode() : "";
+                nextTravelStepTM = nextTravelStep != null ? nextTravelStep.getTravelModeVehicle() : -1;
 
-                String currentStepTravelMode = currentTravelStep.getTravelMode();
+                int currentStepTravelMode = currentTravelStep.getTravelModeVehicle();
 
                 RouteStep step = stepList.get(i);
-                String stepTravelMode = step.getTravelMode();
+                int stepTravelMode = step.getTravelModeVehicle();
 
-                if (stepTravelMode.equals(currentStepTravelMode)) {
+                if (stepTravelMode == currentStepTravelMode) {
                     mTempRouteList.add(step);
                 }
 
-                if (stepTravelMode.equalsIgnoreCase(TravelMode.TRAVEL_MODE_TRANSIT)
+                if (stepTravelMode == TravelMode.VEHICLE_TRANSIT
                         || isLastStepInLeg
-                        || !nextTravelStepTM.equals(currentStepTravelMode)) {
-                    addOutSideSteps(legIndex, i, previousTravelStep, new ArrayList<>(mTempRouteList), inflater, mDidExit);
+                        || !(nextTravelStepTM == currentStepTravelMode)) {
+                    addTransitOutSideSteps(legIndex, i, previousTravelStep, new ArrayList<>(mTempRouteList), inflater, mDidExit);
 
                     // lower the flag if it was set
                     mDidExit = false;
@@ -681,16 +599,16 @@ public class DirectionsHorizontalFragment extends BaseFragment
         final int selItemIndex = mUINaviList.size();
 
         //
-        UIRouteNavigation naviObj = generateNaviListObj(currentRouteLeg, null, true);
+        UIRouteNavigation naviObj = generateNaviListObj(currentRouteLeg, null, mIsLegIndoors);
 
-        if (dbglog.isDebugMode()) {
+        if (dbglog.isDeveloperMode()) {
             dbglog.Assert(naviObj != null, "UIRouteNavigation not created, reason: no points found in currentRouteLeg");
         }
 
-        naviObj.set(true, legIndex, bgItemIndex);
+        naviObj.set(mIsLegIndoors, legIndex, bgItemIndex);
         mUINaviList.add(naviObj);
 
-        backgroundItem.setOnClickListener( v -> routeNavigateToIndex(selItemIndex, true) );
+        backgroundItem.setOnClickListener(v -> routeItemClickCallback(selItemIndex, true));
 
         // BG item element refs
         View inlineView = backgroundItem.findViewById(R.id.dir_horiz_walk_inside_line);
@@ -702,20 +620,16 @@ public class DirectionsHorizontalFragment extends BaseFragment
         // If abutters is "InsideBuilding", directions is hidden
         inlineView.setVisibility(View.VISIBLE);
 
-        // Set default leg title
-        titleTextView.setText(getStepName(firstStep, stepList.get(legStepCount - 1)));
-
         // Add the travel mode icon to all the steps...
         ImageView travelModeImageView = backgroundItem.findViewById(R.id.dir_horiz_travelModeImageView);
         if (travelModeImageView != null) {
-            int travelModeiconRes = MapsIndoorsHelper.getTravelModeIcon(firstStep.getTravelMode());
+            int travelModeiconRes = MapsIndoorsHelper.getTravelModeIcon(firstStep.getTravelModeVehicle());
             travelModeImageView.setImageResource(travelModeiconRes);
             travelModeImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.dir_panel_travelmode_icon_tint));
         }
 
         // Check if this is a starting point
         if (mIsStarted) {
-            mIsStarted = false;
             String locationLabel = mOrigin.getLocationName(mActivity);
             String desc = mOrigin.getFormattedDetails(mActivity);
 
@@ -727,13 +641,20 @@ public class DirectionsHorizontalFragment extends BaseFragment
         if (didContextChange) {
             circleImageView.setImageResource(isCurrentLegIndoors ? R.drawable.ic_vec_sig_enter : R.drawable.ic_vec_sig_exit);
 
-            Building building = mMapControl.getBuilding(firstStep.getStartGLatLng());
+            final BuildingCollection bc = MapsIndoors.getBuildings();
+            Building building = bc.getBuilding(firstStep.getStartGLatLng());
             String buildingName = (building == null) ? "Outside" : building.getName();
             titleTextView.setText(buildingName);
+        } else if (!mIsStarted) {
+            circleImageView.setImageResource(R.drawable.ic_local_parking_black_24dp);
+            titleTextView.setText(firstStep.getStartLocation().label);
         }
+
 
         // Determine whether it is action point for not
         if (isAction) {
+            // Set default leg title
+            titleTextView.setText(getStepName(firstStep, stepList.get(legStepCount - 1)));
             String[] actionNames = MapsIndoorsHelper.getActionNames();
             String firstStepHighWay = firstStep.getHighway();
 
@@ -743,11 +664,49 @@ public class DirectionsHorizontalFragment extends BaseFragment
                     break;
                 }
             }
+        } else if (!mIsStarted && !didContextChange) {
+            MPQuery query = new MPQuery.Builder()
+                    .setQuery("Parking")
+                    .setNear(firstStep.getStartPoint())
+                    .build();
+
+            ArrayList<String> categories = new ArrayList<>();
+            categories.add("Parking");
+
+            MPFilter filter = new MPFilter.Builder()
+                    .setFloorIndex(0)
+                    .setCategories(categories)
+                    .build();
+
+            MapsIndoors.getLocationsAsync(query, filter, new OnLocationsReadyListener() {
+                @Override
+                @UiThread
+                public void onLocationsReady(@Nullable List<MPLocation> list, @Nullable MIError miError) {
+                    if (mSelectedTravelMode == MapsIndoorsHelper.VEHICLE_BICYCLING) {
+                        for (MPLocation mpLocation : list) {
+                            if (mpLocation.getType().toLowerCase().contains("bike")) {
+                                titleTextView.setText(mpLocation.getName());
+                                break;
+                            }
+                        }
+                    } else {
+                        for (MPLocation mpLocation : list) {
+                            if (!mpLocation.getType().toLowerCase().contains("bike")) {
+                                titleTextView.setText(mpLocation.getName());
+                                break;
+                            }
+                        }
+                    }
+                    if (titleTextView.getText().length() == 0) {
+                        titleTextView.setText(list.get(0).getName());
+                    }
+                }
+            });
         }
     }
 
 
-    private void addOutSideSteps( int legIndex, int stepIndex, RouteStep previousTravelStep, List<RouteStep> stepList, LayoutInflater inflater, boolean didExitVenue) {
+    private void addTransitOutSideSteps(int legIndex, int stepIndex, RouteStep previousTravelStep, List<RouteStep> stepList, LayoutInflater inflater, boolean didExitVenue) {
         boolean travelModeIsTransit = mSelectedTravelMode == MapsIndoorsHelper.VEHICLE_TRANSIT;
 
         //
@@ -770,7 +729,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         UIRouteNavigation naviObj = generateNaviListObj(null, stepList, false);
 
-        if (dbglog.isDebugMode()) {
+        if (dbglog.isDeveloperMode()) {
             dbglog.Assert(naviObj != null, "UIRouteNavigation not created, reason: no points found in the stepList");
         }
 
@@ -782,7 +741,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         mUINaviList.add(naviObj);
 
-        backgroundItem.setOnClickListener( v -> routeNavigateToIndex(selItemIndex, true) );
+        backgroundItem.setOnClickListener(v -> routeItemClickCallback(selItemIndex, true));
 
         // Get all subviews
         ImageView circleImageView = foregroundItem.findViewById(R.id.dir_horiz_circleImageView);
@@ -798,11 +757,13 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         //
         RouteStep firstStep = stepList.get(0);
-        Building building = mMapControl.getBuilding(firstStep.getStartGLatLng());
-        String firstStepTravelMode = firstStep.getTravelMode();
+        final BuildingCollection bc = MapsIndoors.getBuildings();
+        Building building = bc.getBuilding(firstStep.getStartGLatLng());
+        int firstStepTravelMode = firstStep.getTravelModeVehicle();
 
-        if (!firstStepTravelMode.equalsIgnoreCase(TravelMode.TRAVEL_MODE_BICYCLING)
-                && !firstStepTravelMode.equalsIgnoreCase(TravelMode.TRAVEL_MODE_DRIVING)) {
+
+        if (firstStepTravelMode != TravelMode.VEHICLE_BICYCLING
+                && firstStepTravelMode != TravelMode.VEHICLE_DRIVING) {
             final View walkOutsideLineView = backgroundItem.findViewById(R.id.dir_horiz_walk_outside_line);
             walkOutsideLineView.setVisibility(View.VISIBLE);
         } else {
@@ -818,18 +779,6 @@ public class DirectionsHorizontalFragment extends BaseFragment
             titleTextView.setText(bName);
         }
 
-        String buildingName;
-
-        if (building == null) {
-            buildingName = getStepName(firstStep, stepList.get(stepList.size() - 1));
-        } else {
-            buildingName = building.getName();
-        }
-
-        //
-        titleTextView.setText(buildingName);
-
-        //
         travelModeTextView.setText(MapsIndoorsHelper.getTravelModeName(firstStepTravelMode));
 
         //
@@ -843,7 +792,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
         TransitDetails transitDetails = firstStep.getTransitDetails();
         TransitDetails previousTransitDetails = previousTravelStep.getTransitDetails();
 
-        if ((transitDetails != null) && firstStepTravelMode.equals("transit")) {
+        if ((transitDetails != null) && firstStepTravelMode == TravelMode.VEHICLE_TRANSIT) {
             buslineView.setVisibility(View.VISIBLE);
             travelAction1ImageView.setVisibility(View.VISIBLE);
             travelCircleImageView.setVisibility(View.VISIBLE);
@@ -893,7 +842,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
             }
         }
 
-        if (previousTransitDetails != null && previousTravelStep.getTravelMode().equals("transit")) {
+        if (previousTransitDetails != null && previousTravelStep.getTravelModeVehicle() == TravelMode.VEHICLE_TRANSIT) {
             circleImageView.setVisibility(View.GONE);
             travelActionImageView.setVisibility(View.VISIBLE);
             travelActionImageView.setImageResource(R.drawable.ic_bus_up_90);
@@ -912,7 +861,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         // Start point
         if (mIsStarted) {
-            mIsStarted = false;
+            //  mIsStarted = false;
 
             circleImageView.setVisibility(View.VISIBLE);
             travelActionImageView.setVisibility(View.GONE);
@@ -934,16 +883,30 @@ public class DirectionsHorizontalFragment extends BaseFragment
     private String getStepName(RouteStep startStep, RouteStep endStep) {
         int startStepStartPointZIndex = startStep.getStartPoint().getZIndex();
 
-        String startStepStartFloorName = startStep.getStartFloorname();
+        String startStepStartFloorName = startStep.getStartFloorName();
 
         String result = String.format("%s %s", getString(R.string.level),
                 TextUtils.isEmpty(startStepStartFloorName) ? startStepStartPointZIndex : startStepStartFloorName);
 
         if (startStepStartPointZIndex == endStep.getEndPoint().getZIndex()) {
             return result;
+        }else {
+            Building startBuilding = MapsIndoors.getBuildings().getBuilding(startStep.getStartGLatLng());
+            Building endBuilding = MapsIndoors.getBuildings().getBuilding(endStep.getEndGLatLng());
+            if (startBuilding != null && endBuilding != null) {
+                Floor startFloor = startBuilding.getFloorByZIndex(startStep.getStartPoint().getZIndex());
+                Floor endFloor = endBuilding.getFloorByZIndex(endStep.getEndPoint().getZIndex());
+                if (startFloor != null && endFloor != null) {
+                    String startFloorName = startFloor.getDisplayName();
+                    String endFloorName = endFloor.getDisplayName();
+
+                    result = String.format("%s %s", getString(R.string.level), startFloorName) + " to " + endFloorName;
+                    return result;
+                }
+            }
         }
 
-        String endStepEndFloorName = endStep.getEndFloorname();
+        String endStepEndFloorName = endStep.getEndFloorName();
 
         if (TextUtils.isEmpty(endStepEndFloorName)) {
             result = String.format("%s to %s", result, endStep.getEndPoint().getZIndex());
@@ -960,31 +923,33 @@ public class DirectionsHorizontalFragment extends BaseFragment
     private void resetLegs() {
         mBackgroundLayout.removeAllViewsInLayout();
         mForegroundLayout.removeAllViewsInLayout();
-        mIsStarted = true;
+        //   mIsStarted = true;
     }
 
-	void routeNavigateToNext()
-	{
-		int naviStepsCount = mUINaviList.size();
+    void routeNavigateToNext() {
+        int naviStepsCount = mUINaviList.size();
 
-		if( mCurrentRouteNaviIndex < (naviStepsCount - 1) )
-		{
-			routeNavigateToIndex( mCurrentRouteNaviIndex + 1, true );
-		}
-	}
+        if (mCurrentRouteNaviIndex < (naviStepsCount - 1)) {
+            routeNavigateToIndex(mCurrentRouteNaviIndex + 1, true);
+        }
+    }
 
-	void routeNavigateToPrev()
-	{
-		if( mCurrentRouteNaviIndex >= 1 )
-		{
-			routeNavigateToIndex( mCurrentRouteNaviIndex - 1, true );
-		}
-	}
+    void routeNavigateToPrev() {
+        if (mCurrentRouteNaviIndex >= 1) {
+            routeNavigateToIndex(mCurrentRouteNaviIndex - 1, true);
+        }
+    }
 
     static final String ANALYTICS_HORIZONTAL_DIRECTION_PANEL_PARAM = "Horizontal";
 
-    public void routeNavigateToIndex( int index, boolean animate )
-    {
+
+    void routeItemClickCallback(int index, boolean animate) {
+        mActivity.getUserPositionTrackingViewModel().stopTracking();
+        routeNavigateToIndex(index, animate);
+    }
+
+
+    public void routeNavigateToIndex(int index, boolean animate) {
         // ===============================================
         long t1 = 0, t4 = 0;
         long t0 = System.currentTimeMillis();
@@ -992,25 +957,20 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         //region REPORT TO ANALYTICS
         {
-            if( mCurrentRoute != null )
-            {
+            if (mCurrentRoute != null) {
                 float routeNaviStepsCount = mUINaviList.size();
-                if( routeNaviStepsCount > 0 )
-                {
+                if (routeNaviStepsCount > 0) {
                     float segmentPositionFactor = index / routeNaviStepsCount;
                     final Bundle eventParams = new Bundle();
 
-                    eventParams.putFloat(getString( R.string.fir_param_Segment_Position_Factor ), segmentPositionFactor );
-                    eventParams.putString(getString( R.string.fir_param_Directions_Layout ), ANALYTICS_HORIZONTAL_DIRECTION_PANEL_PARAM);
+                    eventParams.putFloat(getString(R.string.fir_param_Segment_Position_Factor), segmentPositionFactor);
+                    eventParams.putString(getString(R.string.fir_param_Directions_Layout), ANALYTICS_HORIZONTAL_DIRECTION_PANEL_PARAM);
 
-                    GoogleAnalyticsManager.reportEvent( getString( R.string.fir_event_Directions_Route_Segment_Selected ), eventParams );
+                    GoogleAnalyticsManager.reportEvent(getString(R.string.fir_event_Directions_Route_Segment_Selected), eventParams);
                 }
-            }
-            else
-            {
-                if(BuildConfig.DEBUG)
-                {
-                    dbglog.Assert( false, "mCurrentRoute is null" );
+            } else {
+                if (BuildConfig.DEBUG) {
+                    dbglog.Assert(false, "mCurrentRoute is null");
                 }
             }
         }
@@ -1018,11 +978,11 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
         mCurrentRouteNaviIndex = index;
 
-        UIRouteNavigation nObj = mUINaviList.get(index);
+        UIRouteNavigation currentNavObj = mUINaviList.get(index);
 
-        int itemIndex = nObj.bgViewIndex;
+        int itemIndex = currentNavObj.bgViewIndex;
 
-        boolean isOutDoorsStep = !nObj.isIndoors;
+        boolean isOutDoorsStep = !currentNavObj.isIndoors;
 
         // Highlight the given element
         LinearLayout bg = mBackgroundLayout;
@@ -1036,43 +996,24 @@ public class DirectionsHorizontalFragment extends BaseFragment
             }
         }
 
-        mDirectionViewSelectedStepListener.onSelectedStepChanged(index);
+        mRouteListener.onSelectedLegChanged(index);
 
-        if (dbglog.isDebugMode()) {
-            DBG_ResetMarkers();
-        }
+        final RouteCoordinate entry_p0 = currentNavObj.p0;
+        final RouteCoordinate entry_p1 = currentNavObj.p1;
 
-        RouteCoordinate entry_p0 = nObj.p0;
-        RouteCoordinate entry_p1 = nObj.p1;
-
-        if (DBG_RENDER_ALL_MARKERS || DBG_RENDER_ENTRY_MARKERS) {
-            DBG_RenderIndoorLegEntryMarkers(entry_p0, entry_p1);
-        }
-
-        if (nObj.latLngBounds != null) {
+        if (currentNavObj.latLngBounds != null) {
             // Path's AABB
-            LatLngBounds legBounds = nObj.latLngBounds;
-            LatLng boxCenter = legBounds.getCenter();
+            final LatLngBounds legBounds = currentNavObj.latLngBounds;
 
-            // Render the calculated bounding box's center (from the original points) marker
-            if (DBG_RENDER_ENTRY_MARKERS) {
-                MarkerOptions mo = new MarkerOptions().icon(DBG_cm0_marker_bmpDescriptor);
-                mo.position(boxCenter);
-                DBG_cm0_marker = mGoogleMap.addMarker(mo);
-            }
+            // In very small bounding boxes, LatLngBounds.getCenter will fail ...
+            final LatLng boxCenter = SphericalUtil.interpolate(legBounds.northeast, legBounds.southwest, 0.5f);
 
             //
             float targetBearing = 0;
-            if (nObj.alignWithPathEntryPoints && (entry_p0 != null) && (entry_p1 != null)) {
-                targetBearing = nObj.targetBearing;
+            if (currentNavObj.alignWithPathEntryPoints && (entry_p0 != null) && (entry_p1 != null)) {
+                targetBearing = currentNavObj.targetBearing;
             }
 
-            // --------------------------------------------------------------------
-            if (DBG_RENDER_ALL_MARKERS || DBG_RENDER_ENTRY_MARKERS) {
-                DBG_RenderBoundsMarkers(nObj.latLngBounds, null);
-            }
-
-            // https://mapspeople.atlassian.net/browse/MIAAND-83:
             // - If map zoom is <= 10: Set tilt (viewing angle) to 30 degrees
             // - If map zoom is > 10: Set tilt (viewing angle) to 45 degrees
             CameraPosition currCamPos = mGoogleMap.getCameraPosition();
@@ -1083,13 +1024,17 @@ public class DirectionsHorizontalFragment extends BaseFragment
             CameraPosition.Builder dstCamPosBuilder;
 
             // Only indoor paths will tilt/rotate the camera to align it with the path's entry points
-            if (nObj.alignWithPathEntryPoints) {
+            if (currentNavObj.alignWithPathEntryPoints) {
                 // Start by using the default max zoom level
                 float targetZoom = mGoogleMap.getMaxZoomLevel();
 
+                if (mUINaviList.size() - 1 == index) {
+                    mActivity.getSelectionManager().selectLocation(mDestination.getLocation(), false, false, false, false);
+                }
+
                 int tiltIndex = (targetTilt == MapsIndoorsSettings.MAP_TILT_WHEN_ZOOM_IS_LESS_OR_EQUAL_TO_10) ? 0 : 1;
 
-                if (nObj.gmapCameraPositionBuilder[tiltIndex] == null) {
+                if (currentNavObj.gmapCameraPositionBuilder[tiltIndex] == null) {
                     // ===============================================
                     t1 = System.currentTimeMillis();
                     // ===============================================
@@ -1118,7 +1063,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
                         //
                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
-                                nObj.latLngBounds,
+                                currentNavObj.latLngBounds,
                                 mMapViewPortScreenWidth, mMapViewPortScreenHeight, mViewPortPadding));
 
                         targetZoom = mGoogleMap.getCameraPosition().zoom;
@@ -1131,17 +1076,17 @@ public class DirectionsHorizontalFragment extends BaseFragment
                             .zoom(targetZoom)
                             .target(dstCalcTarget);
 
-                    nObj.gmapCameraPositionBuilder[tiltIndex] = dstCamPosBuilder;
+                    currentNavObj.gmapCameraPositionBuilder[tiltIndex] = dstCamPosBuilder;
 
                     // ===============================================
                     t4 = System.currentTimeMillis();
                     // ===============================================
                 } else {
-                    dstCamPosBuilder = nObj.gmapCameraPositionBuilder[tiltIndex];
+                    dstCamPosBuilder = currentNavObj.gmapCameraPositionBuilder[tiltIndex];
                 }
             } else {
                 // No tilt in outdoor paths
-                if (nObj.gmapCameraPositionBuilder[0] == null) {
+                if (currentNavObj.gmapCameraPositionBuilder[0] == null) {
                     // ===============================================
                     t1 = System.currentTimeMillis();
                     // ===============================================
@@ -1164,20 +1109,31 @@ public class DirectionsHorizontalFragment extends BaseFragment
                             .target(dstCalcTarget)
                             .zoom(newZoom);
 
-                    nObj.gmapCameraPositionBuilder[0] = dstCamPosBuilder;
+                    currentNavObj.gmapCameraPositionBuilder[0] = dstCamPosBuilder;
 
                     // ===============================================
                     t4 = System.currentTimeMillis();
                     // ===============================================
                 } else {
-                    dstCamPosBuilder = nObj.gmapCameraPositionBuilder[0];
+                    dstCamPosBuilder = currentNavObj.gmapCameraPositionBuilder[0];
                 }
             }
 
             if (animate) {
-                mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(dstCamPosBuilder.build()));
+                mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(dstCamPosBuilder.build()), new GoogleMap.CancelableCallback() {
+                    @Override
+                    public void onFinish() {
+                        showDestinationInfoWindow(index);
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
             } else {
                 mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(dstCamPosBuilder.build()));
+                showDestinationInfoWindow(index);
             }
         }
 
@@ -1185,15 +1141,11 @@ public class DirectionsHorizontalFragment extends BaseFragment
         long t2 = System.currentTimeMillis();
         // ===============================================
 
-        final boolean _isOutDoorsStep = isOutDoorsStep;
-        final int _itemIndex = itemIndex;
-        final UIRouteNavigation _nObj = nObj;
 
-
-        if (_isOutDoorsStep && (_nObj.stepIndex >= 0)) {
-            onStepSelected(_nObj.legIndex, _nObj.stepIndex, _itemIndex);
+        if (isOutDoorsStep && (currentNavObj.stepIndex >= 0)) {
+            onStepSelected(currentNavObj.legIndex, currentNavObj.stepIndex, itemIndex);
         } else {
-            onLegSelected(_nObj.legIndex, _itemIndex);
+            onLegSelected(currentNavObj.legIndex, itemIndex);
         }
 
         // Directions panel: focus on the selected step/leg
@@ -1205,18 +1157,33 @@ public class DirectionsHorizontalFragment extends BaseFragment
         scrollTo(itemIndex);
 
         //===================================================================================
-        if (dbglog.isDebugMode()) {
+        if (dbglog.isDeveloperMode()) {
             long ct = System.currentTimeMillis();
             dbglog.Log(TAG, "routeNavigateToIndex( " + index + " ) - took (ms): " + (ct - t0));
             dbglog.Log(TAG, " - invoke onStepSelected(): " + (t3 - t2));
             dbglog.Log(TAG, " - invoke scrollTo():       " + (ct - t3));
-            if (nObj.alignWithPathEntryPoints) {
+            if (currentNavObj.alignWithPathEntryPoints) {
                 dbglog.Log(TAG, " - invoke INDOOR calc:  " + (t4 - t1));
             } else {
                 dbglog.Log(TAG, " - invoke OUTDOOR calc:  " + (t4 - t1));
             }
         }
         //===================================================================================
+    }
+
+
+    void showDestinationInfoWindow(int index) {
+        // selecting the destination POI when selecting the last leg
+        MPLocation destinationLocation = mDestination.getLocation();
+        if (destinationLocation != null) {
+            if (index == mBackgroundLayout.getChildCount() - 1) {
+                destinationLocation.showInfoWindow();
+            } else {
+                if (destinationLocation.isInfoWindowShown()) {
+                    destinationLocation.hideInfoWindow();
+                }
+            }
+        }
     }
 
     private int getLegIndexFromNaviList(int index) {
@@ -1258,11 +1225,11 @@ public class DirectionsHorizontalFragment extends BaseFragment
         final int startPos = sv.getScrollX();
         final int destPos = (int) (scrollItemWidth * (itemIndex - 0.5f)) - destOffset;
 
-        va.addUpdateListener( animation -> {
+        va.addUpdateListener(animation -> {
             float animVal = ((Float) animation.getAnimatedValue());
             float newPos = (startPos * (1 - animVal)) + (destPos * animVal);
             sv.scrollTo((int) newPos, sv.getBottom());
-        } );
+        });
 
         va.setDuration(500);
         va.start();
@@ -1270,150 +1237,12 @@ public class DirectionsHorizontalFragment extends BaseFragment
 
 
     @Override
-    public void connectivityStateChanged(boolean state) {}
-
-
-    //region Implements IActivityEvents
-    @Override
     public boolean onBackPressed() {
         if (isActive()) {
             closeAndOpenMenu();
-            return false;
         }
 
         return true;
-    }
-
-    @Override
-    public void onDrawerEvent(int newState, int prevState) {
-    }
-    //endregion
-
-
-    //region DEBUG MARKERS
-    MarkerOptions DBG_m0, DBG_m1;
-    Marker DBG_m0_marker, DBG_m1_marker;
-    List<Marker> DBG_mLst_markers, DBG_mLst_markers_XF;
-    BitmapDescriptor DBG_mLst_marker_bmpDescriptor, DBG_mLst_marker_bmpDescriptor_XF;
-    Marker DBG_cm0_marker, DBG_cm1_marker;
-    BitmapDescriptor DBG_cm0_marker_bmpDescriptor, DBG_cm1_marker_bmpDescriptor;
-
-    private void DBG_ResetMarkers() {
-        if (DBG_RENDER_ALL_MARKERS || DBG_RENDER_ENTRY_MARKERS) {
-            if (DBG_m0_marker != null) {
-                DBG_m0_marker.remove();
-                DBG_m0_marker = null;
-            }
-            if (DBG_m1_marker != null) {
-                DBG_m1_marker.remove();
-                DBG_m1_marker = null;
-            }
-            if (DBG_cm0_marker != null) {
-                DBG_cm0_marker.remove();
-                DBG_cm0_marker = null;
-            }
-            if (DBG_mLst_markers != null) {
-                for (Marker m : DBG_mLst_markers) {
-                    m.remove();
-                }
-                DBG_mLst_markers.clear();
-            } else {
-                DBG_mLst_markers = new ArrayList<>();
-            }
-            if (DBG_mLst_markers_XF != null) {
-                for (Marker m : DBG_mLst_markers_XF) {
-                    m.remove();
-                }
-                DBG_mLst_markers_XF.clear();
-            } else {
-                DBG_mLst_markers_XF = new ArrayList<>();
-            }
-
-            DBG_m0 = (DBG_m0 == null) ? new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                    : DBG_m0;
-            DBG_m1 = (DBG_m1 == null) ? new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                    : DBG_m1;
-            DBG_mLst_marker_bmpDescriptor = (DBG_mLst_marker_bmpDescriptor == null) ? BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
-                    : DBG_mLst_marker_bmpDescriptor;
-            DBG_mLst_marker_bmpDescriptor_XF = (DBG_mLst_marker_bmpDescriptor_XF == null) ? BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                    : DBG_mLst_marker_bmpDescriptor_XF;
-
-            DBG_cm0_marker_bmpDescriptor = (DBG_cm0_marker_bmpDescriptor == null) ? BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN) : DBG_cm0_marker_bmpDescriptor;
-        }
-    }
-
-    private void DBG_RenderIndoorLegEntryMarkers(RouteCoordinate p0, RouteCoordinate p1) {
-        if (DBG_RENDER_ALL_MARKERS || DBG_RENDER_ENTRY_MARKERS) {
-            // po -> p1
-            if (DBG_RENDER_ENTRY_MARKERS && (p0 != null) && (p1 != null)) {
-                DBG_m0.position(p0.getLatLng());
-                DBG_m1.position(p1.getLatLng());
-                DBG_m0_marker = mGoogleMap.addMarker(DBG_m0);
-                DBG_m1_marker = mGoogleMap.addMarker(DBG_m1);
-            }
-        }
-    }
-
-    private void DBG_RenderBoundsMarkers(LatLngBounds legLatLngBounds1, LatLngBounds legLatLngBounds2) {
-        if (DBG_RENDER_ALL_MARKERS || DBG_RENDER_ENTRY_MARKERS) {
-            if (DBG_RENDER_ALL_MARKERS) {
-                if (legLatLngBounds1 != null) {
-                    double NE_Lat = legLatLngBounds1.northeast.latitude;
-                    double NE_Lng = legLatLngBounds1.northeast.longitude;
-                    double SW_Lat = legLatLngBounds1.southwest.latitude;
-                    double SW_Lng = legLatLngBounds1.southwest.longitude;
-
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor);
-                        mo.position(new LatLng(NE_Lat, SW_Lng));
-                        DBG_mLst_markers.add(mGoogleMap.addMarker(mo));
-                    }
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor);
-                        mo.position(new LatLng(NE_Lat, NE_Lng));
-                        DBG_mLst_markers.add(mGoogleMap.addMarker(mo));
-                    }
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor);
-                        mo.position(new LatLng(SW_Lat, SW_Lng));
-                        DBG_mLst_markers.add(mGoogleMap.addMarker(mo));
-                    }
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor);
-                        mo.position(new LatLng(SW_Lat, NE_Lng));
-                        DBG_mLst_markers.add(mGoogleMap.addMarker(mo));
-                    }
-                }
-
-                if (legLatLngBounds2 != null) {
-                    double NE_Lat = legLatLngBounds2.northeast.latitude;
-                    double NE_Lng = legLatLngBounds2.northeast.longitude;
-                    double SW_Lat = legLatLngBounds2.southwest.latitude;
-                    double SW_Lng = legLatLngBounds2.southwest.longitude;
-
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor_XF);
-                        mo.position(new LatLng(NE_Lat, SW_Lng));
-                        DBG_mLst_markers_XF.add(mGoogleMap.addMarker(mo));
-                    }
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor_XF);
-                        mo.position(new LatLng(NE_Lat, NE_Lng));
-                        DBG_mLst_markers_XF.add(mGoogleMap.addMarker(mo));
-                    }
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor_XF);
-                        mo.position(new LatLng(SW_Lat, SW_Lng));
-                        DBG_mLst_markers_XF.add(mGoogleMap.addMarker(mo));
-                    }
-                    {
-                        MarkerOptions mo = new MarkerOptions().icon(DBG_mLst_marker_bmpDescriptor_XF);
-                        mo.position(new LatLng(SW_Lat, NE_Lng));
-                        DBG_mLst_markers_XF.add(mGoogleMap.addMarker(mo));
-                    }
-                }
-            }
-        }
     }
     //endregion
 
@@ -1425,12 +1254,7 @@ public class DirectionsHorizontalFragment extends BaseFragment
      * @param stepList
      * @return
      */
-    UIRouteNavigation generateNaviListObj( RouteLeg currRouteLeg, List< RouteStep > stepList, boolean isPathIndoors )
-    {
-        // ===============================================
-        long t0 = System.currentTimeMillis();
-        // ===============================================
-
+    UIRouteNavigation generateNaviListObj(RouteLeg currRouteLeg, List<RouteStep> stepList, boolean isPathIndoors) {
         List<RouteCoordinate> inputPointList = null;
 
         if (currRouteLeg != null) {
@@ -1439,16 +1263,8 @@ public class DirectionsHorizontalFragment extends BaseFragment
             inputPointList = new ArrayList<>();
 
             for (RouteStep rs : stepList) {
-                if( rs.getGeometry() != null )
-                {
-                    inputPointList.addAll( new ArrayList<>( rs.getGeometry() ) );
-                }
-                else
-                {
-                    if(dbglog.isDebugMode())
-                    {
-                        dbglog.Assert( false,"" );
-                    }
+                if (rs.getGeometry() != null) {
+                    inputPointList.addAll(new ArrayList<>(rs.getGeometry()));
                 }
             }
         }
@@ -1459,12 +1275,12 @@ public class DirectionsHorizontalFragment extends BaseFragment
             return null;
         }
 
+        // The AABB of the leg/step, also when from a rotated indoors path's OBB
+        final LatLngBounds latLngBounds;
+
         // Path first points (non overlapping) used to align the camera so p0 -> p1 will face North
         RouteCoordinate entry_p0, entry_p1;
         entry_p0 = entry_p1 = null;
-
-        // The AABB of the leg/step, also when from a rotated indoors path's OBB
-        LatLngBounds latLngBounds = null;
 
         //
         float entryHeadingAngle = 0;
@@ -1547,26 +1363,24 @@ public class DirectionsHorizontalFragment extends BaseFragment
                 }
 
                 // Get the AABB's center of the path
-                latLngBounds = MapsIndoorsHelper.getPathBounds(mTmpRCPointList);
-                LatLng pathCenter = latLngBounds.getCenter();
+                final LatLngBounds cBounds = MapsIndoorsHelper.getPathBounds(mTmpRCPointList);
+
+                // Fixes MIAAND-769 (Routing Oddity on Android)
+                final LatLng pathCenter = SphericalUtil.interpolate(cBounds.northeast, cBounds.southwest, 0.5f);
 
                 // Using the calculated legHeading, rotate the path and recalculate its bounds and update the latlng bounds
                 latLngBounds = MapsIndoorsHelper.getRotatedBoundsFromPath(mTmpRCPointList, pathCenter, -entryHeadingAngle);
             } else {
                 latLngBounds = MapsIndoorsHelper.getPathBounds(inputPointList);
             }
+        } else {
+            latLngBounds = null;
         }
-
-        //===================================================================================
-        if (dbglog.isDebugMode()) {
-            dbglog.Log(TAG, "generateNaviListObj( pathIndoors: " + isPathIndoors + " ) - took (ms): " + (System.currentTimeMillis() - t0));
-        }
-        //===================================================================================
 
         return new UIRouteNavigation(entry_p0, entry_p1, latLngBounds, isPathIndoors, entryHeadingAngle);
     }
 
-    public void setDirectionViewSelectedStepListener(DirectionViewSelectedStepListener directionViewSelectedStepListener) {
-        this.mDirectionViewSelectedStepListener = directionViewSelectedStepListener;
+    public void setDirectionViewSelectedStepListener(RouteListener routeListener) {
+        this.mRouteListener = routeListener;
     }
 }

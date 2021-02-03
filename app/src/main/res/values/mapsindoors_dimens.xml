@@ -32,7 +32,7 @@
 	<dimen name="directions_horiz_item_label_travelmode_max_width">85dp</dimen>
 	<dimen name="directions_horiz_item_label_title_max_width">100dp</dimen>
 
-	<dimen name="directions_map_viewport_padding">5dp</dimen>
+	<dimen name="directions_map_viewport_padding">30dp</dimen>
 
 	<dimen name="custom_toolbar_height">48dp</dimen>
 	<dimen name="button_bounds_common_size">48dp</dimen>

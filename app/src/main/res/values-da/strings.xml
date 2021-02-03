@@ -5,5 +5,4 @@
 	<!-- Splash screen -->
 	<string name="splash_screen_welcome">Velkommen til MapsPeople’s vejviser app</string>
 	<string name="splash_screen_status">Bygninger og rum hentes og tegnes…</string>
-    <string name="zoom_for_detail_text">Zoom ind for detaljer</string>
 </resources>

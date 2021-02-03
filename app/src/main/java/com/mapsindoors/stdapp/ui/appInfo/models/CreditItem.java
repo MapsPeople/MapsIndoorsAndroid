@@ -11,7 +11,6 @@ public class CreditItem
 {
 	public String name;
 	public String url;
-	public String licence;
 
 	public CreditItem(String name, String url) {
 		this.name = name;

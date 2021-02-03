@@ -11,7 +11,7 @@
 	>
 
 
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		android:id="@+id/fabSearch"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
 		android:layout_marginEnd="10dp"
 		android:adjustViewBounds="false"
 
-		app:background="@drawable/misdk_circle_shape"
+		app:background="@drawable/ic_circle_shape"
 		app:backgroundTint="@color/colorAccent"
 		app:elevation="6dp"
 		app:fabSize="normal"
@@ -43,9 +43,8 @@
 		android:text="@string/ab_find_nearest"
 		android:textColor="@android:color/black"
 		android:textSize="12sp"
-
-		android:visibility="gone"/>
-
+		android:visibility="gone"
+		/>
 
 	<com.mapsindoors.stdapp.ui.fab.FabButtonWithLabel
 		android:id="@+id/fab_button1"
