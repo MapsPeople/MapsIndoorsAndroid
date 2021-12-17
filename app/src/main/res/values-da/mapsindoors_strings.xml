@@ -50,11 +50,23 @@
 	<string name="prefix_enter">Gå ind:</string>
 	<string name="prefix_exit">Gå ud:</string>
 	<string name="prefix_park">Parkér:</string>
+	<string name="prefix_action">Handling:</string>
 
 	<string name="action_name_elevator">elevator</string>
 	<string name="action_name_escalator">rulletrappe</string>
 	<string name="action_name_steps">trin</string>
 	<string name="action_name_travelator">rullefortov</string>
+
+	<string name="action_message_elevator">elevator</string>
+	<string name="action_message_stairs">trappe</string>
+	<string name="action_message_escalator">rulletrappe</string>
+	<string name="action_message_travelator">rullefortov</string>
+	<string name="action_message_ladder">stige</string>
+	<string name="action_message_ramp">rampe</string>
+	<string name="action_message_wheelchairlift">kørestolslift</string>
+	<string name="action_message_wheelchairramp">kørestolsrampe</string>
+	<string name="action_message_take">Tag</string>
+	<string name="action_message_to">til</string>
 
 	<string name="direction_right"><![CDATA[Drej til <b>højre</b> og fortsæt]]></string>
 	<string name="direction_left"><![CDATA[Drej til <b>venstre</b> og fortsæt]]></string>
@@ -159,6 +171,9 @@
 
 	<string name="return_to_venue_text">Vend tilbage til %1$s</string>
 
+	<string name="browser_chooser_title">Vælg browser</string>
+	<string name="no_available_browser">Ingen tilgængelig browser</string>
+
 	<string name="app_info">App information</string>
 	<string name="app_version_title">App version</string>
 	<string name="app_version_app_title">App</string>
@@ -186,6 +201,6 @@
 
 	<string name="route_settings">Rute Indstillinger</string>
 	<string name="app_user_roles">App bruger roller</string>
-	<string name="route_settings_user_roles_description">Vælg de app bruger roller du tilhører. Dette påvirker ruter og de lokationer du ser på kortet</string>
+	<string name="user_roles_description">Vælg de app bruger roller du tilhører. Dette påvirker ruter og de lokationer du ser på kortet</string>
 
 </resources>

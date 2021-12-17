@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="@drawable/white_rectangle_background"
+    android:backgroundTint="@color/light_grey"
+    android:elevation="5dp"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="5dp"
+    android:theme="@style/AppTheme.Debug">
+
+    <Switch
+        android:id="@+id/debug_field_item_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@android:color/transparent"
+        android:padding="5dp"
+        android:tint="@color/black" />
+
+    <TextView
+        android:id="@+id/debug_field_item_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="2dp"
+        android:background="@android:color/transparent"
+        android:ellipsize="none"
+        android:maxLines="2"
+        android:text="Map"
+        android:textColor="@color/black" />
+
+</RelativeLayout>

@@ -152,16 +152,18 @@
 				android:visibility="gone"
 				tools:visibility="gone" />
 
-			<View
+			<ImageView
 				android:duplicateParentState="true"
-
 				android:id="@+id/bus_line"
 				android:layout_width="@dimen/directions_horiz_connection_busline_thickness"
 				android:layout_height="match_parent"
 				android:layout_centerHorizontal="true"
 				android:background="@color/colorPrimary"
 				android:visibility="gone"
-				tools:visibility="gone" />
+				tools:visibility="gone"
+				android:layout_centerVertical="true"
+				android:scaleType="fitXY"
+				android:src="@drawable/ic_bus_line_h"/>
 		</RelativeLayout>
 
 		<LinearLayout

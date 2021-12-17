@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,8 +8,17 @@
     android:clickable="true"
     android:orientation="vertical">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/debug_fragment_container"
+        android:elevation="1dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true" />
+
     <RelativeLayout
-        android:id="@+id/transport_sources_bar"
+        android:id="@+id/debug_fragment_nav_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/custom_toolbar_height"
         android:background="@color/colorPrimary">
@@ -45,6 +53,7 @@
             app:srcCompat="@drawable/app_logo_info_screen" />
 
         <LinearLayout
+            android:id="@+id/app_info_text_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -77,24 +86,20 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/solution_logout_button"
-            android:visibility="gone"
-            android:textAllCaps="false"
-            android:layout_width="92dp"
-            android:layout_height="32dp"
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/app_info_debug_visualizer_imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="7dp"
-            android:background="@color/yellow"
-            android:elevation="2dp"
-            android:text="@string/log_out"
-            android:shadowRadius="4"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:drawableStart="@drawable/ic_lock_open_black_24dp"
-            tools:visibility="visible"
-            />
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:background="@color/white"
+            android:maxWidth="24dp"
+            android:maxHeight="24dp"
+            android:src="@drawable/ic_baseline_bug_report_24"
+            android:tint="@color/colorPrimary"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </RelativeLayout>
 
@@ -175,7 +180,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp" />
+                android:layout_marginBottom="5dp"
+                tools:text="Pos" />
 
             <TextView
                 android:id="@+id/app_info_positioning_version"
@@ -183,7 +189,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="10dp"
+                tools:text="2.1.0" />
 
         </RelativeLayout>
 
@@ -224,12 +231,6 @@
 
 
     </RelativeLayout>
-
-    <include
-        android:id="@+id/debug_settings"
-        layout="@layout/debug_control_app_info"
-        android:visibility="gone"
-        tools:visibility="visible" />
 
     <RelativeLayout
         android:layout_width="match_parent"

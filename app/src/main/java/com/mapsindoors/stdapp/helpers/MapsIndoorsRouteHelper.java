@@ -106,6 +106,61 @@ public class MapsIndoorsRouteHelper {
         }
 
         return result;
+/*
+		if( hours > 0 )
+		{
+			if( minsVal > 0 )
+			{
+				if( days == 0 )
+				{
+
+					if(minsVal> 1){
+						formattedDuration = String.format( res.getString( R.string.elapsed_time_format_hour_min_plural ), hours, minsVal );
+
+					}else{
+						formattedDuration = String.format( res.getString( R.string.elapsed_time_format_hour_min ), hours, minsVal );
+
+					}
+				}
+				else
+				{
+					formattedDuration = String.format( res.getString( R.string.elapsed_time_format_day_hour ), days, hours );
+				}
+			}
+			else
+			{
+				if( days == 0 )
+				{
+					formattedDuration = String.format( res.getString( R.string.elapsed_time_format_hour ), hours );
+				}
+				else
+				{
+					formattedDuration = String.format( res.getString( R.string.elapsed_time_format_day_hour ), days, hours );
+				}
+			}
+		}
+		else
+		{
+			if( minsVal > 0 )
+			{
+
+
+				if(minsVal> 1){
+					formattedDuration = String.format( res.getString( R.string.elapsed_time_format_min_plural ), minsVal );
+
+				}else{
+					formattedDuration = String.format( res.getString( R.string.elapsed_time_format_min ), minsVal );
+
+				}
+
+			}
+			else if( days > 0 )
+			{
+				formattedDuration = String.format( res.getString( R.string.elapsed_time_format_day ), days );
+			}
+		}
+
+		return formattedDuration.trim();*/
     }
 
     /**
@@ -199,7 +254,8 @@ public class MapsIndoorsRouteHelper {
         List<SearchResultItem> searchResultItemList = new ArrayList<>();
 
         for (AutoCompleteField field : autoCompleteFieldList) {
-            searchResultItemList.add(new SearchResultItem(field.mainText, field.secondaryText, IconTextListAdapter.Objtype.LOCATION, null, R.drawable.ic_place_black_24dp, field));
+            searchResultItemList.add(new SearchResultItem(field.mainText, field.secondaryText, IconTextListAdapter.Objtype.LOCATION, null, R.drawable.ic_google_maps, field));
+            //searchResultItemList.add( new SearchResultItem( field.mainText, field.secondaryText, IconTextListAdapter.Objtype.LOCATION, null, R.drawable.misdk_debug_pin, field ) );
         }
 
         return searchResultItemList;

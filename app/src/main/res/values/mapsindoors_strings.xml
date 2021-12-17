@@ -50,11 +50,24 @@
     <string name="prefix_enter">Enter:</string>
     <string name="prefix_exit">Exit:</string>
     <string name="prefix_park">Park:</string>
+    <string name="prefix_action">Action:</string>
 
     <string name="action_name_elevator">elevator</string>
     <string name="action_name_escalator">escalator</string>
     <string name="action_name_steps">steps</string>
     <string name="action_name_travelator">travelator</string>
+
+    <string name="action_message_elevator">elevator</string>
+    <string name="action_message_stairs">staircase</string>
+    <string name="action_message_escalator">escalator</string>
+    <string name="action_message_travelator">travelator</string>
+    <string name="action_message_ladder">ladder</string>
+    <string name="action_message_ramp">ramp</string>
+    <string name="action_message_wheelchairlift">wheelchair lift</string>
+    <string name="action_message_wheelchairramp">wheelchair ramp</string>
+    <string name="action_message_take">Take</string>
+    <string name="action_message_to">to</string>
+
 
     <string name="direction_right"><![CDATA[Go <b>right</b> and continue]]></string>
     <string name="direction_left"><![CDATA[Go <b>left</b> and continue]]></string>
@@ -158,6 +171,9 @@
     <string name="zoom_for_detail_text">Zoom for more details</string>
 
     <string name="return_to_venue_text">Return to %1$s</string>
+
+    <string name="browser_chooser_title">Choose browser</string>
+    <string name="no_available_browser">No available browser</string>
 
     <string name="app_info">App information</string>
     <string name="app_version_title">App version</string>

@@ -20,6 +20,8 @@ public class CondecoMapHandler
             setVectorDrawableIcon(R.drawable.ic_group_room_green, MI_ICON_SIZE_IN_DP, MI_ICON_SIZE_IN_DP ).
             setZoomLevelOn( 15 ).
             setZoomLevelOff( 21 ).
+            setLabelZoomLevelOn(15).
+            setLabelZoomLevelOff(21).
             setVisible( true ).
             setLabel( null ).
             setShowLabel( false ).
@@ -30,6 +32,8 @@ public class CondecoMapHandler
             setVectorDrawableIcon(R.drawable.ic_group_room_red, MI_ICON_SIZE_IN_DP, MI_ICON_SIZE_IN_DP ).
             setZoomLevelOn( 15 ).
             setZoomLevelOff( 21 ).
+            setLabelZoomLevelOn(15).
+            setLabelZoomLevelOff(21).
             setVisible( true ).
             setLabel( null ).
             setShowLabel( false ).
@@ -40,6 +44,8 @@ public class CondecoMapHandler
             setVectorDrawableIcon(R.drawable.ic_office_green, MI_ICON_SIZE_IN_DP, MI_ICON_SIZE_IN_DP ).
             setZoomLevelOn( 15 ).
             setZoomLevelOff( 21 ).
+            setLabelZoomLevelOn(15).
+            setLabelZoomLevelOff(21).
             setVisible( true ).
             setLabel( null ).
             setShowLabel( false ).
@@ -50,6 +56,8 @@ public class CondecoMapHandler
             setVectorDrawableIcon(R.drawable.ic_office_red, MI_ICON_SIZE_IN_DP, MI_ICON_SIZE_IN_DP ).
             setZoomLevelOn( 15 ).
             setZoomLevelOff( 21 ).
+            setLabelZoomLevelOn(15).
+            setLabelZoomLevelOff(21).
             setVisible( true ).
             setLabel( null ).
             setShowLabel( false ).
@@ -60,6 +68,8 @@ public class CondecoMapHandler
             setVectorDrawableIcon(R.drawable.ic_office_var_green, MI_ICON_SIZE_IN_DP, MI_ICON_SIZE_IN_DP ).
             setZoomLevelOn( 15 ).
             setZoomLevelOff( 21 ).
+            setLabelZoomLevelOn(15).
+            setLabelZoomLevelOff(21).
             setVisible( true ).
             setLabel( null ).
             setShowLabel( false ).
@@ -70,6 +80,8 @@ public class CondecoMapHandler
             setVectorDrawableIcon(R.drawable.ic_office_var_red, MI_ICON_SIZE_IN_DP, MI_ICON_SIZE_IN_DP ).
             setZoomLevelOn( 15 ).
             setZoomLevelOff( 21 ).
+            setLabelZoomLevelOn(15).
+            setLabelZoomLevelOff(21).
             setVisible( true ).
             setLabel( null ).
             setShowLabel( false ).

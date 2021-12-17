@@ -3,6 +3,7 @@ package com.mapsindoors.stdapp.positionprovider.indooratlas;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -62,12 +63,20 @@ public class IndoorAtlasPositionProvider extends AppPositionProvider {
         mConfig = config;
         initClient();
 
-        REQUIRED_PERMISSIONS = new String[]{
-                "android.permission.ACCESS_FINE_LOCATION",
-                "android.permission.ACCESS_COARSE_LOCATION",
-                "android.permission.BLUETOOTH_ADMIN",
-                "android.permission.BLUETOOTH"
-        };
+        if (Build.VERSION.SDK_INT >= 31) {
+            REQUIRED_PERMISSIONS = new String[]{
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_COARSE_LOCATION",
+                    "android.permission.BLUETOOTH_SCAN"
+            };
+        }else {
+            REQUIRED_PERMISSIONS = new String[]{
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_COARSE_LOCATION",
+                    "android.permission.BLUETOOTH_ADMIN",
+                    "android.permission.BLUETOOTH"
+            };
+        }
     }
 
     private void initClient(){
@@ -129,10 +138,11 @@ public class IndoorAtlasPositionProvider extends AppPositionProvider {
 
     @Override
     public void stopPositioning( @Nullable final String arg ) {
-        if(mIsRunning) {
-            if( mIndoorAtlasClient != null ) {
-                mIndoorAtlasClient = null;
-            }
+        if(mIsRunning && mIndoorAtlasClient != null) {
+            mIndoorAtlasClient.unregisterOrientationListener(mOrientationListener);
+            mIndoorAtlasClient.unregisterRegionListener(regionListener);
+            mIndoorAtlasClient.removeLocationUpdates(locationListener);
+            mIndoorAtlasClient.lockIndoors(true);
             mIsRunning = false;
         }
     }
@@ -145,6 +155,7 @@ public class IndoorAtlasPositionProvider extends AppPositionProvider {
     public void terminate() {
         if( mIndoorAtlasClient != null ) {
             mIndoorAtlasClient.destroy();
+            mIndoorAtlasClient = null;
         }
     }
 

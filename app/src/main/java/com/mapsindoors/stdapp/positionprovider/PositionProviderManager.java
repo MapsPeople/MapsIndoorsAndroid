@@ -1,6 +1,7 @@
 package com.mapsindoors.stdapp.positionprovider;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -25,12 +26,7 @@ import java.util.Map;
  */
 public class PositionProviderManager {
 
-    static final String[] REQUIRED_PERMISSIONS = {
-            "android.permission.ACCESS_FINE_LOCATION",
-            "android.permission.ACCESS_COARSE_LOCATION",
-            "android.permission.BLUETOOTH_ADMIN",
-            "android.permission.BLUETOOTH",
-    };
+    final String[] REQUIRED_PERMISSIONS;
 
     // Priority list, smaller index = higher priority
     private final LinkedList<AppPositionProvider> mProviderList;
@@ -45,11 +41,37 @@ public class PositionProviderManager {
      */
     public PositionProviderManager(@NonNull Context context, OnPositionProviderChangedListener onPositionProviderChangedListener){
         mProviderList = new LinkedList<>();
+        if (Build.VERSION.SDK_INT >= 31) {
+            REQUIRED_PERMISSIONS = new String[]{
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_COARSE_LOCATION",
+                    "android.permission.BLUETOOTH_SCAN"
+            };
+        }else {
+            REQUIRED_PERMISSIONS = new String[]{
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_COARSE_LOCATION",
+                    "android.permission.BLUETOOTH_ADMIN",
+                    "android.permission.BLUETOOTH"
+            };
+        }
         mOnPositionProviderChangedListener = onPositionProviderChangedListener;
         PSUtils.runLocationPermissionsCheck(REQUIRED_PERMISSIONS, context, () -> {
             addProviders(mProviderList, context);
             getProvider();
         });
+    }
+
+    public void onPause(){
+        for(AppPositionProvider provider : mProviderList){
+            provider.onPause();
+        }
+    }
+
+    public void onResume(){
+        for(AppPositionProvider provider : mProviderList){
+            provider.onResume();
+        }
     }
 
     /**
@@ -139,24 +161,22 @@ public class PositionProviderManager {
      * @return AppPositionProvider object
      */
     public AppPositionProvider getProvider(){
-        if(mCurrentProvider != null && getPositionProvidersListSize() == 1){
+        if(mCurrentProvider != null && getPositionProvidersListSize() == 1) {
             return mCurrentProvider;
         }
 
-        for(AppPositionProvider provider : mProviderList){
+        for(AppPositionProvider provider : mProviderList) {
             provider.checkIfCanDeliver(() -> {
                 if(provider.getCanDeliver()){
-                    if(mCurrentProvider == null){
-                        // if we don't have one, just grab any
-                        mCurrentProvider = provider;
+                    if(mCurrentProvider == null || !mCurrentProvider.getCanDeliver()){
+                        // if we don't have one, just grab gps
+                        mCurrentProvider = mProviderList.getLast();
                         mOnPositionProviderChangedListener.onPositionProviderChanged(mCurrentProvider);
                     } else {
                         // if this one can deliver, and is higher on the list than the current one, switch!
-                        if(mProviderList.indexOf(mCurrentProvider) > mProviderList.indexOf(provider) || (!mCurrentProvider.getCanDeliver() && provider.getCanDeliver())){
-                            if(mCurrentProvider != provider){
-                                mCurrentProvider = provider;
-                                mOnPositionProviderChangedListener.onPositionProviderChanged(mCurrentProvider);
-                            }
+                        if(mProviderList.indexOf(mCurrentProvider) > mProviderList.indexOf(provider)){
+                            mCurrentProvider = provider;
+                            mOnPositionProviderChangedListener.onPositionProviderChanged(mCurrentProvider);
                         }
                     }
                 }
@@ -180,6 +200,14 @@ public class PositionProviderManager {
      */
     public int getPositionProvidersListSize(){
         return mProviderList.size();
+    }
+
+    public void onDestroy() {
+        mCurrentProvider = null;
+        for (AppPositionProvider item: mProviderList) {
+            item.terminate();
+        }
+        mProviderList.clear();
     }
 
 }

@@ -11,7 +11,7 @@
     Set setHasFixedSize() (on the list?)
 -->
     <View
-        android:id="@+id/route_options_toolbar"
+        android:id="@+id/user_roles_toolbar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@color/colorPrimary"
@@ -21,16 +21,16 @@
         />
 
     <ImageButton
-        android:id="@+id/route_options_back_button"
+        android:id="@+id/user_roles_back_button"
         android:layout_width="@dimen/button_bounds_common_size"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/route_options_toolbar"
-        app:layout_constraintEnd_toEndOf="@+id/route_options_toolbar"
+        app:layout_constraintBottom_toBottomOf="@+id/user_roles_toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/user_roles_toolbar"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/route_options_toolbar"
-        app:layout_constraintTop_toTopOf="@+id/route_options_toolbar"
+        app:layout_constraintStart_toStartOf="@+id/user_roles_toolbar"
+        app:layout_constraintTop_toTopOf="@+id/user_roles_toolbar"
         app:srcCompat="@drawable/ic_arrow_back"
         />
 
@@ -39,21 +39,21 @@
         android:layout_height="wrap_content"
         android:text="@string/action_settings"
         android:textAppearance="@style/ToolbarTitle"
-        app:layout_constraintBottom_toBottomOf="@+id/route_options_toolbar"
-        app:layout_constraintEnd_toEndOf="@+id/route_options_toolbar"
+        app:layout_constraintBottom_toBottomOf="@+id/user_roles_toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/user_roles_toolbar"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/route_options_toolbar"
-        app:layout_constraintTop_toTopOf="@+id/route_options_toolbar"
+        app:layout_constraintStart_toStartOf="@+id/user_roles_toolbar"
+        app:layout_constraintTop_toTopOf="@+id/user_roles_toolbar"
         app:layout_constraintVertical_bias="0.5"
         />
 
     <View
-        android:id="@+id/route_options_user_roles_group_title"
+        android:id="@+id/user_roles_group_title"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@color/light_grey"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/route_options_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/user_roles_toolbar"
         app:layout_constraintVertical_bias="0"
         />
 
@@ -65,14 +65,29 @@
         android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/route_options_user_roles_group_title"
-        app:layout_constraintTop_toTopOf="@+id/route_options_user_roles_group_title"
+        app:layout_constraintBottom_toBottomOf="@+id/user_roles_group_title"
+        app:layout_constraintTop_toTopOf="@+id/user_roles_group_title"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintVertical_bias="0.5"
         />
 
+    <com.mapsindoors.stdapp.ui.components.noInternetBar.NoInternetBar
+        android:id="@+id/user_role_no_internet_message"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:elevation="1dp"
+        android:outlineProvider="bounds"
+        android:visibility="gone"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_roles_group_title"
+        app:layout_constraintVertical_bias="0"
+
+        tools:visibility="visible"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/route_options_user_roles_group_users"
+        android:id="@+id/user_roles_group_users"
         android:layout_width="match_parent"
 
         android:layout_height="wrap_content"
@@ -81,20 +96,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
 
-        app:layout_constraintTop_toBottomOf="@+id/route_options_user_roles_group_title"
+        app:layout_constraintTop_toBottomOf="@+id/user_role_no_internet_message"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0"
 
-        tools:listitem="@layout/control_route_options_user_roles_item"
+        tools:listitem="@layout/control_user_roles_item"
         tools:itemCount="4"
         />
 
     <View
-        android:id="@+id/route_options_user_roles_bottom_group_description"
+        android:id="@+id/user_roles_bottom_group_description"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/light_grey"
-        app:layout_constraintTop_toBottomOf="@+id/route_options_user_roles_group_users"
+        app:layout_constraintTop_toBottomOf="@+id/user_roles_group_users"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0"
         />
@@ -103,13 +118,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:text="@string/route_settings_user_roles_description"
+        android:text="@string/user_roles_description"
         android:textColor="@color/black"
         android:textAlignment="viewStart"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/route_options_user_roles_bottom_group_description"
-        app:layout_constraintTop_toTopOf="@+id/route_options_user_roles_bottom_group_description"
+        app:layout_constraintBottom_toBottomOf="@+id/user_roles_bottom_group_description"
+        app:layout_constraintTop_toTopOf="@+id/user_roles_bottom_group_description"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintVertical_bias="0"
         />

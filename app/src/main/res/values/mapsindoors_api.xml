@@ -1,4 +1,7 @@
 <resources>
+	<string name="mapsindoors_api_key" translatable="false">mapspeople</string>
+
+
 	<!--
 					Offline data switches
 	-->

@@ -12,6 +12,7 @@ import androidx.annotation.StyleRes;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -89,15 +90,7 @@ public final class MapFloorSelector extends FrameLayout implements FloorSelector
         mFloorSelectorAdapter.setCallback(mMapFloorSelectorAdapterListener);
         mLvFloorSelector.setAdapter(mFloorSelectorAdapter);
         mLvFloorSelector.getViewTreeObserver().addOnGlobalLayoutListener(mGlobalLayoutListener);
-        mLvFloorSelector.setOnItemClickListener((parent, view, position, id) -> {
-
-            if (mFloors.size() > 0) {
-                mOnFloorSelectionChangedListener.onFloorSelectionChanged(mFloors.get(position));
-            }
-
-            mFloorSelectorAdapter.setSelectedListPosition(position);
-            mFloorSelectorAdapter.notifyDataSetChanged();
-        });
+        mLvFloorSelector.setOnItemClickListener(mFloorSelectorOnItemClickListener);
 
         this.setVisibility(INVISIBLE);
         this.setAlpha(0.0f);
@@ -152,23 +145,25 @@ public final class MapFloorSelector extends FrameLayout implements FloorSelector
      */
     @Override
     public void show(boolean show, boolean animated) {
-        final boolean _show = mWillShowView = show && canTheFloorSelectorBeShown();
+        mWillShowView = show && canTheFloorSelectorBeShown();
 
-        final float currentAlpha = this.getAlpha();
-        if (animated) {
-            if (_show && (currentAlpha < 1.0f)) {
-                this.animate().alpha(1.0f).setDuration(FADE_IN_TIME_MS).setListener(mAnimationListener).start();
-            } else if (!_show && (currentAlpha > 0.1)) {
-                this.animate().alpha(0.0f).setDuration(FADE_OUT_TIME_MS).setListener(mAnimationListener).start();
-            }
-        } else {
-            if (_show && (currentAlpha < 1.0f)) {
-                this.setVisibility(VISIBLE);
-                this.setAlpha(1.0f);
+        final float currentAlpha = getAlpha();
+        if (mWillShowView && (currentAlpha < 1.0f)){
+            if (animated) {
+                animate().alpha(1.0f).setDuration(FADE_IN_TIME_MS).setListener(mAnimationListener).start();
             } else {
-                this.setVisibility(INVISIBLE);
-                this.setAlpha(0.0f);
+                setVisibility(VISIBLE);
+                setAlpha(1.0f);
             }
+            mLvFloorSelector.setOnItemClickListener(mFloorSelectorOnItemClickListener);
+        } else if (!mWillShowView){
+            if (animated && (currentAlpha > 0.1f)) {
+                animate().alpha(0.0f).setDuration(FADE_OUT_TIME_MS).setListener(mAnimationListener).start();
+            } else {
+                setVisibility(INVISIBLE);
+                setAlpha(0.0f);
+            }
+            mLvFloorSelector.setOnItemClickListener((parent, view, position, id) -> {});
         }
     }
 
@@ -341,4 +336,20 @@ public final class MapFloorSelector extends FrameLayout implements FloorSelector
         }
         return -1;
     }
+
+    /**
+     * For setting up OnItemClickListener for the Floor Selector, as this bit is used multiple times.
+    */
+    private final AdapterView.OnItemClickListener mFloorSelectorOnItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            if (mFloors.size() > 0) {
+                mOnFloorSelectionChangedListener.onFloorSelectionChanged(mFloors.get(i));
+            }
+            mFloorSelectorAdapter.setSelectedListPosition(i);
+            mFloorSelectorAdapter.notifyDataSetChanged();
+        }
+    };
+
+
 }

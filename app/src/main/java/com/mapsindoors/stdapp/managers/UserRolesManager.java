@@ -7,11 +7,11 @@ import androidx.annotation.Nullable;
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.UserRole;
 import com.mapsindoors.stdapp.helpers.SharedPrefsHelper;
+import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,11 +27,15 @@ public class UserRolesManager {
     @NonNull
     private Context mContext;
     @NonNull
+    private MapsIndoorsActivity mActivity;
+    @NonNull
     private Set<String> mSelectedUserRoles;
+    private boolean isQueued = false;
 
 
     public UserRolesManager(@NonNull Context context) {
         mContext = context;
+        mActivity = (MapsIndoorsActivity) context;
         mSelectedUserRoles = SharedPrefsHelper.getSelectedUserRoles(mContext);
 
         updateSelectedUserRoles();
@@ -74,10 +78,33 @@ public class UserRolesManager {
 
             SharedPrefsHelper.setSelectedUserRoles(mContext, mSelectedUserRoles);
         }
+        if (MapsIndoors.isReady()) {
+            alignUserRolesWithSdk();
+        } else {
+            addReadyListener();
+        }
 
-        MapsIndoors.setOnMapsIndoorsReadyListener(()-> {
-            MapsIndoors.applyUserRoles(getSavedUserRoles());
-        });
+    }
+
+    private synchronized void addReadyListener() {
+        if (!isQueued) {
+            isQueued = true;
+            MapsIndoors.addOnMapsIndoorsReadyListener(this::alignUserRolesWithSdk);
+        }
+    }
+
+
+    private void alignUserRolesWithSdk() {
+        List<UserRole> appliedUserRoles = MapsIndoors.getAppliedUserRoles();
+        List<UserRole> savedUserRoles = getSavedUserRoles();
+        if ((appliedUserRoles == null || appliedUserRoles.isEmpty()) && savedUserRoles != null) {
+            MapsIndoors.applyUserRoles(savedUserRoles);
+        }else if (appliedUserRoles != null && savedUserRoles != null) {
+            if (appliedUserRoles.size() != savedUserRoles.size()) {
+                MapsIndoors.applyUserRoles(savedUserRoles);
+            }
+        }
+        isQueued = false;
     }
 
     /**
@@ -127,6 +154,7 @@ public class UserRolesManager {
         final Set<String> selectedUserRoles = SharedPrefsHelper.getSelectedUserRoles(mContext);
         final List<UserRole> cmsUserRoles = MapsIndoors.getUserRoles();
         if (selectedUserRoles.isEmpty() || (cmsUserRoles == null) || cmsUserRoles.isEmpty()) {
+            updateDebugVisualizer(null);
             return null;
         }
 
@@ -139,13 +167,32 @@ public class UserRolesManager {
                 }
             }
         }
-
+        updateDebugVisualizer(savedRoles);
         return savedRoles;
     }
 
     public boolean isUserRoleSaved(@NonNull UserRole userRole) {
         return mSelectedUserRoles.contains(userRole.getKey());
     }
+
+    /**
+     * Used to update UserRole Status for the debugVisualizer
+     * @param savedUserRoles a list of current userRoles
+     */
+    public void updateDebugVisualizer(List<UserRole> savedUserRoles) {
+        StringBuilder userRoleStringBuilder = new StringBuilder();
+
+        if (savedUserRoles != null) {
+            for (UserRole role : savedUserRoles)  {
+                userRoleStringBuilder.append(role.getValue()).append("\n");
+            }
+        } else {
+            userRoleStringBuilder.append("-");
+        }
+
+        mActivity.getGeneralDebugVisualizer().updateDebugField("userRoles", userRoleStringBuilder.toString());
+    }
+
 
     /**
      * Clears any saved users, both from the local list and from the shared prefs

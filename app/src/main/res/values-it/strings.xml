@@ -43,10 +43,17 @@
     <string name="prefix_enter">Entrare:</string>
     <string name="prefix_exit">Uscire:</string>
     <string name="prefix_park">Parcheggiare</string>
-    <string name="action_name_elevator">ascensore</string>
-    <string name="action_name_escalator">scala mobile</string>
-    <string name="action_name_steps">passi</string>
-    <string name="action_name_travelator">Tapis Roulant</string>
+    <string name="prefix_action">Azione:</string>
+    <string name="action_message_elevator">ascensore</string>
+    <string name="action_message_stairs">scale</string>
+    <string name="action_message_escalator">scala mobile</string>
+    <string name="action_message_travelator">viaggiatore</string>
+    <string name="action_message_ladder">scala a pioli</string>
+    <string name="action_message_ramp">rampa</string>
+    <string name="action_message_wheelchairlift">ascensore per sedia a rotelle</string>
+    <string name="action_message_wheelchairramp">rampa per sedia a rotelle</string>
+    <string name="action_message_take">Prendi la</string>
+    <string name="action_message_to">sul</string>
     <string name="direction_right">Vai a destra e continua</string>
     <string name="direction_left">Vai a sinistra e continua</string>
     <string name="direction_straight">Continua dritto</string>
@@ -125,7 +132,9 @@
     <string name="clear_map_button_text">Cancella la mappa</string>
     <string name="poi_search_text">Cerca luoghi all\'interno o all\'esterno</string>
     <string name="zoom_for_detail_text">Zoom per maggiori dettagli</string>
-    <string name="return_to_venue_text">Torna a% 1 $ s</string>
+    <string name="return_to_venue_text">Torna a %1$s</string>
+    <string name="browser_chooser_title">Scegli il browser</string>
+    <string name="no_available_browser">essun browser disponibile</string>
     <string name="app_info">Informazioni sull\'app</string>
     <string name="app_version_title">Versione dell\'app</string>
     <string name="app_version_app_title">App</string>
@@ -149,7 +158,7 @@
     <string name="log_out">Disconnettersi</string>
     <string name="route_settings">Impostazioni del percorso</string>
     <string name="app_user_roles">Ruoli utente dell\'app</string>
-    <string name="route_settings_user_roles_description">Scegli il ruolo dell\'utente di cui fai parte nella app. Questo influisce sulle direzioni che ottieni, et gli oggetti che vedi sulla mappa</string>
+    <string name="user_roles_description">Scegli il ruolo dell\'utente di cui fai parte nella app. Questo influisce sulle direzioni che ottieni, et gli oggetti che vedi sulla mappa</string>
     <string name="app_default_supplier" translatable="false">MapsPeople A/S</string>
     <string name="app_default_supplier_website" translatable="false">https://www.mapspeople.com</string>
     <string name="distance_format_kilometers_f" translatable="false">%1$.1fkm</string>

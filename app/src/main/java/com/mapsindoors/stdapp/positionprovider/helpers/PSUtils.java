@@ -193,8 +193,7 @@ public class PSUtils {
 		final MultiplePermissionsListener dexterMultiplePermissionsListener = new MultiplePermissionsListener()
 		{
 			@Override
-			public void onPermissionsChecked( MultiplePermissionsReport report )
-			{
+			public void onPermissionsChecked( MultiplePermissionsReport report ) {
 
 
 				if(!report.getDeniedPermissionResponses().isEmpty()){

@@ -73,7 +73,6 @@ public class FloatingAction {
             view.setVisibility(View.VISIBLE);
 
             if (BuildConfig.DEBUG) {
-                // We've hardcoded only x buttons in the layout ATM, check if this solution has more
                 if (fabmenuEntries.size() > LAYOUT_FAB_BUTTONS_COUNT) {
                     new Handler(activity.getMainLooper()).post(() -> {
                         Toast.makeText(activity, TAG +

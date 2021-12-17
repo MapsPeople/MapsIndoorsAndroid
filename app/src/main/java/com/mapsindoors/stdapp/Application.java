@@ -55,6 +55,8 @@ public class Application extends android.app.Application {
                 getString(R.string.mapsindoors_api_key)
         );
 
+        MapsIndoors.enableOfflineTilesUpdates(BuildConfig.ENABLE_OFFLINE_TILES_AUTO_FETCH);
+
         // Google API Key (used here for routing, etc.)
         MapsIndoors.setGoogleAPIKey(getString(R.string.google_maps_key));
 
@@ -82,6 +84,15 @@ public class Application extends android.app.Application {
                                 .setFontAttrId(R.attr.fontPath)
                                 .build()))
                 .build());
+        /*
+        final CalligraphyConfig config = new CalligraphyConfig.Builder()
+                .setDefaultFontPath(fontPath)
+                .setFontAttrId(R.attr.fontPath)
+                .build();
+
+        CalligraphyConfig.initDefault(config);
+
+         */
     }
 
 
@@ -89,6 +100,17 @@ public class Application extends android.app.Application {
      * Crashlytics and alike go here...
      */
     private void initWhateverLytics() {
+        // ================================================================
+        // Crashlytics
+        /* Crashlytics crashlyticsKit = new Crashlytics.Builder().
+                core(new CrashlyticsCore.Builder().
+                        build()).
+                build();
+
+		Fabric.with(this, crashlyticsKit );
+		*/
+		// ================================================================
+
         FirebaseApp.initializeApp(this);
 		GoogleAnalyticsManager.initialize( this );
 
@@ -98,6 +120,8 @@ public class Application extends android.app.Application {
             GoogleAnalyticsManager.disableForDebug(true);
         }
 
+        // ================================================================
+        // Other lytics-ish go here
     }
 
     private void enableOSStrictMode() {
@@ -120,6 +144,7 @@ public class Application extends android.app.Application {
 
     private void enablePicassoDebugInfo() {
         if (AppDevSettings.DEBUG_PICASSO_ENABLED) {
+            // Check: "Debug indicators" in http://square.github.io/picasso/
             Picasso.get().setIndicatorsEnabled(true);
             Picasso.get().setLoggingEnabled(true);
         }

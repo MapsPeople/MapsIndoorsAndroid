@@ -16,5 +16,6 @@
 	<!-- Splash screen -->
 	<string name="splash_screen_welcome">Welcome to the map service of MI demo</string>
 	<string name="splash_screen_status">Buildings and rooms are being loaded…</string>
-    <string name="route_settings_user_roles_description">Choose the App User Roles you are part of. This affects the directions you get, and the locations you see on the map.</string>
+    <string name="user_roles_description">Choose the App User Roles you are part of. This affects the directions you get, and the locations you see on the map.</string>
+
 </resources>

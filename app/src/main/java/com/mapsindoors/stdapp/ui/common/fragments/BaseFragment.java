@@ -24,23 +24,28 @@ import com.mapsindoors.stdapp.ui.common.enums.MenuFrame;
  * Created by Jose J Varó on 02/03/2017.
  * Copyright © 2017 MapsPeople A/S. All rights reserved.
  */
-public abstract class BaseFragment extends Fragment implements OnStateChangedListener {
+public abstract class BaseFragment extends Fragment implements OnStateChangedListener, MPDataSetCacheSyncListener {
     protected View mMainView;
     protected MenuFrame mFragment;
-
     protected MPDataSetCacheManager mDatasetCacheManager;
 
     protected BaseFragment() {
         // Setup listener, to handle updated data, e.g. when conneting to network
         mDatasetCacheManager = MPDataSetCacheManager.getInstance();
-        mDatasetCacheManager.addMPDataSetCacheSyncListener(new MPDataSetCacheSyncListener() {
-            @Override
-            public void onDataSetSyncStatusChanged(@NonNull MPDataSetCache dataSetCache, int status) {
-                if (status == DataSetManagerStatus.SYNC_FINISHED) {
-                    onDataUpdated();
-                }
-            }
-        });
+        mDatasetCacheManager.addMPDataSetCacheSyncListener(this);
+    }
+
+    @Override
+    public void onDataSetSyncStatusChanged(@NonNull MPDataSetCache dataSetCache, int status) {
+        if (status == DataSetManagerStatus.SYNC_FINISHED) {
+            onDataUpdated();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDatasetCacheManager.removeMPDataSetCacheSyncListener(this);
     }
 
     public boolean isFragmentSafe() {
@@ -93,5 +98,6 @@ public abstract class BaseFragment extends Fragment implements OnStateChangedLis
             connectivityStateChanged(isEnabled);
         }
     }
+
 
 }

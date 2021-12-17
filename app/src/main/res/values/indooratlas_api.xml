@@ -1,6 +1,4 @@
 <resources>
-	<string name="indooratlas_api_key" translatable="false">Insert indoor atlas api key here</string>
-	<string name="indooratlas_api_secret" translatable="false">Insert inddor atlas api secret here</string>
 	<string name="pubnub_publish_key" translatable="false">not-set</string>
 	<string name="pubnub_subscribe_key" translatable="false">not-set</string>
 </resources>
