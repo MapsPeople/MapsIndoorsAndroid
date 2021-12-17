@@ -17,7 +17,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url "http://indooratlas-ltd.bintray.com/mvn-public" }
+        maven { url "https://dl.cloudsmith.io/public/indooratlas/mvn-public/maven/" }
 
         maven { url 'https://maven.mapsindoors.com/' }
         maven { url 'https://maven.fabric.io/public' }
