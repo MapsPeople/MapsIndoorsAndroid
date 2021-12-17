@@ -276,13 +276,13 @@
 
 
             <fragment
-                android:id="@+id/route_options_fragment"
-                android:name="com.mapsindoors.stdapp.ui.routeoptions.RouteOptionsFragment"
+                android:id="@+id/user_role_fragment"
+                android:name="com.mapsindoors.stdapp.ui.routeoptions.UserRoleFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clickable="false"
                 tools:context=".ui.activitymain.MapsIndoorsActivity"
-                tools:layout="@layout/fragment_route_options"
+                tools:layout="@layout/fragment_user_roles"
                 />
         </ViewFlipper>
 

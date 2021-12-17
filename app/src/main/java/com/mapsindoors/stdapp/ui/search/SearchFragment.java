@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -30,10 +31,12 @@ import com.mapsindoors.mapssdk.MPLocation;
 import com.mapsindoors.mapssdk.MPQuery;
 import com.mapsindoors.mapssdk.MapControl;
 import com.mapsindoors.mapssdk.MapsIndoors;
+import com.mapsindoors.mapssdk.OnResultReadyListener;
 import com.mapsindoors.mapssdk.OnStateChangedListener;
 import com.mapsindoors.mapssdk.Point;
 import com.mapsindoors.mapssdk.PositionProvider;
 import com.mapsindoors.mapssdk.PositionResult;
+import com.mapsindoors.mapssdk.SphericalUtil;
 import com.mapsindoors.mapssdk.Venue;
 import com.mapsindoors.mapssdk.VenueCollection;
 import com.mapsindoors.mapssdk.dbglog;
@@ -47,6 +50,7 @@ import com.mapsindoors.stdapp.apis.googleplaces.listeners.GeoCodeResultListener;
 import com.mapsindoors.stdapp.apis.googleplaces.models.AutoCompleteField;
 import com.mapsindoors.stdapp.apis.googleplaces.models.GeoCodeResult;
 import com.mapsindoors.stdapp.apis.googleplaces.models.GeocodeResults;
+import com.mapsindoors.stdapp.helpers.MapsIndoorsHelper;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsRouteHelper;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsSettings;
 import com.mapsindoors.stdapp.helpers.MapsIndoorsUtils;
@@ -62,10 +66,8 @@ import com.mapsindoors.stdapp.ui.common.models.IconTextElement;
 import com.mapsindoors.stdapp.ui.common.models.SearchResultItem;
 import com.mapsindoors.stdapp.ui.components.noInternetBar.NoInternetBar;
 import com.mapsindoors.stdapp.ui.direction.models.RoutingEndPoint;
-import com.mapsindoors.stdapp.ui.menumain.MenuFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -106,7 +108,7 @@ public class SearchFragment extends BaseFragment {
 
     private EditText mSearchEditTextView;
     private ImageButton mSearchClearBtn;
-    private IconTextListAdapter myAdapter;
+    private IconTextListAdapter searchResultListAdapter;
     private ViewFlipper mViewFlipper;
     private TextView mNoResultsTextView;
     private TextView mSearchTextLabel;
@@ -212,7 +214,7 @@ public class SearchFragment extends BaseFragment {
 
         mMainView.setVisibility(View.GONE);
 
-        mSearchMenuList.setAdapter(myAdapter);
+        mSearchMenuList.setAdapter(searchResultListAdapter);
         mSearchMenuList.setClickable(true);
         mSearchMenuList.setOnItemClickListener(mAdapterViewOnItemClickListener);
         mSearchMenuList.invalidate();
@@ -536,7 +538,7 @@ public class SearchFragment extends BaseFragment {
             }
 
             // Always add the indoor results first
-            searchResultItemList = MapsIndoorsRouteHelper.indoorLocationToSearchResultItemList(
+            searchResultItemList = indoorLocationToSearchResultItemList(
                     indoorLocations,
                     appConfigManager,
                     buildingCollection,
@@ -602,7 +604,7 @@ public class SearchFragment extends BaseFragment {
         }
 
         // Always add the indoor results first
-        final List<SearchResultItem> searchResultItemList = MapsIndoorsRouteHelper.indoorLocationToSearchResultItemList(
+        List<SearchResultItem> searchResultItemList = indoorLocationToSearchResultItemList(
                 locations,
                 appConfigManager,
                 buildingCollection,
@@ -768,12 +770,21 @@ public class SearchFragment extends BaseFragment {
         });
     }
 
+    @Override
+    public boolean onBackPressed() {
+        if (super.onBackPressed()) {
+            mMapControl.clearMap();
+            return true;
+        }else {
+            return false;
+        }
+    }
 
     //region ListView
     private void setupListView(Context context) {
 
-        myAdapter = new IconTextListAdapter(context);
-        mSearchMenuList.setAdapter(myAdapter);
+        searchResultListAdapter = new IconTextListAdapter(context);
+        mSearchMenuList.setAdapter(searchResultListAdapter);
     }
     //endregion
 
@@ -801,8 +812,8 @@ public class SearchFragment extends BaseFragment {
                         String currentVenueID = mActivity.getCurrentVenueId();
 
                         MPQuery q = new MPQuery.Builder().
-                                build();
-
+                                //addOrdering( new MPOrdering( "Relevance", true ) ).
+                                        build();
                         MPFilter f = new MPFilter.Builder().
                                 setTake(MapsIndoorsSettings.FULL_SEARCH_INDOORS_QUERY_RESULT_MAX_LENGTH).
                                 setCategories(Collections.singletonList(categStartPoint)).
@@ -835,7 +846,7 @@ public class SearchFragment extends BaseFragment {
     }
 
     // Populate a (reset) menu with the categories and types defined in the mainmenuEntryList
-    void populateMenu(boolean searchLabelVisibility, List<IconTextElement> initList, final List<SearchResultItem> searchResultItemList, final boolean internetConnection, final boolean gotAnyGooglePlacesResult) {
+    void populateMenu(boolean searchLabelVisibility, List<IconTextElement> initList, List<SearchResultItem> searchResultItemList, final boolean internetConnection, final boolean gotAnyGooglePlacesResult) {
         Activity activity = getActivity();
         if (activity == null) {
             return;
@@ -860,16 +871,27 @@ public class SearchFragment extends BaseFragment {
                         distance = searchResultItem.getDist();
                     }
 
+
+                    if(searchResultItem.getLocation() != null && searchResultItem.getLocation().getBookable()){
+
+                    }
+
+                    Runnable uiUpdateRequest = () -> {
+                        mActivity.runOnUiThread(() -> {
+                            searchResultListAdapter.notifyDataSetChanged();
+                        });
+                    };
+
                     if (bmp != null) {
-                        elements.add(new IconTextElement(searchResultItem.getName(), searchResultItem.getSubtext(), distance, bmp, searchResultItem.getObj(), IconTextListAdapter.Objtype.LOCATION));
+                        elements.add(new IconTextElement(searchResultItem.getName(), searchResultItem.getSubtext(), distance, bmp, searchResultItem.getObj(), IconTextListAdapter.Objtype.LOCATION, searchResultItem.getLocation(), uiUpdateRequest));
                     } else {
                         if (searchResultItem.getType() == IconTextListAdapter.Objtype.LOCATION) {
                             // Check if we have an icon resource, if not, default to the sdk one (step)
-                            final int iconId = (searchResultItem.getImgId() < 0) ? R.drawable.ic_generic_item_icon : searchResultItem.getImgId();
+                            final int iconId = (searchResultItem.getImgId() < 0) ? R.drawable.ic_room_unknown : searchResultItem.getImgId();
 
                             elements.add(new IconTextElement(searchResultItem.getName(), searchResultItem.getSubtext(), distance, iconId, searchResultItem.getObj(), IconTextListAdapter.Objtype.LOCATION));
                         } else {
-                            elements.add(new IconTextElement(searchResultItem.getName(), searchResultItem.getSubtext(), distance, R.drawable.ic_generic_item_icon, searchResultItem.getObj(), IconTextListAdapter.Objtype.PLACE));
+                            elements.add(new IconTextElement(searchResultItem.getName(), searchResultItem.getSubtext(), distance, R.drawable.ic_room_unknown, searchResultItem.getObj(), IconTextListAdapter.Objtype.PLACE));
                         }
                     }
                 }
@@ -884,7 +906,6 @@ public class SearchFragment extends BaseFragment {
                     mPoweredByGoogleImageView.setVisibility(View.INVISIBLE);
                 }
 
-                // Report to our Analytics guy
                 GoogleAnalyticsManager.reportSearch(mCSearchString, searchResultItemList.size());
             } else {
                 if (mCurrentSearchType == DIRECTION_SEARCH_TYPE) {
@@ -903,8 +924,8 @@ public class SearchFragment extends BaseFragment {
             }
 
             //All data loaded now. Show the list.
-            myAdapter.setList(elements);
-            myAdapter.notifyDataSetChanged();
+            searchResultListAdapter.setList(elements);
+            searchResultListAdapter.notifyDataSetChanged();
 
             if (searchLabelVisibility) {
                 mSearchTextLabel.setVisibility(View.VISIBLE);
@@ -1058,7 +1079,7 @@ public class SearchFragment extends BaseFragment {
 
                 final List<IconTextElement> lastSearchResults = getLastSearchResults();
                 if (lastSearchResults != null) {
-                    myAdapter.setList(lastSearchResults);
+                    searchResultListAdapter.setList(lastSearchResults);
                 }
 
                 startSearchTimer();
@@ -1076,7 +1097,7 @@ public class SearchFragment extends BaseFragment {
 
                     final List<IconTextElement> lastSearchResults = getLastSearchResults();
                     if (lastSearchResults != null) {
-                        myAdapter.setList(lastSearchResults);
+                        searchResultListAdapter.setList(lastSearchResults);
                     }
 
                     startSearchTimer();
@@ -1213,5 +1234,44 @@ public class SearchFragment extends BaseFragment {
             clearLastSearchText();
             clearLastSearchResults();
         }
+    }
+
+    @NonNull
+    private List<SearchResultItem> indoorLocationToSearchResultItemList(@Nullable List<MPLocation> indoorLocations, @Nullable AppConfigManager appConfigManager, @Nullable BuildingCollection buildingCollection, @Nullable VenueCollection venueCollection, @Nullable LatLng userPosition) {
+        final Context context = MapsIndoors.getApplicationContext();
+        List<SearchResultItem> searchResultItemList = new ArrayList<>();
+
+        if ((indoorLocations != null) && (appConfigManager != null) && (venueCollection != null)) {
+            for (MPLocation location : indoorLocations) {
+                int birdsViewDistance = 0;
+
+                if (userPosition != null) {
+                    double distance = SphericalUtil.computeDistanceBetween(userPosition, location.getLatLng());
+                    birdsViewDistance = (int) distance;
+                }
+
+                searchResultItemList.add(new SearchResultItem(
+                        location.getName(),
+                        location,
+                        new OnResultReadyListener() {
+                            @Override
+                            public void onResultReady(MIError error) {
+                                mActivity.runOnUiThread(() -> {
+                                    ((BaseAdapter) mSearchMenuList.getAdapter()).notifyDataSetChanged();
+                                    mSearchMenuList.invalidate();
+                                });
+                            }
+                        },
+                        MapsIndoorsHelper.composeLocationInfoString(location, venueCollection, buildingCollection, MapsIndoorsHelper.FORMAT_LOCATION_INFO_STRING_USE_COMMAS, true, context),
+                        IconTextListAdapter.Objtype.LOCATION,
+                        appConfigManager.getPOITypeIcon(location.getType()),
+                        -1,
+                        location,
+                        birdsViewDistance
+                ));
+            }
+        }
+
+        return searchResultItemList;
     }
 }

@@ -3,9 +3,6 @@ package com.mapsindoors.stdapp.positionprovider.ciscoDna;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.text.format.Formatter;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,21 +10,24 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.mapsindoors.livesdk.CiscoDNATopic;
+import com.mapsindoors.livesdk.LiveDataManager;
 import com.mapsindoors.mapssdk.PermissionsAndPSListener;
 import com.mapsindoors.mapssdk.PositionResult;
 import com.mapsindoors.mapssdk.ReadyListener;
-import com.mapsindoors.stdapp.helpers.UrlClient;
+import com.mapsindoors.mapssdk.errors.MIError;
 import com.mapsindoors.stdapp.positionprovider.AppPositionProvider;
 import com.mapsindoors.stdapp.positionprovider.helpers.PSUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.net.HttpURLConnection;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -35,8 +35,6 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static android.content.Context.WIFI_SERVICE;
 
 /**
  * This class provides an implementation of a position provider, relying on the
@@ -46,20 +44,22 @@ import static android.content.Context.WIFI_SERVICE;
  */
 public class CiscoDnaPositionProvider extends AppPositionProvider {
 
+    private static final String TAG = CiscoDnaPositionProvider.class.getSimpleName();
     public static final String MAPSINDOORS_CISCO_ENDPOINT = "https://ciscodna.mapsindoors.com/";
-
-    // How often we poll the backend for location data (in milliseconds)
-    private static final int POLLING_INTERVAL = 1000;
-    private static final String[] REQUIRED_PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"};
 
     private Context mContext;
     private String mWan;
     private String mLan;
     private String mTenantId;
     private String mCiscoDeviceId;
-    private Handler mQueryLocationTaskHandler;
-    private CiscoDNAEntry mLatestCiscoPosition;
-    private boolean mIsWaitingForDelayedPositioningStart;
+    private CiscoDNATopic mTopic;
+    private long mLastTimePositionUpdated;
+
+    private final static long MAX_TIME_SINCE_UPDATE = 1000 * 60 * 5; // 5 minute timeout
+
+    private boolean mIsSubscribed;
+
+    private static final String[] REQUIRED_PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"};
 
     /**
      * Constructor, initializes the instance and wires up
@@ -70,106 +70,113 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
         super(context);
         mContext = context;
         mIsRunning = false;
-        mIsWaitingForDelayedPositioningStart = false;
-        mQueryLocationTaskHandler = new Handler();
-
         mTenantId = (String) config.get("ciscoDnaSpaceTenantId");
 
-        mLan = getLocalAddress();
-        fetchExternalAddress(null);
-    }
-
-    /**
-     * Acquires the local ip address, on the current wifi network.
-     * If the device is connected to cellular network, or offline, this address
-     * evaluates to 0.0.0.0
-     * @return string containing local ip
-     */
-    private String getLocalAddress(){
-        //TODO: Rewrite to use not use deprecated formatIpAddress(supports only ipv4)
-        if (mContext.getApplicationContext() != null) {
-            WifiManager wm = (WifiManager) mContext.getApplicationContext().getSystemService(WIFI_SERVICE);
-            String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-            return ip;
-        }
-        return null;
-    }
-
-    private void fetchExternalAddress(ReadyListener listener){
-        OkHttpClient httpClient = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://ipinfo.io/ip")
-                .build();
-
-        httpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) { }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if(response.isSuccessful()){
-                    String str = response.body().string();
-                    mWan = str;
-                }
-                if(listener != null){
-                    listener.onResult();
+        LiveDataManager.getInstance().setOnTopicUnsubscribedListener(topic -> {
+            if (mTopic != null) {
+                if(topic.matchesCriteria(mTopic)){
+                    mIsSubscribed = false;
+                    mCiscoDeviceId = null;
+                    mIsIPSEnabled = false;
                 }
             }
         });
+
+        LiveDataManager.getInstance().setOnTopicSubscribeErrorListener((error, topic) -> {
+            if (mTopic != null) {
+                if(topic.matchesCriteria(mTopic)){
+                    mIsSubscribed = false;
+                    mCiscoDeviceId = null;
+                    mIsIPSEnabled = false;
+                }
+            }
+        });
+
+        LiveDataManager.getInstance().setOnErrorListener(error -> {
+            if (error.code == MIError.LIVEDATA_CONNECTION_FAILED || error.code == MIError.LIVEDATA_CONNECTION_LOST || error.code == MIError.LIVEDATA_STATE_NETWORK_FAILURE) {
+                mIsSubscribed = false;
+                mCiscoDeviceId = null;
+                mIsIPSEnabled = false;
+            }
+        });
+
+        LiveDataManager.getInstance().setOnReceivedLiveUpdateListener((topic, message) -> {
+            if(message.getId().equals(mCiscoDeviceId)){
+                mLatestPosition = message.getPositionResult();
+                mLastTimePositionUpdated = System.currentTimeMillis();
+                reportPositionUpdate();
+            }
+        });
+
     }
 
-    /**
-     * Defines a runnable object, for sending update requests to the backend.
-     * This runnable is executed at every POLLING_INTERVAL (1 second), and updates
-     * the latest position, if the backend delivers newer data than what we currently have.
-     */
-    private Runnable pingBackendForLocation = new Runnable() {
-        @Override
-        public void run() {
-            // TODO Should be moved into a sepearate method
-            String url = MAPSINDOORS_CISCO_ENDPOINT + mTenantId + "/api/ciscodna/" + mCiscoDeviceId;
-            Request request = new Request.Builder().url(url).build();
-            if (mIsRunning && mCiscoDeviceId != null && mTenantId != null) {
-                UrlClient<CiscoDNAEntry> ciscoDnaEntryClient = new UrlClient<>(request, CiscoDNAEntry.class, result -> {
-                    if(result != null){
-                        // Check if the new location has a newer timestamp than the current location state
-                        if(mLatestCiscoPosition != null){
-                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ROOT);
-                            Date newStateTime = null;
-                            Date currentStateTime = null;
-                            try {
-                                newStateTime = dateFormat.parse(result.getTimestamp());
-                                if(mLatestCiscoPosition.getTimestamp() != null){
-                                    currentStateTime = dateFormat.parse(mLatestCiscoPosition.getTimestamp());
-                                }
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                                return;
-                            }
+    private void startSubscription(){
+        mTopic = new CiscoDNATopic(mTenantId, mCiscoDeviceId);
 
-                            if(newStateTime == null) {
-                                return;
-                            }
-
-                            if(currentStateTime == null || currentStateTime.compareTo(newStateTime) < 0){
-                                mLatestCiscoPosition = result;
-                                mLatestPosition = mLatestCiscoPosition;
-                            }
-                            reportPositionUpdate();
-                        }
-                        else {
-                            mLatestCiscoPosition = result;
-                            mLatestPosition = mLatestCiscoPosition;
-                            reportPositionUpdate();
-                        }
-                    }
-                });
-                ciscoDnaEntryClient.execute();
-            }
-
-            mQueryLocationTaskHandler.postDelayed(this, POLLING_INTERVAL);
+        if(!mIsSubscribed){
+            LiveDataManager.getInstance().setOnTopicSubscribedListener(topic -> {
+                if(topic.equals(mTopic)){
+                    mCanDeliver = true;
+                    mIsIPSEnabled = true;
+                    mIsSubscribed = true;
+                }
+            });
+            LiveDataManager.getInstance().subscribeTopic(mTopic);
         }
-    };
+    }
+
+    private void unsubscribe(){
+        LiveDataManager.getInstance().unsubscribeTopic(mTopic);
+    }
+
+
+    private void update(ReadyListener listener){
+        if(!isOnline()){
+            mCanDeliver = false;
+            return;
+        }
+
+        updateAddressesAndId(() -> {
+            if(mCiscoDeviceId != null && !mCiscoDeviceId.isEmpty()){
+                mCanDeliver = true;
+                if(mLatestPosition == null){
+                    obtainInitialPosition(listener);
+                }
+            }
+            listener.onResult();
+        });
+    }
+
+    private void obtainInitialPosition(ReadyListener listener){
+        final String url = MAPSINDOORS_CISCO_ENDPOINT + mTenantId + "/api/ciscodna/" + mCiscoDeviceId;
+        Request request = new Request.Builder().url(url).build();
+        if (mCiscoDeviceId != null && mTenantId != null) {
+            OkHttpClient httpClient = new OkHttpClient();
+            httpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    listener.onResult();
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    if(response.code() == HttpURLConnection.HTTP_NOT_FOUND){
+                        listener.onResult();
+                        return;
+                    }
+
+                    String json = response.body().string();
+                    CiscoDNAEntry positionResult = new Gson().fromJson(json, CiscoDNAEntry.class);
+
+                    mLatestPosition = positionResult;
+                    mLastTimePositionUpdated = System.currentTimeMillis();
+                    reportPositionUpdate();
+
+                    listener.onResult();
+                }
+            });
+        }
+    }
 
     @NonNull
     @Override
@@ -179,15 +186,14 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
 
     @Override
     public boolean isPSEnabled() {
-        return mIsRunning && mLatestCiscoPosition != null;
+        return mIsRunning && mLatestPosition != null;
     }
 
     @Override
     public void startPositioning(@Nullable String s) {
         if(!mIsRunning){
             mIsRunning = true;
-            mIsWaitingForDelayedPositioningStart = false;
-            mQueryLocationTaskHandler.postDelayed(pingBackendForLocation, POLLING_INTERVAL);
+            update(this::startSubscription);
         }
     }
 
@@ -195,8 +201,7 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
     public void stopPositioning(@Nullable String s) {
         if(mIsRunning){
             mIsRunning = false;
-            mIsWaitingForDelayedPositioningStart = false;
-            mQueryLocationTaskHandler.removeCallbacks(pingBackendForLocation);
+            unsubscribe();
         }
     }
 
@@ -207,7 +212,9 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
 
     @Override
     public void checkPermissionsAndPSEnabled(@Nullable PermissionsAndPSListener permissionAndPSlistener) {
-        PSUtils.checkLocationPermissionAndServicesEnabled(getRequiredPermissions(), mContext, permissionAndPSlistener);
+        if (mContext != null) {
+            PSUtils.checkLocationPermissionAndServicesEnabled(getRequiredPermissions(), mContext, permissionAndPSlistener);
+        }
     }
 
     @Nullable
@@ -219,23 +226,15 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
     @Nullable
     @Override
     public PositionResult getLatestPosition() {
-        return mLatestCiscoPosition;
+        return null;
     }
 
     @Override
-    public void startPositioningAfter(int i, @Nullable String s) {
-        if( !mIsWaitingForDelayedPositioningStart ) {
-            mIsWaitingForDelayedPositioningStart = true;
-            mQueryLocationTaskHandler.postDelayed(() -> startPositioning(null), i);
-        }
-    }
+    public void startPositioningAfter(int i, @Nullable String s) { }
 
     @Override
     public void terminate() {
         stopPositioning( null );
-        mLatestCiscoPosition = null;
-        mIsRunning = false;
-        mQueryLocationTaskHandler.removeCallbacks(pingBackendForLocation);
         mContext = null;
     }
 
@@ -244,6 +243,9 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
      * @return boolean
      */
     private boolean isOnline() {
+        if (mContext == null) {
+            return false;
+        }
         ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
@@ -255,13 +257,10 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
      */
     private void updateAddressesAndId(ReadyListener onComplete) {
         mLan = getLocalAddress();
-        mCiscoDeviceId = null;
-
-        // Upon getting the WAN address, go ahead and try to get the deviceId
-        // Upon completion, the original listener is called
+        //mCiscoDeviceId = null;
         fetchExternalAddress(() -> {
             if(mTenantId != null && mLan != null && mWan != null){
-                String url = MAPSINDOORS_CISCO_ENDPOINT + mTenantId + "/api/ciscodna/devicelookup?clientIp="+mLan+"&wanIp="+mWan;
+                String url = MAPSINDOORS_CISCO_ENDPOINT + mTenantId + "/api/ciscodna/devicelookup?clientIp=" + mLan + "&wanIp=" + mWan;
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder().url(url).build();
                 try {
@@ -272,7 +271,7 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
                         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
                         mCiscoDeviceId = jsonObject.get("deviceId").getAsString();
                     } else {
-                        Log.d("ciscodnaprovider", "Could not obtain deviceId from backend deviceID request! Code: " + response.code());
+                        Log.d("ciscodnaprovider", "Could not obtain deviceId from backend deviceID request! Code: " + Integer.toString(response.code()));
                     }
                     response.close();
                 } catch (IOException e) {
@@ -285,6 +284,47 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
         });
     }
 
+    @Nullable
+    private String getLocalAddress(){
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                        String ipv4 = inetAddress.getHostAddress().toString();
+                        return ipv4;
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e(this.getClass().getSimpleName(), "Failed to resolve LAN address");
+        }
+
+        return null;
+    }
+
+    private void fetchExternalAddress(@NonNull ReadyListener listener){
+        OkHttpClient httpClient = new OkHttpClient();
+        Request request = new Request.Builder().url("https://ipinfo.io/ip").build();
+
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                listener.onResult();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String str = response.body().string();
+                    mWan = str;
+                }
+                listener.onResult();
+            }
+        });
+    }
+
     /**
      * Check whether or not a position provider instance is capable of
      * providing positioning data, under current conditions.
@@ -293,36 +333,23 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
      */
     @Override
     public void checkIfCanDeliver(ReadyListener onComplete) {
-        updateAddressesAndId(() -> {
-            if(mCiscoDeviceId != null && !mCiscoDeviceId.isEmpty() &&
-                    !mWan.isEmpty() &&
-                    !mWan.equals("0.0.0.0") &&
-                    !mLan.equals("0.0.0.0")){
-                Log.d("ciscodnaprovider", "Cisco DNA provider can deliver!");
-                mCanDeliver = true;
+        update(() -> {
+            if(mCiscoDeviceId != null){
+                if(!mIsSubscribed){
+                    startSubscription();
+                }
             }
-            else{
-                Log.d("ciscodnaprovider", "Cisco DNA provider can NOT deliver!");
-                mCanDeliver = false;
-            }
-            // Report back, that the "can deliver?" check has been performed
-            if(onComplete != null){
-                onComplete.onResult();
-            }
-        });
 
-        if(!isOnline()){
-            mCanDeliver = false;
             onComplete.onResult();
-        }
+        });
     }
 
     @Override
     protected boolean getCanDeliver() {
-        Log.d("ciscodnaprovider", "Has internalIP: " + mLan);
-        Log.d("ciscodnaprovider", "Has externalIP: " + mWan);
-        Log.d("ciscodnaprovider", "Has CiscoId: " + mCiscoDeviceId);
-        return mCanDeliver;
+        return mLatestPosition != null &&
+                mIsSubscribed &&
+                mLastTimePositionUpdated + MAX_TIME_SINCE_UPDATE > System.currentTimeMillis() &&
+                isOnline();
     }
 
     @Override
@@ -337,7 +364,7 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
      */
     @Override
     public String getVersion() {
-        return "0.0.1";
+        return "1.0.0";
     }
 
     @Override
@@ -353,12 +380,14 @@ public class CiscoDnaPositionProvider extends AppPositionProvider {
         strBuilder.append(mLan);
         strBuilder.append("\n");
 
-        if(mLatestCiscoPosition != null){
-            String k = mLatestCiscoPosition.toString();
+        if(mLatestPosition != null){
+            String k = mLatestPosition.toString();
             strBuilder.append(k);
             strBuilder.append("\n");
         }
 
         return strBuilder.toString();
     }
+
+
 }

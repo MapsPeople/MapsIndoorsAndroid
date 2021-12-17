@@ -147,6 +147,7 @@ public class GoogleAnalyticsManager {
                                 append(bundle.get(key)).
                                 append(' ');
                     }
+                    //DBG_showEvent( String.format( Locale.US, "reportEvent EVT (%s): (%s)", eventName, sb.toString().trim() ) );
                 }
             }
         }

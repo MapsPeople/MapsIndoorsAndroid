@@ -1,10 +1,8 @@
 package com.mapsindoors.stdapp.ui.debug;
 
-import android.content.Context;
 import android.content.res.Resources;
-import android.os.Handler;
+import android.os.Build;
 import android.util.TypedValue;
-import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,11 +12,10 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
-import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class facilitates the instantiation and management of the debugging window.
@@ -34,39 +31,43 @@ public class DebugVisualizer {
     private int mAnimationSpeed;
     private int mTransparency;
 
-    private final int mOverlapIntoScreenHidden = 50;
+    private final int mScreenBounds;
     private final float mTransparencyHidden = 0.4f;
 
     private final int mSnapAnimationDuration = 100;
     private final int mScaleAnimationDuration = 30;
     private final float mHoldDownScale = 0.95f;
-    private final int mHoldDownToHideDuration = 2000;
 
-    private final RelativeLayout mWindow;
-    private final LinearLayout mLinearLayout;
+    private RelativeLayout mWindow;
+    private LinearLayout mLinearLayout;
 
     private final HashMap<String, DebugField> mFields = new HashMap<>();
     private final HashMap<DebugField, View> mFieldViews = new HashMap<>();
 
-    private Context context;
+    private MapsIndoorsActivity mContext;
 
     /**
      * Constructor, only accessible through the builder
+     *
      * @param context
      */
-    private DebugVisualizer(MapsIndoorsActivity context){
-        this.context = context;
+
+    private DebugVisualizer(MapsIndoorsActivity context, int overlayRes, int linearLayoutRes, int windowRes, int screenBounds) {
+        mContext = context;
         LayoutInflater inflater = context.getLayoutInflater();
-        context.getWindow().addContentView(inflater.inflate(R.layout.debug_overlay, null),
+        context.getWindow().addContentView(inflater.inflate(overlayRes, null),
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        mWindow = context.findViewById(R.id.debug_window);
+        mLinearLayout = mContext.findViewById(linearLayoutRes);
+        mWindow = mContext.findViewById(windowRes);
+
         mWindow.setOnTouchListener(mOnTouchListener);
 
-        this.mLinearLayout = context.findViewById(R.id.debugwindow_linearlayout);
+        mScreenBounds = screenBounds;
 
-        this.mScreenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        this.mScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+
+        mScreenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        mScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
 
         // Place the box in a sensible place, lower right
         int startPosX = (mScreenWidth / 2) - mWindow.getWidth();
@@ -77,27 +78,26 @@ public class DebugVisualizer {
         show(false);
 
         // Hide it away
-        snapToEdge();
+        snapToRight();
     }
 
     /**
      * Set the window size (dp).
      * If a null value is given, the dimension behavior is "wrap_content".
+     *
      * @param width
      * @param height
      */
-    public void resize(@Nullable Integer width, @Nullable Integer height){
-        Resources r = context.getResources();
+    public void resize(@Nullable Integer width, @Nullable Integer height) {
+        Resources r = mContext.getResources();
         ViewGroup.LayoutParams params = mLinearLayout.getLayoutParams();
 
-        if(width != null){
-            int widthDp = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, width, r.getDisplayMetrics()));
-            params.width = widthDp;
+        if (width != null) {
+            params.width = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, width, r.getDisplayMetrics()));
         }
 
-        if(height != null){
-            int heightDp = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, r.getDisplayMetrics()));
-            params.height = heightDp;
+        if (height != null) {
+            params.height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, r.getDisplayMetrics()));
         }
 
         mLinearLayout.setLayoutParams(params);
@@ -114,138 +114,177 @@ public class DebugVisualizer {
 
     /**
      * Add a number of debug fields {@link DebugField} to the debug window
-     * @param fields
+     *
+     * @param fields a number of fields to be added
      */
-    public void addFields(DebugField... fields){
-        for(DebugField field : fields){
-            mFields.put(field.getTitle(), field);
+    public void addFields(DebugField... fields) {
+        for (DebugField field : fields) {
+            mFields.put(field.getTag(), field);
+            add(field);
         }
-        update();
+
     }
+
+    /**
+     * Add a debug field {@link DebugField} to the debug window
+     *
+     * @param field the field to be added
+     */
+    public void addField(DebugField field) {
+        mFields.put(field.getTag(), field);
+        add(field);
+    }
+
+    /**
+     * Removes a field from the debug visualizer
+     *
+     * @param debugField the key for the field
+     * @return true if the field was found and removed, otherwise false
+     */
+    public boolean removeField(DebugField debugField) {
+        if (mFields.containsKey(debugField.getTag())) {
+            mFields.remove(debugField.getTag());
+            remove(debugField);
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * Retrieve a debug field {@link DebugField} from the debug window, based
      * on a string tag
+     *
      * @param tag
      * @return
      */
-    public DebugField getDebugField(String tag){
-        for(Map.Entry<String, DebugField> entry : mFields.entrySet()){
-            if(entry.getValue().getTag().equals(tag.toLowerCase())){
-                return entry.getValue();
+    public DebugField getDebugField(String tag) {
+        return mFields.get(tag);
+    }
+
+    public void updateDebugField(String tag, String... value) {
+        DebugField debugField = mFields.get(tag);
+        if (debugField != null) {
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                String[] strings = value.clone();
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String s : strings) {
+                    stringBuilder.append(s).append("\n");
+                }
+                debugField.setText(stringBuilder.toString());
+            } else {
+                debugField.setText(Arrays.stream(value).map(x -> x + "\n").reduce("", String::concat));
             }
         }
-        return null;
+    }
+
+    public boolean hasDebugField(String tag) {
+        return mFields.get(tag) != null;
+    }
+
+    public void setShowDebugField(String tag, Boolean isShown) {
+        DebugField debugField = mFields.get(tag);
+        if (debugField != null) {
+            debugField.setShow(isShown);
+        }
     }
 
     /**
      * Toggle whether to show the window
+     * {@link #hide()} the window if show is false
+     *
      * @param show
      */
-    public void show(boolean show){
-        if(show){
-            mWindow.setVisibility(View.VISIBLE);
-        } else {
-            mWindow.setVisibility(View.GONE);
+    public void show(boolean show) {
+        mWindow.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (!show) {
+            hide();
         }
+    }
+
+    /**
+     * Hides the window by shoving it to the right edge of the screen
+     */
+    public void hide() {
+        snapToRight();
     }
 
     /**
      * Checks whether the window is currently shown
+     *
      * @return
      */
-    public boolean isShown(){
-        if(mWindow.getVisibility() == View.VISIBLE) {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean isShown() {
+        return mWindow.getVisibility() == View.VISIBLE;
     }
 
     /**
      * Trigger haptic feedback
+     *
      * @param feedback
      */
-    public void performHapticFeedback(int feedback){
+    public void performHapticFeedback(int feedback) {
         mWindow.performHapticFeedback(feedback);
     }
 
     /**
      * Render the contents (debug fields) of the debug window
      */
-    public void update(){
-        for(Map.Entry<String, DebugField> entry : mFields.entrySet()){
-            DebugField debugField = entry.getValue();
-            if(!mFieldViews.containsKey(debugField)){
-                LinearLayout view = debugField.getView(context);
-                mLinearLayout.addView(view);
-                mFieldViews.put(debugField, view);
-            }
+    private void add(DebugField field) {
+        if (!mFieldViews.containsKey(field)) {
+            LinearLayout view = field.getView(mContext);
+            mLinearLayout.addView(view);
+            mFieldViews.put(field, view);
+        }
+    }
+
+    private void remove(DebugField field) {
+        if (mFieldViews.containsKey(field)) {
+            LinearLayout view = field.getView(mContext);
+            mLinearLayout.removeView(view);
+            mFieldViews.remove(field, view);
         }
     }
 
     /**
      * Computes whether x is closet to a or b (euclidean distance), and returns either a or b
+     *
      * @param x
      * @param a
      * @param b
      * @return
      */
-    private float isClosestTo(float x, float a, float b){
+    private float isClosestTo(float x, float a, float b) {
         float diffToA = Math.abs(a - x);
         float diffToB = Math.abs(b - x);
         return diffToA < diffToB ? a : b;
     }
 
     /**
-     * Snaps the debug window to either left or right edge of the screen
+     * Snaps the debug window to the right edge of the screen and makes it more translucent
      */
-    private void snapToEdge() {
-        float x = this.mWindow.getX();
-
-        if (isClosestTo(x, 0, mScreenWidth - (mWindow.getWidth())) == 0) {
-            // snap to left
-            int newPos = (-mWindow.getWidth()) + mOverlapIntoScreenHidden;
-            mWindow.animate().translationX(newPos).alpha(mTransparencyHidden).setDuration(mSnapAnimationDuration).start();
-        } else {
-            // snap to right
-            int newPos = mScreenWidth - mOverlapIntoScreenHidden;
-            mWindow.animate().translationX(newPos).alpha(mTransparencyHidden).setDuration(mSnapAnimationDuration).start();
-        }
+    private void snapToRight() {
+        int newPos = mScreenWidth - mScreenBounds;
+        mWindow.animate().translationX(newPos).alpha(mTransparencyHidden).setDuration(mSnapAnimationDuration).start();
     }
-
-
-    // On long press, hide away the window
-    private boolean isPressedDown = false;
-    final Handler handler = new Handler();
-    Runnable mLongPressed = new Runnable() {
-        public void run() {
-            if(isPressedDown){
-                mWindow.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                hidden = true;
-                snapToEdge();
-            }
-        }
-    };
-
 
     private float dX = 0f;
     private float dY = 0f;
+
+
     private View.OnTouchListener mOnTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     hidden = false;
-                    isPressedDown = true;
                     dX = v.getX() - event.getRawX();
                     dY = v.getY() - event.getRawY();
                     v.animate().scaleY(mHoldDownScale).scaleX(mHoldDownScale).alpha(1f).setDuration(mScaleAnimationDuration).start();
-                    handler.postDelayed(mLongPressed, mHoldDownToHideDuration);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    if(!hidden){
+                    if (!hidden) {
                         v.setY(event.getRawY() + dY);
                         v.setX(event.getRawX() + dX);
                     }
@@ -253,8 +292,18 @@ public class DebugVisualizer {
 
                 case MotionEvent.ACTION_UP:
                     v.animate().scaleY(1f).scaleX(1f).setDuration(mScaleAnimationDuration).start();
-                    handler.removeCallbacks(mLongPressed);
-                    isPressedDown = false;
+                    float x = v.getX();
+                    float y = v.getY();
+                    if (x + mWindow.getWidth() < mScreenBounds) {
+                        v.setX(mScreenBounds - mWindow.getWidth());
+                    } else if (x > mScreenWidth - mScreenBounds) {
+                        v.setX(mScreenWidth - mScreenBounds);
+                    }
+                    if (y + mWindow.getHeight() < mScreenBounds) {
+                        v.setY(mScreenBounds - mWindow.getHeight());
+                    } else if (y > mScreenHeight - mScreenBounds) {
+                        v.setY(mScreenHeight - mScreenBounds);
+                    }
                     break;
 
                 default:
@@ -264,6 +313,8 @@ public class DebugVisualizer {
             v.performClick();
             return true;
         }
+
+
     };
 
 
@@ -272,27 +323,34 @@ public class DebugVisualizer {
         private int mTransparency = 50;
         private Integer mHeight;
         private Integer mWidth;
+        private int mScreenBounds = 50;
 
-        public Builder(){ }
+        public Builder() {
+        }
 
-        public Builder transparency(int transparency){
+        public Builder transparency(int transparency) {
             mTransparency = transparency;
             return this;
         }
 
-        public Builder animationSpeed(int speed){
+        public Builder animationSpeed(int speed) {
             mAnimationSpeed = speed;
             return this;
         }
 
-        public Builder setWindowSize(Integer width, Integer height){
+        public Builder setWindowSize(Integer width, Integer height) {
             mWidth = width;
             mHeight = height;
             return this;
         }
 
-        public DebugVisualizer build(MapsIndoorsActivity context){
-            DebugVisualizer debugVisualizer = new DebugVisualizer(context);
+        public Builder setScreenBounds(int bounds) {
+            mScreenBounds = bounds;
+            return this;
+        }
+
+        public DebugVisualizer build(MapsIndoorsActivity context, int overlayRes, int linearLayoutRes, int windowRes) {
+            DebugVisualizer debugVisualizer = new DebugVisualizer(context, overlayRes, linearLayoutRes, windowRes, mScreenBounds);
             debugVisualizer.mAnimationSpeed = mAnimationSpeed;
             debugVisualizer.mTransparency = mTransparency;
             debugVisualizer.resize(mWidth, mHeight);

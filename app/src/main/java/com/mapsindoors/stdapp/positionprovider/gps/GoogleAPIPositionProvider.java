@@ -5,7 +5,6 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -84,6 +83,7 @@ public class GoogleAPIPositionProvider extends AppPositionProvider
     private boolean mIPSEnabled;
     private boolean mEnableCompassBearing;
     private float mLastBearingDegree;
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
 
     public GoogleAPIPositionProvider( @NonNull Context context ) {
@@ -202,9 +202,23 @@ public class GoogleAPIPositionProvider extends AppPositionProvider
                         addConnectionCallbacks( googleAPIClientConnectionCallbacks ).
                         addApi( com.google.android.gms.location.LocationServices.API ).
                         build();
+
+                mGoogleApiClient.connect();
+            } else {
+                mGoogleApiClient.reconnect();
             }
 
-            mGoogleApiClient.connect();
+            if (fusedLocationProviderClient == null) {
+                final LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().
+                        addLocationRequest( mLocationRequest );
+                LocationServices.getSettingsClient(mContext).checkLocationSettings(builder.build()).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        highAccuracyGranted();
+                    }else {
+                        requestLocationStartLow();
+                    }
+                });
+            }
 
             // Setting the sensors for bearing detection
             if( mEnableCompassBearing ) {
@@ -236,6 +250,17 @@ public class GoogleAPIPositionProvider extends AppPositionProvider
             if( mGoogleApiClient != null ) {
                 mGoogleApiClient.disconnect();
             }
+
+            if (fusedLocationProviderClient != null) {
+                fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                fusedLocationProviderClient.flushLocations();
+            }
+
+            if (mLocationManager != null) {
+                mLocationManager.removeUpdates(locationLocationListener);
+            }
+
+            mGPSStateChangeReceiver.terminate();
 
             if( mCompassBearingProvider != null ) {
                 mCompassBearingProvider.stop();
@@ -457,7 +482,7 @@ public class GoogleAPIPositionProvider extends AppPositionProvider
         }
 
         try {
-            FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
             fusedLocationProviderClient.requestLocationUpdates( mLocationRequest, locationCallback, null);
 
         } catch( SecurityException ex ) {

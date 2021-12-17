@@ -28,8 +28,15 @@ public class MapsIndoorsUrlSchemeHelper {
         if(scheme.getScheme().equalsIgnoreCase("http") || scheme.getScheme().equalsIgnoreCase("https")) {
             // Example: https://clients.mapsindoors.com/solutionId/directions
 
+            if (parts.size() == 7 && parts.get(2).equals("route")) {
+                // Example: https://clients.mapsindoors.com/{solution}/{venueId}/route/from/{locId}/to/{locId}
+
+                schemeUrl = Uri.parse("https://clients.mapsindoors.com/" + parts.get(0) + "/directions?originLocation=" + parts.get(4) + "&destinationLocation=" + parts.get(6) + "&travelMode=walking");
+                scheme.setType("directions");
+            } else {
+                scheme.setType(parts.get(1));
+            }
             scheme.setSolutionId(parts.get(0));
-            scheme.setType(parts.get(1));
         } else {
             // Example: mapsindoorsapp://solutionId/directions
 

@@ -54,6 +54,10 @@
 
     </style>
 
+    <style name="AppTheme.Debug" parent="AppTheme.Base">
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
+
 
     <!-- Base application theme for Lollipop and above. -->
     <style name="AppTheme" parent="AppTheme.Base">

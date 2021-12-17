@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
+import com.mapsindoors.mapssdk.Floor;
 import com.mapsindoors.mapssdk.Point;
 import com.mapsindoors.mapssdk.PositionProvider;
 import com.mapsindoors.mapssdk.PositionResult;
@@ -76,7 +77,11 @@ public class CiscoDNAEntry implements PositionResult {
 
     @Override
     public int getFloor() {
-        return Integer.parseInt(mFloorIndex);
+        try {
+            return Integer.parseInt(mFloorIndex);
+        } catch (NumberFormatException e) {
+            return Floor.DEFAULT_GROUND_FLOOR_INDEX;
+        }
     }
 
     @Override

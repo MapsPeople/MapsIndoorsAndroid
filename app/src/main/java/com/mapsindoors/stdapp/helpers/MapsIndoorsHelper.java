@@ -251,7 +251,11 @@ public class MapsIndoorsHelper {
                     Highway.ELEVATOR,
                     Highway.ESCALATOR,
                     Highway.STEPS,
-                    Highway.TRAVELATOR
+                    Highway.TRAVELATOR,
+                    Highway.RAMP,
+                    Highway.WHEELCHAIRRAMP,
+                    Highway.WHEELCHAIRLIFT,
+                    Highway.LADDER
             };
         }
 
@@ -297,6 +301,25 @@ public class MapsIndoorsHelper {
         if (DBG_DISABLE_EMBEDOUTSIDEONVENUESTEPS) {
             return null;
         }
+		/*
+			Assumptions:
+				- There can be, or not any number of "OutsideOnVenue" steps right after an indoor leg or before it
+
+			Skip this leg if:
+				- First step is an indoors one (mIsLegIndoors == "InsideBuilding")
+				- First or last steps are not flagged as "OutsideOnVenue" (mIsLegIndoors field value)
+
+			If not:
+				* Where the "OutsideOnVenue" step(s) are and act depending on the travel mode set:
+					- Transit:
+						- It should be a walking step before/after an indoor leg, move these "OutsideOnVenue" step(s)
+						  into its sutbstep list
+					- Bycicling/Drive, set:
+						- abatters to an empty string
+						- highway to null
+						- html_instructions to the step's maneuver (using MapsIndoorsHelper.getTravelModeNames().get())
+						- IMPORTANT: set the travel mode to the previous/next
+		 */
 
         // First, check if the leg is "outdoors"
         List<RouteStep> steps = leg.getSteps();
@@ -439,6 +462,7 @@ public class MapsIndoorsHelper {
                 } else {
                     if (dbglog.isDeveloperMode()) {
                         dbglog.Log(TAG, "");
+//							dbglog.Assert( false,"WHAT NOW!!!!????" );
                     }
                 }
             }
@@ -701,6 +725,8 @@ public class MapsIndoorsHelper {
         boolean hasBuildingName = false;
         boolean hasVenueName = false;
 
+        String buildingName = null;
+
         StringBuilder sb = new StringBuilder();
 
         final String itemSeparator;
@@ -739,7 +765,8 @@ public class MapsIndoorsHelper {
                 if (sb.length() != 0) {
                     sb.append(itemSeparator);
                 }
-                sb.append(building.getName());
+                buildingName = building.getName();
+                sb.append(buildingName);
                 hasBuildingName = true;
             }
         }
@@ -747,10 +774,17 @@ public class MapsIndoorsHelper {
         if (venueCollection != null && !venueCollection.getVenues().isEmpty()) {
             final Venue venue = venueCollection.getVenueByName(location.getVenue());
             if (venue != null && !TextUtils.isEmpty(venue.getName())) {
-                if (sb.length() != 0) {
-                    sb.append(itemSeparator);
+                if (hasBuildingName && !buildingName.equals(venue.getVenueInfo().getName())) {
+                    if (sb.length() != 0) {
+                        sb.append(itemSeparator);
+                    }
+                    sb.append(venue.getVenueInfo().getName());
+                }else if (!hasBuildingName) {
+                    if (sb.length() != 0) {
+                        sb.append(itemSeparator);
+                    }
+                    sb.append(venue.getVenueInfo().getName());
                 }
-                sb.append(venue.getVenueInfo().getName());
                 hasVenueName = true;
             }
         }

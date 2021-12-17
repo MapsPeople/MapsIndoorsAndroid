@@ -12,6 +12,7 @@ import com.mapsindoors.mapssdk.Category;
 import com.mapsindoors.mapssdk.Geometry;
 import com.mapsindoors.mapssdk.MPLocation;
 import com.mapsindoors.mapssdk.MapControl;
+import com.mapsindoors.mapssdk.MapExtend;
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.MultiPolygonGeometry;
 import com.mapsindoors.mapssdk.PolygonGeometry;
@@ -141,14 +142,38 @@ public class SelectionManager {
     }
 
     public void selectSearchResult(@NonNull List<MPLocation> locations) {
-        mMapControl.displaySearchResults(
-                locations,
-                true,
-                MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP, () -> {
-                    if (!locations.isEmpty())
-                        mMapControl.selectFloor(locations.get(0).getFloor());
-                });
+        boolean viewContainsLocation = false;
+        if (mActivity.getGoogleMap().getProjection().getVisibleRegion() != null) {
+            MapExtend mapExtend = new MapExtend(mActivity.getGoogleMap().getProjection().getVisibleRegion().latLngBounds);
+            for (MPLocation location : locations) {
+                if (mMapControl.getCurrentFloorIndex() == location.getFloor() && mapExtend.isInside(location.getLatLng())) {
+                    viewContainsLocation = true;
+                    break;
+                }
+            }
+        }
 
+        if (viewContainsLocation) {
+            mMapControl.displaySearchResults(locations,
+                    false,
+                    MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP,
+                    false,
+                    CameraUpdateFactory.newCameraPosition(mActivity.getGoogleMap().getCameraPosition()),
+                    0,
+                    null,
+                    () -> {
+                        if (!locations.isEmpty())
+                            mMapControl.selectFloor(locations.get(0).getFloor());
+                    });
+        }else {
+            mMapControl.displaySearchResults(
+                    locations,
+                    true,
+                    MapsIndoorsSettings.DISPLAY_SEARCH_RESULTS_CAMERA_PADDING_IN_DP, () -> {
+                        if (!locations.isEmpty())
+                            mMapControl.selectFloor(locations.get(0).getFloor());
+                    });
+        }
     }
 
     // this function is linked to the returnToVenueButton logic, if you need the selection label for other purpose please implement your own method
@@ -194,6 +219,8 @@ public class SelectionManager {
         if (latLngBounds != null) {
             final GoogleMap googleMap = mActivity.getGoogleMap();
             if (googleMap != null) {
+                //googleMap.animateCamera( CameraUpdateFactory.newLatLngBounds( latLngBounds, 10 ) );
+
                 // Save current camera values
                 final CameraPosition srcCameraPosition = googleMap.getCameraPosition();
 

@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -28,7 +29,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -59,8 +62,10 @@ import com.mapsindoors.mapssdk.Floor;
 import com.mapsindoors.mapssdk.FloorSelectorInterface;
 import com.mapsindoors.mapssdk.MPFilter;
 import com.mapsindoors.mapssdk.MPLocation;
+import com.mapsindoors.mapssdk.MPLocationSource;
 import com.mapsindoors.mapssdk.MPLocationSourceOnStatusChangedListener;
 import com.mapsindoors.mapssdk.MPLocationSourceStatus;
+import com.mapsindoors.mapssdk.MPLocationsObserver;
 import com.mapsindoors.mapssdk.MPQuery;
 import com.mapsindoors.mapssdk.MapControl;
 import com.mapsindoors.mapssdk.MapExtend;
@@ -106,13 +111,14 @@ import com.mapsindoors.stdapp.ui.common.fragments.OverlayFragment;
 import com.mapsindoors.stdapp.ui.common.listeners.FloatingActionListener;
 import com.mapsindoors.stdapp.ui.common.listeners.MenuListener;
 import com.mapsindoors.stdapp.ui.components.mapcompass.MapCompass;
+import com.mapsindoors.stdapp.ui.debug.DebugField;
 import com.mapsindoors.stdapp.ui.debug.DebugVisualizer;
 import com.mapsindoors.stdapp.ui.direction.DirectionsHorizontalFragment;
 import com.mapsindoors.stdapp.ui.direction.DirectionsVerticalFragment;
 import com.mapsindoors.stdapp.ui.fab.FloatingAction;
 import com.mapsindoors.stdapp.ui.locationmenu.LocationMenuFragment;
 import com.mapsindoors.stdapp.ui.menumain.MenuFragment;
-import com.mapsindoors.stdapp.ui.routeoptions.RouteOptionsFragment;
+import com.mapsindoors.stdapp.ui.routeoptions.UserRoleFragment;
 import com.mapsindoors.stdapp.ui.search.SearchFragment;
 import com.mapsindoors.stdapp.ui.tracking.FollowMeButton;
 import com.mapsindoors.stdapp.ui.tracking.UserPositionTrackingViewModel;
@@ -122,8 +128,8 @@ import com.mapsindoors.stdapp.ui.venueselector.VenueSelectorFragment;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -142,10 +148,10 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
     public static final String TAG = MapsIndoorsActivity.class.getSimpleName();
 
-    public static final int DRAWER_ISTATE_IS_CLOSED         = 0;
-    public static final int DRAWER_ISTATE_WILL_OPEN         = 1;
-    public static final int DRAWER_ISTATE_IS_OPEN           = 2;
-    public static final int DRAWER_ISTATE_WILL_CLOSE        = 3;
+    public static final int DRAWER_ISTATE_IS_CLOSED = 0;
+    public static final int DRAWER_ISTATE_WILL_OPEN = 1;
+    public static final int DRAWER_ISTATE_IS_OPEN = 2;
+    public static final int DRAWER_ISTATE_WILL_CLOSE = 3;
 
     @Retention(RetentionPolicy.SOURCE)
     public @interface InitMenuCallers {
@@ -171,7 +177,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
     private LocationMenuFragment mLocationMenuFragment;
     private TransportAgenciesFragment mTransportAgenciesFragment;
     private AppInfoFragment mAppInfoFragment;
-    private RouteOptionsFragment mRouteOptionsFragment;
+    private UserRoleFragment mUserRoleFragment;
     private BookingServiceFragment mBookingServiceFragment;
 
     private BaseFragment[] mFragments;
@@ -265,7 +271,9 @@ public class MapsIndoorsActivity extends AppCompatActivity
     private PositionManager mPositionManager;
     //region Activity lifecycle
 
-    private DebugVisualizer mPositionProviderDebugVisializer;
+    private DebugVisualizer mPositionProviderDebugVisualizer;
+
+    private DebugVisualizer mGeneralDebugVisualizer;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -278,10 +286,20 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_mapsindoors);
 
+
         // Create the debug window for position providers
-        mPositionProviderDebugVisializer = new DebugVisualizer.Builder().
+        mGeneralDebugVisualizer = new DebugVisualizer.Builder().
                 setWindowSize(200, null).
-                build(this);
+                build(this, R.layout.debug_overlay_general, R.id.debugwindow_general_linearlayout, R.id.debug_window_general);
+
+        mGeneralDebugVisualizer.addFields(DebugField.getGeneralFields());
+
+
+        mPositionProviderDebugVisualizer = new DebugVisualizer.Builder().
+                setWindowSize(200, null).
+                build(this, R.layout.debug_overlay_positionprovider, R.id.debugwindow_posprovider_linearlayout, R.id.debug_window_posprovider);
+
+        mPositionProviderDebugVisualizer.addFields(DebugField.getPositionProviderFields());
 
         setupView();
         showLoadingStatus();
@@ -299,8 +317,13 @@ public class MapsIndoorsActivity extends AppCompatActivity
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // We also add this same listener in the onResume event call; we delete & add it to the internal list so no problem
-        MapsIndoors.addLocationSourceOnStatusChangedListener(onLocationSourceOnStatusChangedListener);
+        if (MapsIndoors.getMapsIndoorsLocationSource() != null && MapsIndoors.getMapsIndoorsLocationSource().getStatus() == MPLocationSourceStatus.AVAILABLE) {
+            mLocationSourceStatusChangedListenerInvoked = true;
+            onLocationSourceStatusChangedToAvailable();
+        }else {
+            // We also add this same listener in the onResume event call; we delete & add it to the internal list so no problem
+            MapsIndoors.addLocationSourceOnStatusChangedListener(onLocationSourceOnStatusChangedListener);
+        }
 
         syncDataTimestamp = System.currentTimeMillis();
         syncData(true);
@@ -313,11 +336,34 @@ public class MapsIndoorsActivity extends AppCompatActivity
         mMenuInitialized = false;
         mFloorSelectorHiddingAtStart = true;
 
+        MapsIndoors.getMapsIndoorsLocationSource().addLocationsObserver(new MPLocationsObserver() {
+            @Override
+            public void onLocationsUpdated(List<MPLocation> locations, MPLocationSource source) {
+
+            }
+
+            @Override
+            public void onLocationsDeleted(List<MPLocation> locations, MPLocationSource source) {
+
+            }
+
+            @Override
+            public void onStatusChanged(MPLocationSourceStatus status, MPLocationSource source) {
+                final int size = MapsIndoors.getMapsIndoorsLocationSource().getLocations().size();
+                runOnUiThread(() -> mGeneralDebugVisualizer.updateDebugField("locations", Integer.toString(size)));
+            }
+        });
+
     }
 
-    public DebugVisualizer getPositionProviderDebugVisializer(){
-        return mPositionProviderDebugVisializer;
+    public DebugVisualizer getPositionProviderDebugVisualizer() {
+        return mPositionProviderDebugVisualizer;
     }
+
+    public DebugVisualizer getGeneralDebugVisualizer() {
+        return mGeneralDebugVisualizer;
+    }
+
 
     @Override
     protected void onStart() {
@@ -328,7 +374,16 @@ public class MapsIndoorsActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (mMapControl != null) {
+            mMapControl.onStop();
+        }
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         Uri data = intent.getData();
         if (intent.getData() != null) {
             setIntent(intent);
@@ -348,6 +403,10 @@ public class MapsIndoorsActivity extends AppCompatActivity
             respondToInternetConnectivityChanges(networkState);
             startPositioning();
         }
+
+        if(mPositionManager != null){
+            mPositionManager.onResume();
+        }
     }
 
     @Override
@@ -358,14 +417,15 @@ public class MapsIndoorsActivity extends AppCompatActivity
             stopPositioning();
             mMapControl.onPause();
         }
+
+        if(mPositionManager != null){
+            mPositionManager.onPause();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (MapsIndoors.isInitialized()) {
-            MapsIndoors.clearCachedData(false);
-        }
 
         if (!BuildConfig.FLAVOR.contains("poc_app")) {
             MapsIndoors.removeLocationSourceOnStatusChangedListener(onLocationSourceOnStatusChangedListener);
@@ -381,13 +441,26 @@ public class MapsIndoorsActivity extends AppCompatActivity
             mMapControl = null;
         }
 
-        // Position provider: unregister, etc...
-        MapsIndoors.setPositionProvider(null);
+        for (BaseFragment frag : mFragments) {
+            frag.onDestroy();
+        }
 
+        MapsIndoors.stopPositioning();
+        MapsIndoors.setPositionProvider(null);
+        if(mPositionManager != null){
+            mPositionManager.onPause();
+        }
         if (mCondecoBookingProvider != null) {
             mCondecoBookingProvider.terminate();
             mCondecoBookingProvider = null;
         }
+
+
+        if (mPositionManager != null) {
+            mPositionManager.onDestroy();
+            mPositionManager = null;
+        }
+
 
         mCondecoMapHandler = null;
 
@@ -422,7 +495,11 @@ public class MapsIndoorsActivity extends AppCompatActivity
             return;
         }
         if (canExitOnBackPressed()) {
-            MapsIndoorsUtils.showLeavingAlertDialogue(this);
+            if (!BuildConfig.FLAVOR.contains("poc_app")) {
+                MapsIndoorsUtils.showLeavingAlertDialogue(this);
+            } else {
+                prepareNextActivity();
+            }
         }
     }
 
@@ -470,7 +547,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
         mTransportAgenciesFragment = (TransportAgenciesFragment) fm.findFragmentById(R.id.transport_sources_fragment);
         mAppInfoFragment = (AppInfoFragment) fm.findFragmentById(R.id.app_info_fragment);
-        mRouteOptionsFragment = (RouteOptionsFragment) fm.findFragmentById(R.id.route_options_fragment);
+        mUserRoleFragment = (UserRoleFragment) fm.findFragmentById(R.id.user_role_fragment);
         mOverlayFragment = (OverlayFragment) fm.findFragmentById(R.id.overlayfragment);
 
         mDrawerLayout = findViewById(R.id.main_drawer);
@@ -524,7 +601,18 @@ public class MapsIndoorsActivity extends AppCompatActivity
             setZoomForDetailVisible();
         }
 
-        followMeButton.setOnClickListener(view -> mPositionManager.onFollowMeButtonClickListener(view));
+        followMeButton.setOnClickListener(view -> {
+            if (mPositionManager != null) {
+                mPositionManager.onFollowMeButtonClickListener(view);
+            } else if (mMapControl.isReady()) {
+                if (!mAppConfigManager.isPositionDisabled()) {
+                    mPositionManager = new PositionManager(mActivity, mMapControl, positionProvider -> {
+                        runOnUiThread(() -> mAppInfoFragment.setPositionProvider(positionProvider));
+                        mPositionManager.onFollowMeButtonClickListener(view);
+                    });
+                }
+            }
+        });
     }
 
     public void resetMapToInitialState() {
@@ -546,6 +634,8 @@ public class MapsIndoorsActivity extends AppCompatActivity
         if (mVerticalDirectionsFragment != null) {
             mVerticalDirectionsFragment.closeRouting();
         }
+
+        mGeneralDebugVisualizer.updateDebugField("location", "-");
 
         invalidateLastRoute();
         mSelectionManager.clearSelection();
@@ -600,8 +690,8 @@ public class MapsIndoorsActivity extends AppCompatActivity
             mVenueSelectorFragment.init(this, this);
             mTransportAgenciesFragment.init(this);
             mHorizontalDirectionsFragment.init(this, mGoogleMap);
-            mAppInfoFragment.init( this );
-            mRouteOptionsFragment.init( this );
+            mAppInfoFragment.init(this);
+            mUserRoleFragment.init(this);
 
             // Set the first fragment to be shown the first time the drawer is open
             mHasUserChosenAVenue = SharedPrefsHelper.hasUserChosenAVenue(this);
@@ -616,7 +706,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
             }
 
             List<Venue> venuesList = getVenueCollection().getVenues();
-
+            
             if (venuesList.size() == 1) {
                 onMenuVenueSelect(venuesList.get(0).getId());
 
@@ -725,7 +815,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
                     .alpha(0f)
                     .setDuration(500)
                     .setStartDelay(1000)
-                    .withEndAction(()-> {
+                    .withEndAction(() -> {
                         if (mSplashTextCountDownTimer != null) {
                             mSplashTextCountDownTimer.cancel();
                             mSplashTextCountDownTimer = null;
@@ -789,8 +879,8 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
     //region Menu Frame ViewFlipper
 
-    public void menuGoTo(MenuFrame frame, boolean animate ) {
-        menuGoTo( frame, false, animate );
+    public void menuGoTo(MenuFrame frame, boolean animate) {
+        menuGoTo(frame, false, animate);
     }
 
     public void menuGoTo(MenuFrame frame, boolean asPopUp, boolean animate) {
@@ -812,6 +902,9 @@ public class MapsIndoorsActivity extends AppCompatActivity
                         mMenuFragment.closeKeyboard();
                         break;
                     case MENU_FRAME_DIRECTIONS_FULL_MENU:
+                        break;
+                    case MENU_FRAME_USER_ROLES:
+                        mUserRoleFragment.checkForInternet();
                         break;
                 }
             }
@@ -850,6 +943,10 @@ public class MapsIndoorsActivity extends AppCompatActivity
             MenuFrame frame = mFragmentStack.peek();
             switch (frame) {
                 case MENU_FRAME_MAIN_MENU:
+                    mMenuFragment.mIsOpenedFromBackpress = true;
+                    mMenuFragment.refreshCurrentCategory();
+                    showFragment(frame);
+                    break;
                 case MENU_FRAME_DIRECTIONS_FULL_MENU:
                     mMenuFragment.mIsOpenedFromBackpress = true;
                     showFragment(frame);
@@ -894,7 +991,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
             case MENU_FRAME_APP_INFO:
                 strId = 0; //R.string.ga_screen_transit_sources;
                 break;
-            case MENU_FRAME_ROUTE_OPTIONS:
+            case MENU_FRAME_USER_ROLES:
                 strId = 0; //R.string.ga_screen_transit_sources;
                 break;
             default:
@@ -1009,7 +1106,6 @@ public class MapsIndoorsActivity extends AppCompatActivity
                 followMeButton.setState(state);
             }
         });
-
         // Condeco flavor only
         setupCondecoBookingProvider();
 
@@ -1024,10 +1120,52 @@ public class MapsIndoorsActivity extends AppCompatActivity
         finishMapsIndoorsSetup();
     }
 
+    private String updateDebugMap(@NonNull CameraPosition position) {
+
+        return "Lat: \t" +
+                position.target.latitude +
+                "\nLng: \t" +
+                position.target.longitude +
+                "\n" +
+                "Bearing: \t" +
+                position.bearing +
+                "\n" +
+                "Zoom: \t" +
+                position.zoom +
+                "\n" +
+                "tilt: \t" +
+                position.tilt +
+                "\n";
+    }
+
     private void finishMapsIndoorsSetup() {
         mMapControl.showBuildingOutline(true);
         mMapControl.setOnMarkerClickListener(mActivity);
         mMapControl.setOnMarkerInfoWindowClickListener(mActivity);
+
+        mMapControl.setOnFloorUpdateListener((building, floor) -> {
+            if (building != null) {
+                Floor floor1 = building.getFloorByZIndex(floor);
+                if (floor1 != null) {
+                    mGeneralDebugVisualizer.updateDebugField("floor", "Index: " + floor + "\n" + "Alias: " + floor1.getDisplayName());
+                }else {
+                    mGeneralDebugVisualizer.updateDebugField("floor", "Index: " + floor);
+                }
+            }
+        });
+
+        mMapControl.setOnCurrentBuildingChangedListener(building -> {
+            if (building != null) {
+                mGeneralDebugVisualizer.updateDebugField("building", building.toString());
+            } else {
+                mGeneralDebugVisualizer.updateDebugField("building", "null");
+            }
+        });
+
+        mMapControl.addOnCameraMoveListener(() -> {
+            // update debug window
+            mGeneralDebugVisualizer.updateDebugField("map", updateDebugMap(mGoogleMap.getCameraPosition()));
+        });
 
         setupMIUIComponents();
 
@@ -1080,6 +1218,13 @@ public class MapsIndoorsActivity extends AppCompatActivity
         mMapControl.setOnCurrentVenueChangedListener(venue -> {
             final boolean isOverAVenue = (venue != null);
 
+            // update debug window
+            if (venue != null) {
+                mGeneralDebugVisualizer.updateDebugField("venue", venue.toString());
+            } else {
+                mGeneralDebugVisualizer.updateDebugField("venue", "null");
+            }
+
             if (mZoomButtonToShow) {
                 if (isOverAVenue) {
                     setZoomForDetailVisible();
@@ -1099,7 +1244,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
                 setReturnToVenueVisible(false);
             } else {
                 if (!mVerticalDirectionsFragment.isActive() && !mHorizontalDirectionsFragment.isActive()) {
-                    runOnUiThread(()->{
+                    runOnUiThread(() -> {
                         setReturnToVenueVisible(true);
                     });
                 }
@@ -1108,20 +1253,45 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
         setupMapsIndoorsContentLanguage();
 
-        mMapControl.setLocationHideOnIconOverlapEnabled(true);
-        // Initialize MapControl: among other tasks, it will load/update the solution data, if needed
-        mMapControl.init(this::onMapControlInitReady);
-
+        if (MapsIndoors.isReady()) {
+            initMapControlOnDataReady();
+        }else {
+            MapsIndoors.addOnMapsIndoorsReadyListener(()-> {
+                runOnUiThread(()-> {
+                    initMapControlOnDataReady();
+                });
+            });
+        }
 
     }
 
 
     @MainThread
-    void onMapControlInitReady( @Nullable final MIError error ) {
-        onMapsIndoorsDataUpdates( error );
-        mPositionManager = new PositionManager(mActivity, mMapControl, positionProvider -> {
-            runOnUiThread(() -> mAppInfoFragment.setPositionProvider(positionProvider));
-        });
+    void onMapControlInitReady(@Nullable final MIError error) {
+        onMapsIndoorsDataUpdates(error);
+        if (!mAppConfigManager.isPositionDisabled()) {
+            mPositionManager = new PositionManager(mActivity, mMapControl, positionProvider -> {
+                runOnUiThread(() -> mAppInfoFragment.setPositionProvider(positionProvider));
+            });
+        }
+    }
+
+    @MainThread
+    void initMapControlOnDataReady() {
+        if (MapsIndoors.getAppConfig() != null && MapsIndoors.getAppConfig().getAppSettings() != null && MapsIndoors.getAppConfig().getAppSettings().containsKey(AppConfig.APP_SETTING_POI_HIDE_ON_OVERLAP)) {
+            String bool = MapsIndoors.getAppConfig().getAppSettings().get(AppConfig.APP_SETTING_POI_HIDE_ON_OVERLAP);
+            boolean hideOnOverlap;
+            // str is true or false
+            String src = bool.toLowerCase(Locale.ROOT);
+            hideOnOverlap =  src.equals("true") || src.equals("1") || src.equals("yes");
+
+            mMapControl.setLocationHideOnIconOverlapEnabled(hideOnOverlap);
+        }else {
+            mMapControl.setLocationHideOnIconOverlapEnabled(true);
+        }
+
+        // Initialize MapControl: among other tasks, it will load/update the solution data, if needed
+        mMapControl.init(this::onMapControlInitReady);
     }
 
     /**
@@ -1142,7 +1312,8 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
     synchronized void invokeFinishAppInit() {
         if (configManagerUIAssetsIsReady.get() && locationsAreAvailable.get()
-                && !finishAppInitHasBeenInvoked) {
+                && !finishAppInitHasBeenInvoked  || configManagerUIAssetsIsReady.get()
+                && !finishAppInitHasBeenInvoked && !MapsIndoors.isOnline()) {
             finishAppInitHasBeenInvoked = true;
             finishAppInit();
         }
@@ -1231,7 +1402,11 @@ public class MapsIndoorsActivity extends AppCompatActivity
             }
 
             mMapsIndoorsDataIsReady = true;
-            initializeMenu(MenuCreatedFrom.INIT);
+            if (MapsIndoors.isReady()) {
+                initializeMenu(MenuCreatedFrom.INIT);
+            } else {
+                MapsIndoors.addOnMapsIndoorsReadyListener(() -> runOnUiThread(() -> initializeMenu(MenuCreatedFrom.INIT)));
+            }
         });
 
         enableLiveData();
@@ -1259,7 +1434,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
                 MPLocation location = MapsIndoorsUrlSchemeHelper.createLocationForDetailsLocation(urlScheme);
                 if (location != null) {
                     runOnUiThread(() -> {
-                        mMenuFragment.openLocationMenu(location);
+                        mMenuFragment.openLocationMenu(location, false);
                         openDrawer(false);
                     });
                 }
@@ -1553,6 +1728,10 @@ public class MapsIndoorsActivity extends AppCompatActivity
         }
 
         if (isConnected) {
+            if (!activeLiveDataReceived) {
+                enableLiveData();
+            }
+
             setNoAvailableNetworkFragmentVisibility(false);
             final boolean isSynchronizingContent = MapsIndoors.isSynchronizingContent();
 
@@ -1710,7 +1889,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
                     mSearchFragment,
                     mTransportAgenciesFragment,
                     mAppInfoFragment,
-                    mRouteOptionsFragment,
+                    mUserRoleFragment,
                     mHorizontalDirectionsFragment,
             };
         }
@@ -1719,9 +1898,11 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
     //region Positioning
     private void startPositioning() {
-        if (mMapControl != null) {
-            MapsIndoors.startPositioning();
-            mMapControl.showUserPosition(true);
+        if (!mAppConfigManager.isPositionDisabled()) {
+            if (mMapControl != null) {
+                MapsIndoors.startPositioning();
+                mMapControl.showUserPosition(true);
+            }
         }
     }
 
@@ -1770,8 +1951,11 @@ public class MapsIndoorsActivity extends AppCompatActivity
     private void setReturnToVenueVisible(boolean show) {
         final float buttonAlpha = mReturnToVenueButton.getAlpha();
         if (show && buttonAlpha < 0.1f) {
-            mReturnToVenueButton.setVisibility(View.VISIBLE);
             final String target = mSelectionManager.getSelectionLabelForReturnToVenue();
+            if (target.isEmpty()) {
+                return;
+            }
+            mReturnToVenueButton.setVisibility(View.VISIBLE);
             mReturnToVenueButton.setText(String.format(getResources().getString(R.string.return_to_venue_text), target));
             ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(mReturnToVenueButton, "alpha", 0f, 1f);
             objectAnimator.setDuration(500L);
@@ -1791,7 +1975,11 @@ public class MapsIndoorsActivity extends AppCompatActivity
 
     @Nullable
     public PositionProvider getCurrentPositionProvider() {
-        return mPositionManager.getCurrentProvider();
+        if (mPositionManager != null) {
+            return mPositionManager.getCurrentProvider();
+        }else {
+            return null;
+        }
     }
 
     public boolean isDrawerOpen() {
@@ -1844,10 +2032,8 @@ public class MapsIndoorsActivity extends AppCompatActivity
             return false;
         } else {
             MPLocation location = locations.get(0);
-            mActivity.runOnUiThread(() -> {
-                mSelectionManager.selectLocation(location, false, true, true, true);
-                mMenuFragment.openLocationMenu(location);
-            });
+            mActivity.runOnUiThread(() -> mMenuFragment.openLocationMenu(location, true));
+            runOnUiThread(() -> mGeneralDebugVisualizer.updateDebugField("location", location.getId()));
             return true;
         }
     }
@@ -1883,7 +2069,9 @@ public class MapsIndoorsActivity extends AppCompatActivity
                         eventParams
                 );
 
-                mMenuFragment.openLocationMenu(location);
+                mGeneralDebugVisualizer.updateDebugField("location", location.getId());
+
+                mMenuFragment.openLocationMenu(location, true);
                 clickWasHandled = true;
             }
         }
@@ -1906,7 +2094,7 @@ public class MapsIndoorsActivity extends AppCompatActivity
     public void onInfoWindowClick(Marker marker) {
         MPLocation loc = mMapControl.getLocation(marker);
         if (openLocationMenuFromInfowindowClick && loc != null) {
-            mMenuFragment.openLocationMenu(loc, true);
+            mMenuFragment.openLocationMenu(loc, true, true);
             openDrawer(true);
         }
     }
@@ -2079,7 +2267,6 @@ public class MapsIndoorsActivity extends AppCompatActivity
                 }
                 // Location data
                 MapsIndoors.removeLocationSourceOnStatusChangedListener(onLocationSourceOnStatusChangedListener);
-                MapsIndoors.onApplicationTerminate();
 
                 final long timeToWait = 0;
 
@@ -2091,7 +2278,6 @@ public class MapsIndoorsActivity extends AppCompatActivity
             }
         }
 
-        MPQuery query = new MPQuery.Builder().setQuery("testQuery").build();
     }
 
     void startNextActivity(@NonNull Class clazz) {
@@ -2107,17 +2293,24 @@ public class MapsIndoorsActivity extends AppCompatActivity
         }
     }
     //endregion
-
+    boolean activeLiveDataReceived = false;
     //region LIVE DATA
     void enableLiveData() {
         LiveDataManager.getInstance().getActiveLiveData(activeLiveDataModel -> {
             if (activeLiveDataModel != null && activeLiveDataModel.getDomainTypes() != null) {
+                activeLiveDataReceived = true;
                 for (String domainType : activeLiveDataModel.getDomainTypes()) {
                     switch (domainType) {
                         case LiveDataDomainTypes.AVAILABILITY_DOMAIN:
                         case LiveDataDomainTypes.OCCUPANCY_DOMAIN:
                         case LiveDataDomainTypes.POSITION_DOMAIN:
-                            mMapControl.enableLiveData(domainType);
+                        case LiveDataDomainTypes.COUNT_DOMAIN:
+                        case LiveDataDomainTypes.TEMPERATURE_DOMAIN:
+                        case LiveDataDomainTypes.CO2_DOMAIN:
+                        case LiveDataDomainTypes.HUMIDITY_DOMAIN:
+                            if (mMapControl != null) {
+                                mMapControl.enableLiveData(domainType);
+                            }
                             break;
                         default:
                             break;

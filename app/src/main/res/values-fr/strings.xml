@@ -43,10 +43,17 @@
     <string name="prefix_enter">Entrer:</string>
     <string name="prefix_exit">Sortie:</string>
     <string name="prefix_park">Parking:</string>
-    <string name="action_name_elevator">ascenseur</string>
-    <string name="action_name_escalator">Éscalateur</string>
-    <string name="action_name_steps">marche</string>
-    <string name="action_name_travelator">Tapis Roulant</string>
+    <string name="prefix_action">Action:</string>
+    <string name="action_message_elevator">ascenseur</string>
+    <string name="action_message_stairs">éscalier</string>
+    <string name="action_message_escalator">éscalateur</string>
+    <string name="action_message_travelator">voyageur</string>
+    <string name="action_message_ladder">échelle</string>
+    <string name="action_message_ramp">rampe</string>
+    <string name="action_message_wheelchairlift">ascenseur pour fauteuil roulant</string>
+    <string name="action_message_wheelchairramp">rampe pour fauteuil roulant</string>
+    <string name="action_message_take">Prend le</string>
+    <string name="action_message_to">à</string>
     <string name="direction_right">Tournez à droite et continuer</string>
     <string name="direction_left">Tournez à gauche et continuer</string>
     <string name="direction_straight">Continuez tout droit</string>
@@ -126,6 +133,8 @@
     <string name="poi_search_text">Rechercher des emplacements à l\'intérieur ou à l\'extérieur</string>
     <string name="zoom_for_detail_text">Zoomez pour plus de détails</string>
     <string name="return_to_venue_text">Revenir a %1$s</string>
+    <string name="browser_chooser_title">Choisissez un navigateur</string>
+    <string name="no_available_browser">Aucun navigateur disponible</string>
     <string name="app_info">Informations sur l\'application</string>
     <string name="app_version_title">Version de l\'application</string>
     <string name="app_version_app_title">Application</string>
@@ -149,7 +158,7 @@
     <string name="log_out">Se déconnecter</string>
     <string name="route_settings">Paramètres de l\'itinéraire</string>
     <string name="app_user_roles">Rôles des utilisateurs de l\'application</string>
-    <string name="route_settings_user_roles_description">Choisissez les rôles d\\\'utilisateur de l\\\'application dont vous faites partie. Cela affecte que les directions que vous obtenez, et les emplacements que vous voyez sur la carte</string>
+    <string name="user_roles_description">Choisissez les rôles d\\\'utilisateur de l\\\'application dont vous faites partie. Cela affecte que les directions que vous obtenez, et les emplacements que vous voyez sur la carte</string>
     <!-- Non Translatable strings -->
     <string name="app_default_supplier" translatable="false">MapsPeople A/S</string>
     <string name="app_default_supplier_website" translatable="false">https://www.mapspeople.com</string>

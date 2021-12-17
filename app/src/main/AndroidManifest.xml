@@ -24,8 +24,12 @@
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-	<uses-permission android:name="android.permission.BLUETOOTH" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.BLUETOOTH"
+		android:maxSdkVersion="30"/>
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
+		android:maxSdkVersion="30"/>
+	<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
 
 	<uses-feature
 		android:name="android.hardware.sensor.accelerometer"
@@ -39,6 +43,8 @@
 	<uses-feature
 		android:name="android.hardware.wifi"
 		android:required="true" />
+	<uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
+
 	<uses-feature
 		android:name="android.hardware.bluetooth_le"
 		android:required="false" />
@@ -63,21 +69,15 @@
 			android:name="com.google.android.maps.v2.API_KEY"
 			android:value="@string/google_maps_key" />
 		<meta-data
-			android:name="io.fabric.ApiKey"
-			android:value="insert fabric key here" />
-
-		<meta-data
-			android:name="com.indooratlas.android.sdk.API_KEY"
-			android:value="@string/indooratlas_api_key" />
-		<meta-data
-			android:name="com.indooratlas.android.sdk.API_SECRET"
-			android:value="@string/indooratlas_api_secret" />
+			android:name="firebase_crashlytics_collection_enabled"
+			android:value="${crashlyticsCollectionEnabled}"/>
 
 		<activity
 			android:name=".ui.splashscreen.SplashScreenActivity"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:launchMode="singleInstance"
 			android:noHistory="true"
+			android:exported="true"
 			android:resizeableActivity="true"
 			android:screenOrientation="portrait"
 			android:theme="@style/AppTheme.SplashScreen"></activity>
@@ -97,6 +97,7 @@
 			android:resizeableActivity="true"
 			android:screenOrientation="portrait"
 			android:theme="@style/AppTheme.MainActivity"
+			android:exported="true"
 			android:launchMode="singleTask">
 			<!--   Creating two intent filter because it cant use both, unless the data items have the same data types, aka a scheme is not enough, it needs a host aswell" -->
 			<intent-filter>

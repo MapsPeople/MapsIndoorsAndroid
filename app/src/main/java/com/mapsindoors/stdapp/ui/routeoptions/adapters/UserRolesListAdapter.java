@@ -1,6 +1,5 @@
 package com.mapsindoors.stdapp.ui.routeoptions.adapters;
 
-import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.dbglog;
@@ -52,7 +52,7 @@ public class UserRolesListAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
         }
 
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.control_route_options_user_roles_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.control_user_roles_item, parent, false);
         return new UserRolesListAdapter.UserRolesRoleViewHolder(v);
     }
 
@@ -101,16 +101,20 @@ public class UserRolesListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @Override
         public void onClick(View v) {
-            final UserRoleItem clickedItem = mItemList.get(getLayoutPosition());
-            if (clickedItem != null) {
-                // Flip the "checkbox" state
-                final boolean flippedSelection = clickedItem.isSelected = !clickedItem.isSelected;
-                userRoleSelectButton.setVisibility(flippedSelection ? View.VISIBLE : View.INVISIBLE);
+            if (MapsIndoors.isOnline()) {
+                final UserRoleItem clickedItem = mItemList.get(getLayoutPosition());
+                if (clickedItem != null) {
+                    // Flip the "checkbox" state
+                    final boolean flippedSelection = clickedItem.isSelected = !clickedItem.isSelected;
+                    userRoleSelectButton.setVisibility(flippedSelection ? View.VISIBLE : View.INVISIBLE);
 
-                // Remember the change
-                mUserRolesManager.saveUserRole(clickedItem.userRole, flippedSelection);
+                    // Remember the change
+                    mUserRolesManager.saveUserRole(clickedItem.userRole, flippedSelection);
 
-                MapsIndoors.applyUserRoles(mUserRolesManager.getSavedUserRoles());
+                    MapsIndoors.applyUserRoles(mUserRolesManager.getSavedUserRoles());
+                }
+            } else {
+                Toast.makeText(itemView.getContext(), "This device is offline, and cannot change User Role settings", Toast.LENGTH_SHORT).show();
             }
         }
     }

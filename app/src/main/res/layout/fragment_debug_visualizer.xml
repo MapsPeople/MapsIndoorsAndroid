@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/debug_fragment_nav_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/custom_toolbar_height"
+        android:background="@color/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/debug_fragment_back_button"
+            android:layout_width="@dimen/button_bounds_common_size"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/white"
+            app:srcCompat="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:text="Debug Visualizer"
+            android:textAppearance="@style/ToolbarTitle" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/debug_fragment_general_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/debug_fragment_nav_bar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="General"
+            android:textColor="@color/white" />
+
+        <Switch
+            android:id="@+id/debug_fragment_general_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp" />
+
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/debug_fragment_general_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/debug_fragment_general_bar">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/general_debug_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toBottomOf="@+id/debug_fragment_general_frame"
+            app:layout_constraintEnd_toEndOf="@+id/debug_fragment_general_frame"
+            app:layout_constraintHeight_max="250dp"
+            app:layout_constraintHeight_min="50dp"
+            app:layout_constraintStart_toStartOf="@+id/debug_fragment_general_frame"
+            app:layout_constraintTop_toTopOf="@+id/debug_fragment_general_frame"
+            tools:itemCount="2"
+            tools:listitem="@layout/debug_field_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <RelativeLayout
+        android:id="@+id/debug_fragment_position_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/debug_fragment_general_frame">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="Position Provider"
+            android:textColor="@color/white" />
+
+        <Switch
+            android:id="@+id/debug_fragment_position_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp" />
+
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/debug_fragment_position_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/debug_fragment_position_bar">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/position_debug_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toBottomOf="@+id/debug_fragment_position_frame"
+            app:layout_constraintEnd_toEndOf="@+id/debug_fragment_position_frame"
+            app:layout_constraintHeight_max="250dp"
+            app:layout_constraintHeight_min="50dp"
+            app:layout_constraintStart_toStartOf="@+id/debug_fragment_position_frame"
+            app:layout_constraintTop_toTopOf="@+id/debug_fragment_position_frame"
+            tools:itemCount="2"
+            tools:listitem="@layout/debug_field_item" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -27,6 +27,11 @@ public class FollowMeButton extends androidx.appcompat.widget.AppCompatImageButt
         init();
     }
 
+    //    public FollowMeButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+//        super(context, attrs, defStyleAttr, defStyleRes);
+//        init();
+//    }
+
 
     public void setState(int state){
 

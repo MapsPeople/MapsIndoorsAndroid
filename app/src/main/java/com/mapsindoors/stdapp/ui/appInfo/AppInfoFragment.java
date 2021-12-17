@@ -4,19 +4,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.mapsindoors.mapssdk.MapsIndoors;
 import com.mapsindoors.mapssdk.dbglog;
@@ -27,9 +32,10 @@ import com.mapsindoors.stdapp.positionprovider.AppPositionProvider;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
 import com.mapsindoors.stdapp.ui.appInfo.adapters.AppInfoAdapter;
 import com.mapsindoors.stdapp.ui.appInfo.models.CreditItem;
-import com.mapsindoors.stdapp.ui.common.fragments.BaseFragment;
 import com.mapsindoors.stdapp.ui.common.enums.MenuFrame;
-import com.mapsindoors.stdapp.ui.direction.DirectionsVerticalFragment;
+import com.mapsindoors.stdapp.ui.common.fragments.BaseFragment;
+import com.mapsindoors.stdapp.ui.debug.DebugVisualizer;
+import com.mapsindoors.stdapp.ui.debug.DebugVisualizerFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +58,16 @@ public class AppInfoFragment extends BaseFragment {
     private RecyclerView mCreditsListRecyclerView;
     private ViewFlipper mViewFlipper;
     private AppInfoAdapter mRecyclerViewAdapter;
+    private DebugVisualizerFragment mDebugVisualizerFragment;
 
-	TextView providerTextView;
-	TextView appVersiontextView;
-	TextView sdkVersionTextview;
-	TextView positionProviderNameTextView;
-	TextView positionProviderVersionTextView;
-	View mapsPeopleASLayout;
-	View mFeedbackLayout;
+    TextView providerTextView;
+    TextView appVersiontextView;
+    TextView sdkVersionTextview;
+    TextView positionProviderNameTextView;
+    TextView positionProviderVersionTextView;
+    View mapsPeopleASLayout;
+    View mFeedbackLayout;
+    ImageButton debugVisualizerMenu;
 
 
     //region Fragment lifecycle events
@@ -79,25 +87,17 @@ public class AppInfoFragment extends BaseFragment {
         mMainView = view;
         mFragment = MenuFrame.MENU_FRAME_APP_INFO;
 
-		providerTextView = view.findViewById(R.id.app_info_provider_name);
-		appVersiontextView = view.findViewById(R.id.app_info_app_version);
-		sdkVersionTextview = view.findViewById(R.id.app_info_sdk_version);
-		positionProviderNameTextView = view.findViewById(R.id.app_info_positioning_provider);
-		positionProviderVersionTextView = view.findViewById(R.id.app_info_positioning_version);
-		mapsPeopleASLayout = view.findViewById(R.id.app_info_maps_people_as_layout);
-		mFeedbackLayout = view.findViewById(R.id.feedback_layout);
+        providerTextView = view.findViewById(R.id.app_info_provider_name);
+        appVersiontextView = view.findViewById(R.id.app_info_app_version);
+        sdkVersionTextview = view.findViewById(R.id.app_info_sdk_version);
+        positionProviderNameTextView = view.findViewById(R.id.app_info_positioning_provider);
+        positionProviderVersionTextView = view.findViewById(R.id.app_info_positioning_version);
+        mapsPeopleASLayout = view.findViewById(R.id.app_info_maps_people_as_layout);
+        mFeedbackLayout = view.findViewById(R.id.feedback_layout);
+        debugVisualizerMenu = view.findViewById(R.id.app_info_debug_visualizer_imageButton);
 
-		positionProviderVersionTextView.setOnLongClickListener(v -> {
-            if(mActivity.getPositionProviderDebugVisializer().isShown()){
-                mActivity.getPositionProviderDebugVisializer().show(false);
-            } else {
-                mActivity.getPositionProviderDebugVisializer().show(true);
-            }
-            mActivity.getPositionProviderDebugVisializer().performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            return true;
-        });
-	}
-	//endregion
+    }
+    //endregion
 
 
     public void init(@NonNull Context context) {
@@ -111,6 +111,8 @@ public class AppInfoFragment extends BaseFragment {
         //
         appVersiontextView.setText(getAppVersion());
 
+        mDebugVisualizerFragment = DebugVisualizerFragment.newInstance();
+
         //
         View backBtn = mMainView.findViewById(R.id.app_info_back_button);
         backBtn.setOnClickListener(v -> close(mActivity));
@@ -120,6 +122,24 @@ public class AppInfoFragment extends BaseFragment {
             mContext.startActivity(browserIntent);
         });
 
+        debugVisualizerMenu.setOnClickListener(v -> {
+            FragmentManager fragmentManager = mActivity.getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            FrameLayout frameLayout = mActivity.findViewById(R.id.debug_fragment_container);
+            frameLayout.setVisibility(View.VISIBLE);
+
+            fragmentTransaction.replace(frameLayout.getId(), mDebugVisualizerFragment).addToBackStack("DEBUG_FRAGMENT").commit();
+
+        });
+
+        appVersiontextView.setOnLongClickListener(v -> {
+            if (debugVisualizerMenu.getVisibility() == View.GONE) {
+                debugVisualizerMenu.setVisibility(View.VISIBLE);
+            } else {
+                debugVisualizerMenu.setVisibility(View.GONE);
+            }
+            return true;
+        });
 
         if (appConfigManager != null) {
             final String feedbackURL = appConfigManager.getFeedbackUrl();
@@ -216,17 +236,16 @@ public class AppInfoFragment extends BaseFragment {
     }
 
     @UiThread
-	public void setPositionProvider(AppPositionProvider positionProvider){
-		if(positionProvider != null){
-			positionProviderNameTextView.setText(positionProvider.getName());
-			positionProviderVersionTextView.setText(positionProvider.getVersion());
-		}
-	}
+    public void setPositionProvider(AppPositionProvider positionProvider) {
+        if (positionProvider != null) {
+            positionProviderNameTextView.setText(positionProvider.getName());
+            positionProviderVersionTextView.setText(positionProvider.getVersion());
+        }
+    }
 
-	void initCreditList()
-	{
-		String[] libraries = getResources().getStringArray( R.array.credits );
-		String[] licences = getResources().getStringArray( R.array.licence );
+    void initCreditList() {
+        String[] libraries = getResources().getStringArray(R.array.credits);
+        String[] licences = getResources().getStringArray(R.array.licence);
 
         int libCount = libraries.length;
         mCreditList = new ArrayList<>(libCount);

@@ -84,6 +84,7 @@ public class MapsIndoorsUtils {
             case ConnectionResult.SERVICE_INVALID:
             case ConnectionResult.SERVICE_MISSING:
             case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED: {
+                // getErrorDialog(Activity activity, int errorCode, int requestCode)
                 Dialog dialog = gap.getErrorDialog(activity, googlePlayServicesCheck, 0);
                 dialog.setOnCancelListener( dialogInterface -> activity.finish() );
                 dialog.show();

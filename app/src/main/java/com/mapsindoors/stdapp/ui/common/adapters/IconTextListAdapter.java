@@ -48,7 +48,7 @@ public class IconTextListAdapter extends ArrayAdapter<String> {
 
         ArrayList<String> collectionList = new ArrayList<>(itemList.size());
         for (IconTextElement element : itemList)
-            collectionList.add(element.name);
+            collectionList.add(element.getName());
         addAll(collectionList);
     }
 
@@ -65,11 +65,11 @@ public class IconTextListAdapter extends ArrayAdapter<String> {
             }
         }
 
-        return itemList.get(index).obj;
+        return itemList.get(index).getObj();
     }
 
     public Objtype getObjType(int index) {
-        return itemList.get(index).type;
+        return itemList.get(index).getObjType();
     }
 
     @Override
@@ -77,13 +77,13 @@ public class IconTextListAdapter extends ArrayAdapter<String> {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         IconTextElement element = itemList.get(index);
 
-        if (element.type == Objtype.VENUE) {
+        if (element.getObjType() == Objtype.VENUE) {
             TextView single_row = new TextView(context);
-            single_row.setText(element.name);
+            single_row.setText(element.getName());
             single_row.setFocusable(false);
             return single_row;
 
-        } else if (element.type == Objtype.LOCATION || element.type == Objtype.ROUTE || element.type == Objtype.MESSAGE) {
+        } else if (element.getObjType() == Objtype.LOCATION || element.getObjType() == Objtype.ROUTE || element.getObjType() == Objtype.MESSAGE) {
 
             View dual_row = inflater.inflate(R.layout.control_mainmenu_twolineitem, null, true);
 
@@ -91,22 +91,22 @@ public class IconTextListAdapter extends ArrayAdapter<String> {
             TextView txtTitleSub = dual_row.findViewById(R.id.ctrl_mainmenu_textitem_sub);
             TextView txtDistance = dual_row.findViewById(R.id.distanceTextView);
 
-            txtTitleMain.setText(element.name);
+            txtTitleMain.setText(element.getName());
 
-            boolean showSubText = element.subText != null;
+            boolean showSubText = element.getSubText() != null;
 
             if (showSubText) {
-                txtTitleSub.setText(element.subText);
+                txtTitleSub.setText(element.getSubText());
             } else {
                 txtTitleSub.setVisibility(View.GONE);
             }
 
-            if (element.distText != null && !element.distText.equals("0 m") && !element.distText.equals("0 ft")) {
+            if (element.getDistText() != null && !element.getDistText().equals("0 m") && !element.getDistText().equals("0 ft")) {
                 txtDistance.setVisibility(View.VISIBLE);
-                txtDistance.setText(element.distText);
+                txtDistance.setText(element.getDistText());
             }
 
-            if (element.type == Objtype.ROUTE) {
+            if (element.getObjType() == Objtype.ROUTE) {
 
                 MapsIndoorsUtils.setTextAppearance(getContext(), txtTitleMain, android.R.style.TextAppearance_DeviceDefault_Medium);
                 if (showSubText) {
@@ -120,9 +120,9 @@ public class IconTextListAdapter extends ArrayAdapter<String> {
             ImageView imageViewTint = dual_row.findViewById(R.id.ctrl_mainmenu_iconitem_tint);
 
             if (tintColor == null) {
-                setImage(imageView, imageViewTint, element.img, element.imgId);
+                setImage(imageView, imageViewTint, element.getImg(), element.getImageId());
             } else {
-                setImage(imageViewTint, imageView, element.img, element.imgId);
+                setImage(imageViewTint, imageView, element.getImg(), element.getImageId());
             }
 
             dual_row.setFocusable(false);
@@ -135,11 +135,11 @@ public class IconTextListAdapter extends ArrayAdapter<String> {
             ImageView imageView = single_row.findViewById(R.id.cat_iconitem);
             ImageView imageViewTint = single_row.findViewById(R.id.cat_iconitem_tint);
 
-            txtTitle.setText(element.name);
+            txtTitle.setText(element.getName());
             if (tintColor == null) {
-                setImage(imageView, imageViewTint, element.img, element.imgId);
+                setImage(imageView, imageViewTint, element.getImg(), element.getImageId());
             } else {
-                setImage(imageViewTint, imageView, element.img, element.imgId);
+                setImage(imageViewTint, imageView, element.getImg(), element.getImageId());
             }
 
             single_row.setFocusable(false);

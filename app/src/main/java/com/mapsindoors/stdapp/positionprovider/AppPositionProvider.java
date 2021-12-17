@@ -27,7 +27,7 @@ public abstract class AppPositionProvider implements PositionProvider {
     protected Context mContext;
     protected PositionResult mLatestPosition;
     protected String[] REQUIRED_PERMISSIONS;
-    protected boolean mIsRunning;
+    protected volatile boolean mIsRunning;
     protected boolean mIsIPSEnabled;
     protected String mProviderId;
     protected final List<OnStateChangedListener> onStateChangedListenersList = new ArrayList<>();
@@ -124,7 +124,7 @@ public abstract class AppPositionProvider implements PositionProvider {
     /**
      * Reports to listeners, upon new positioning
      */
-    protected void reportPositionUpdate() {
+    public void reportPositionUpdate() {
         if(mIsRunning){
             for(OnPositionUpdateListener listener : onPositionUpdateListeners){
                 if(listener != null && mLatestPosition != null){
@@ -200,4 +200,28 @@ public abstract class AppPositionProvider implements PositionProvider {
      * @return meta data string
      */
     public abstract String getAdditionalMetaData();
+
+    /**
+     * React to application going in the background - usually disable any positioning
+     */
+    public void onPause() {
+        boolean shouldRestart = false;
+        if(isRunning()){
+            shouldRestart = true;
+        }
+        stopPositioning(null);
+        if(shouldRestart){
+            mIsRunning = true;
+        }
+    }
+
+    /**
+     * React to application coming back into foreground, from the background - usually restart any positioning
+     */
+    public void onResume() {
+        if(isRunning()){
+            startPositioning(null);
+        }
+    }
+
 }

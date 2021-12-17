@@ -15,7 +15,6 @@ import com.mapsindoors.mapssdk.PositionResult;
 import com.mapsindoors.stdapp.R;
 import com.mapsindoors.stdapp.managers.GoogleAnalyticsManager;
 import com.mapsindoors.stdapp.ui.activitymain.MapsIndoorsActivity;
-import com.mapsindoors.stdapp.ui.debug.DebugField;
 import com.mapsindoors.stdapp.ui.debug.DebugVisualizer;
 import com.mapsindoors.stdapp.ui.tracking.UserPositionTrackingViewModel;
 
@@ -39,6 +38,7 @@ public class PositionManager {
 
     private final OnPositionProviderChangedListener interceptionListener;
     private final Handler mHandler;
+    private boolean shouldReconsider = true;
 
     private static final int RECONSIDER_PROVIDER_TIME_THRESHOLD_MS = 1000 * 5;
 
@@ -49,39 +49,13 @@ public class PositionManager {
      */
     public PositionManager(MapsIndoorsActivity context, MapControl mapControl, OnPositionProviderChangedListener onPositionProviderChangedListener){
         mActivity = context;
-        mPositionProviderDebugWindow = mActivity.getPositionProviderDebugVisializer();
+        mPositionProviderDebugWindow = mActivity.getPositionProviderDebugVisualizer();
         mMapControl = mapControl;
         mMapControl.showUserPosition(true);
 
-        DebugField position =  new DebugField.Builder()
-                .setTitle("Position")
-                .setTitleSize(16)
-                .setText("-")
-                .setTextSize(12)
-                .setTag("position")
-                .build();
-
-        DebugField provider =  new DebugField.Builder()
-                .setTitle("Using")
-                .setTitleSize(16)
-                .setText("-")
-                .setTextSize(12)
-                .setTag("provider")
-                .build();
-
-        DebugField meta =  new DebugField.Builder()
-                .setTitle("Meta")
-                .setTitleSize(16)
-                .setText("-")
-                .setTextSize(12)
-                .setTag("meta")
-                .build();
-
-        mPositionProviderDebugWindow.addFields(position, provider, meta);
-
 
         interceptionListener = positionProvider -> {
-            setupPositionProvider(positionProvider);
+            mActivity.runOnUiThread(() -> setupPositionProvider(positionProvider));
             onPositionProviderChangedListener.onPositionProviderChanged(positionProvider);
         };
 
@@ -89,6 +63,14 @@ public class PositionManager {
 
         mHandler = new Handler();
         mHandler.postDelayed(periodicReconsideration, RECONSIDER_PROVIDER_TIME_THRESHOLD_MS);
+    }
+
+    public void onPause(){
+        mPositionProviderManager.onPause();
+    }
+
+    public void onResume(){
+        mPositionProviderManager.onResume();
     }
 
     /**
@@ -101,15 +83,15 @@ public class PositionManager {
             if(mPositionProvider != null){
                 mPositionProvider.removeOnPositionUpdateListener(onPositionUpdateListener);
                 mPositionProvider.removeOnStateChangedListener(this::onPositionProviderStateChanged);
-                mPositionProvider.stopPositioning(null);
+                MapsIndoors.stopPositioning();
             }
 
             mPositionProvider = newPositionProvider;
             MapsIndoors.setPositionProvider(mPositionProvider);
             mPositionProvider.addOnPositionUpdateListener( onPositionUpdateListener );
             mPositionProvider.addOnStateChangedListener(this::onPositionProviderStateChanged);
-            mPositionProvider.startPositioning(null);
             MapsIndoors.startPositioning();
+            mPositionProvider.reportPositionUpdate();
         }
     }
 
@@ -159,25 +141,26 @@ public class PositionManager {
         strBuilder.append(positionResult.getAccuracy());
         strBuilder.append("\n");
 
-        mPositionProviderDebugWindow.getDebugField("provider").setText(mPositionProvider.getName());
+        mPositionProviderDebugWindow.updateDebugField("provider", mPositionProvider.getName());
 
-        mPositionProviderDebugWindow.getDebugField("position").setText(strBuilder.toString());
+        mPositionProviderDebugWindow.updateDebugField("position", strBuilder.toString());
 
-        if(mPositionProvider.getAdditionalMetaData() == null || mPositionProvider.getAdditionalMetaData().isEmpty()){
-            mPositionProviderDebugWindow.getDebugField("meta").setShow(false);
+        if (mPositionProvider.getAdditionalMetaData() == null || mPositionProvider.getAdditionalMetaData().isEmpty()) {
+            mPositionProviderDebugWindow.setShowDebugField("meta", false);
         } else {
             String metaString = mPositionProvider.getAdditionalMetaData();
-            mPositionProviderDebugWindow.getDebugField("meta").setText(metaString);
-            mPositionProviderDebugWindow.getDebugField("meta").setShow(true);
+            mPositionProviderDebugWindow.updateDebugField("meta", metaString);
+            mPositionProviderDebugWindow.setShowDebugField("meta", true);
         }
 
-        mPositionProviderDebugWindow.update();
     }
 
     final Runnable periodicReconsideration = new Runnable() {
         public void run() {
-            interceptionListener.onPositionProviderChanged(mPositionProviderManager.getProvider());
-            mHandler.postDelayed(periodicReconsideration, RECONSIDER_PROVIDER_TIME_THRESHOLD_MS);
+            if (shouldReconsider) {
+                interceptionListener.onPositionProviderChanged(mPositionProviderManager.getProvider());
+                mHandler.postDelayed(periodicReconsideration, RECONSIDER_PROVIDER_TIME_THRESHOLD_MS);
+            }
         }
     };
 
@@ -197,9 +180,9 @@ public class PositionManager {
         public void onPositionUpdate( @NonNull PositionResult pos ) {
             mActivity.getUserPositionTrackingViewModel().onPositionUpdate(pos);
 
-            if(mPositionProviderDebugWindow.isShown()){
+            mActivity.runOnUiThread( () -> {
                 updateDebugWindow(pos);
-            }
+            });
 
             //Switching between the 2 blue dot modes, with bearing and without
             if (pos.hasBearing() == mLastBlueDotBearingState) {
@@ -285,6 +268,12 @@ public class PositionManager {
                 public void onPermissionRequestError() { }
             });
         }
+    }
+
+    public void onDestroy() {
+        mPositionProvider = null;
+        shouldReconsider = false;
+        mPositionProviderManager.onDestroy();
     }
 
 }

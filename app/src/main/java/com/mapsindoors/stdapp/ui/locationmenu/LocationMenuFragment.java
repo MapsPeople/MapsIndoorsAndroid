@@ -4,6 +4,7 @@ package com.mapsindoors.stdapp.ui.locationmenu;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.DrawableRes;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.mapsindoors.mapssdk.Building;
 import com.mapsindoors.mapssdk.DataField;
+import com.mapsindoors.mapssdk.Floor;
 import com.mapsindoors.mapssdk.Highway;
 import com.mapsindoors.mapssdk.ImageProvider;
 import com.mapsindoors.mapssdk.LocationPropertyNames;
@@ -75,7 +77,7 @@ public class LocationMenuFragment extends BaseFragment {
     public static final int FLIPPER_ROUTE_ESTIMATION = 1;
     public static final int FLIPPER_NO_INTERNET = 0;
 
-    private boolean mClickedOnMarker;
+    private boolean mClickedOnInfoWindow;
 
     private Context mContext;
     private MapsIndoorsActivity mActivity;
@@ -256,7 +258,7 @@ public class LocationMenuFragment extends BaseFragment {
 
     public Bitmap mPoiPrevLogo;
 
-    public void setLocation(MPLocation location, Bitmap bitmap, Bitmap logo, boolean clickedOnMarker) {
+    public void setLocation(MPLocation location, Bitmap bitmap, Bitmap logo, boolean clickedOnInfoWindow, boolean clickedOnMarker) {
         mPoiPrevLogo = logo;
 
         if (BuildConfig.DEBUG) {
@@ -265,7 +267,7 @@ public class LocationMenuFragment extends BaseFragment {
             }
         }
 
-        mClickedOnMarker = clickedOnMarker;
+        mClickedOnInfoWindow = clickedOnInfoWindow;
 
         setLocation(location, bitmap);
 
@@ -299,10 +301,11 @@ public class LocationMenuFragment extends BaseFragment {
         if(userPosition != null) {
             Building building = MapsIndoors.getBuildings().getBuilding(mActivity.getCurrentUserPos().getLatLng());
             if (building != null) {
+                Floor floor = building.getFloorByZIndex(userPosition.getFloor());
                 mLastRouteOriginLocation = new MPLocation.Builder("UserLocation")
                         .setPosition(userPosition.getPoint())
-                        .setFloor(userPosition.getFloor())
-                        .setFloorName(building.getFloorByZIndex(userPosition.getFloor()).getDisplayName())
+                        .setFloor(floor != null ? floor.getZIndex() : 0)
+                        .setFloorName(floor != null ? floor.getDisplayName() : "Unknown Floor")
                         .setBuilding(building.getAdministrativeId())
                         .setName(getString(R.string.my_position))
                         .build();
@@ -332,6 +335,30 @@ public class LocationMenuFragment extends BaseFragment {
         myAdapter.setTint("@color/primary");
         myAdapter.setList(elements);
         mMainMenuList.setAdapter(myAdapter);
+
+        // if the location InfoField is an url, open the website when clicked
+        mMainMenuList.setOnItemClickListener((parent, view, position, id) -> {
+            IconTextListAdapter iconTextListAdapter = (IconTextListAdapter) parent.getAdapter();
+            IconTextListAdapter.Objtype objType = iconTextListAdapter.getObjType(position);
+
+            if (objType.equals(IconTextListAdapter.Objtype.URL)) {
+                String url = (String) iconTextListAdapter.getItemObj(position);
+                
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "https://" + url;
+                }
+
+                Intent websiteIntent = new Intent(Intent.ACTION_VIEW);
+                websiteIntent.setData(Uri.parse(url));
+                Intent chooser = Intent.createChooser(websiteIntent,getResources().getString(R.string.browser_chooser_title));
+
+                if (chooser.resolveActivity(mContext.getPackageManager()) != null) {
+                    startActivity(chooser);
+                } else {
+                    Toast.makeText(mContext,R.string.no_available_browser,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     void includeMiscInfoFields(@NonNull List<IconTextElement> infoItemList) {
@@ -511,8 +538,8 @@ public class LocationMenuFragment extends BaseFragment {
             if (!mActivity.isDrawerOpen()) {
                 mActivity.openDrawer(true);
             } else {
-                if (mClickedOnMarker) {
-                    mClickedOnMarker = false;
+                if (mClickedOnInfoWindow) {
+                    mClickedOnInfoWindow = false;
                     mActivity.closeDrawer();
                     return true;
                 } else {
@@ -614,7 +641,6 @@ public class LocationMenuFragment extends BaseFragment {
                 savedUserRoles = null;
             }
 
-            // IMPORTANT: ALWAYS SET THE USER ROLES / CLEAR PREVIOUS SET
             routingProvider.setUserRoles(savedUserRoles);
         }
 

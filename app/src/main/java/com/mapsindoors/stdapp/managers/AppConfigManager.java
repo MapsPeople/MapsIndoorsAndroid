@@ -45,7 +45,7 @@ public class AppConfigManager {
     HashMap<String, String> mTranslations, mVenueImages;
 
     private String mCountryCode, mTitle, mDefaultVenueId, mFeedbackUrl;
-    private boolean mHideFabMenu, mHideTravelModeSelector, mPositionDisabled;
+    private boolean mHideFabMenu, mHideTravelModeSelector, mPositionDisabled, mHideOnOverlap, mHideOnOverlapIsSet;
 
     private Thread mUIAssetsThread;
 
@@ -109,7 +109,10 @@ public class AppConfigManager {
             mHideTravelModeSelector = asBoolean(appSettings.get("hideTravelModeSelector"));
             mFeedbackUrl = appSettings.get("feedbackUrl");
             mPositionDisabled = asBoolean(appSettings.get("positioningDisabled"));
+            mHideOnOverlapIsSet = appSettings.containsKey(AppConfig.APP_SETTING_POI_HIDE_ON_OVERLAP);
+            mHideOnOverlap = asBoolean(appSettings.get(AppConfig.APP_SETTING_POI_HIDE_ON_OVERLAP));
         }
+
 
         //
         mUIAssetsThread = null;
@@ -446,6 +449,14 @@ public class AppConfigManager {
         });
 
         return mUIAssetsThread;
+    }
+
+    public boolean getHideOnOverlapExists() {
+        return mHideOnOverlapIsSet;
+    }
+
+    public boolean getHideOnOverlap() {
+        return mHideOnOverlap;
     }
 
 }

@@ -174,11 +174,12 @@ public class CondecoBookingProvider {
     private void pollBookings() {
         final String tokenUrl = "https://ise-demo.condecosoftware.com/tokenproviderapi/token";
 
+        // We could check if the previous call is done and skip the call otherwise (?)
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
         FormBody tokenRequestData = new FormBody.Builder()
-                .add("client_id", "Insert client id here")
-                .add("password", "insert password")
+                .add("client_id", "insert client id here")
+                .add("password", "instert password here")
                 .add("grant_type", "password")
                 .build();
 
@@ -229,6 +230,7 @@ public class CondecoBookingProvider {
     private void getBookings(@NotNull String accessToken) {
         final HttpUrl endpointUrl = HttpUrl.parse("https://developer-api.condecosoftware.com/ISE_Event_Demo/api/V1/bookings");
 
+        // We could check if the previous call is done and skip the call otherwise (?)
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
         String dateString = mInputSDF.format(new Date());
@@ -243,7 +245,7 @@ public class CondecoBookingProvider {
                     .build();
 
             Request request = new Request.Builder().url(url)
-                    .header("Ocp-Apim-Subscription-Key", "Insert subscription key here")
+                    .header("Ocp-Apim-Subscription-Key", "insert subscription key here")
                     .header("Authorization", "Bearer " + accessToken)
                     .build();
 
