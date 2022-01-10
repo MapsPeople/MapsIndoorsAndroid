@@ -68,9 +68,6 @@
 		<meta-data
 			android:name="com.google.android.maps.v2.API_KEY"
 			android:value="@string/google_maps_key" />
-		<meta-data
-			android:name="firebase_crashlytics_collection_enabled"
-			android:value="${crashlyticsCollectionEnabled}"/>
 
 		<activity
 			android:name=".ui.splashscreen.SplashScreenActivity"

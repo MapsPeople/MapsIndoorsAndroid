@@ -144,7 +144,7 @@ dependencies {
 
     implementation "com.google.firebase:firebase-crashlytics:17.2.2"
 
-    implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.6"
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.4.10@aar"
 
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.karumi:dexter:5.0.0"
